@@ -33,8 +33,6 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 .adminSubmission{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid #e5e5e5;padding:10px 0}
 .adminSubmission:first-child{border-top:0}
 .adminTag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:#fff3cd}
- .pastTestUser{border:1px solid #ddd;border-radius:12px;padding:10px;margin:9px 0;background:#fafafa}
-.pastTestRow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid #e5e5e5;padding:9px 0}
 .hidden{display:none!important}
 .reviewItem{border:1px solid #ccc;border-radius:10px;padding:10px;margin:8px 0;background:#fafafa}
 .reviewRow{display:grid;grid-template-columns:38px 1fr 82px 180px;gap:8px;align-items:center}
@@ -53,38 +51,38 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 .overlay{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}.modal{background:#fff;border-radius:15px;padding:20px;max-width:350px;width:100%}
 @media(max-width:800px){.controls{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.controls{grid-template-columns:1fr 1fr}.cell{height:88px}.q{font-size:clamp(10px,3vw,15px)}.week{grid-template-columns:repeat(4,1fr)}}
 </style><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
-function setupUserQuickSelect(){
- const sel=$("userQuickSelect");
- if(!sel)return;
- const users=getUsers().filter(u=>u.active!==false && u.role!=="admin");
- sel.innerHTML=users.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
- sel.value=currentUser?.id||"guest";
- $("quickUserName").textContent=currentUser?.name||"Guest";
- sel.onchange=()=>{
-   const u=users.find(x=>x.id===sel.value);
-   if(!u)return;
-   const pin=prompt("Enter PIN for "+u.name+":");
-   if(String(pin)!==String(u.pin)){alert("Incorrect PIN.");sel.value=currentUser?.id||"guest";return}
-   currentUser=u;sessionStorage.setItem("poorviCurrentUser",u.id);
-   applyRole();
-   $("quickUserName").textContent=u.name;
-   sel.value=u.id;
-   if(typeof renderWeek==="function")renderWeek();
-   if(typeof renderMonthly==="function")renderMonthly();
-   if(typeof renderYearly==="function")renderYearly();
- };
-}
-</script></head>
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible"){
+    const uid=sessionStorage.getItem("poorviCurrentUser")||"guest";
+    if(typeof currentUser!=="undefined" && currentUser?.id!==uid){
+      try{endActiveTestForUserSwitch();}catch(e){}
+    }
+  }
+});
+</script><style>#userNav button.active{background:#1769ff;color:#fff;border-color:#1769ff}</style></head>
 
-<body><div id="userQuickBar" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-      <b>👤 <span id="quickUserName">Guest</span></b>
-      <select id="userQuickSelect" style="max-width:190px"></select>
-    </div>
-    <div style="text-align:right;margin:6px 0"><a href="admin.html" style="font-size:13px">🔒 Parent / Admin</a></div>
-<button class="secondary" id="switchUserBtn">Switch User</button>
-</div>
+<body>
+<header id="userHeader" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+  <div>
+    <h1 style="margin:0;font-size:22px">📚 Math Practice</h1>
+    <div style="font-size:13px;color:#667085">Daily practice for your worksheets</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:13px">👤 <b id="userHeaderName">Guest</b></span>
+    <select id="userHeaderSelect" style="max-width:170px"></select>
+  </div>
+</header>
+<nav id="userNav" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+  <button class="secondary" id="navPractice">📝 Practice</button>
+  <button class="secondary" id="navResults">📊 Results</button>
+  <button class="secondary" id="navProgress">📈 Progress</button>
+</nav>
+
+<div id="accountBar" class="accountBar">
+  <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
+  </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4 User.4 Admin Review + Past Tests.4 Admin Review.2.1</div></div><button class="secondary" id="parentBtn">🔒 Parent</button></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4 User Clean - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -96,7 +94,7 @@ function setupUserQuickSelect(){
 <div id="addSubRangeWrap"><label>Add/Sub Range</label><select id="addSubRange"><option value="single">Single digit (0–9)</option><option value="two">Two digit (0–20)</option><option value="mixed">Mixed 0–20</option></select></div>
 <div id="mdRangeWrap" class="hidden"><label>Mul/Div Range</label><select id="mdRange"><option value="12">0–12</option></select></div>
 </div>
-<div class="actions"><button class="primary" id="newBtn">✨ Create Edition</button><button class="secondary" id="resultsBtn" data-admin-only>📊 Results / Review</button><button class="secondary" id="usersBtn" data-admin-only>👥 Users</button><button class="danger" id="clearBtn">Clear History</button></div>
+<div class="actions"><button class="primary" id="newBtn">✨ Create Edition</button><button class="danger" id="clearBtn">Clear History</button></div>
 </section>
 
 <section class="card"><div class="lock">🔒 CHILD MODE — During the test, parent controls are locked.</div>
@@ -116,32 +114,9 @@ function setupUserQuickSelect(){
 <b>✏️ Checking handwriting…</b><div id="ocrProgress" class="muted" style="margin-top:6px">Preparing score.</div>
 </section>
 
-<section class="card hidden" id="userManagement">
-  <b>👥 User Management</b>
-  <div class="muted" style="margin-top:4px">Admin controls who can use this app. User accounts can be used for separate child profiles.</div>
-  <div id="userList" style="margin-top:10px"></div>
-  <div class="actions">
-    <button class="primary" id="addUserBtn">＋ Add User</button>
-    <button class="secondary" id="closeUsersBtn">Close</button>
-  </div>
-</section>
-
-<section class="card hidden" id="parentReview">
-<b>📝 Parent Review</b>
-<div class="lock" style="margin-top:8px">🔒 Enter the Parent PIN once to open the review. After that, no PIN is needed for individual answers.</div>
-<div class="muted" id="reviewSummary" style="margin-top:4px"></div>
-<div id="reviewList" style="margin-top:10px"></div>
-<div class="actions" style="justify-content:center">
-<button class="primary" id="saveReviewBtn" data-admin-only>💾 Save Review & Score</button>
-<button class="danger" id="voidReviewBtn" data-admin-only>🚫 Void Test</button>
-<button class="secondary" id="closeReviewBtn">Close</button>
-</div>
-</section>
 <section class="card hidden" id="result"><div class="score" id="score"></div><div id="msg" style="text-align:center"></div>
 <div class="stats" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px"><div class="stat"><b id="acc"></b>Accuracy</div><div class="stat"><b id="used"></b>Time</div><div class="stat"><b id="best"></b>Best</div></div>
 <div class="actions" style="justify-content:center">
-<button class="secondary" id="reviewBtn" data-admin-only>Review Mistakes</button>
-<button class="secondary" id="manageHistoryBtn" data-admin-only>🗂️ Manage Past Tests</button>
 </div>
 <div id="mistakes" class="hidden"></div>
 <div id="historyManager" class="hidden" style="margin-top:12px"></div></section>
@@ -708,7 +683,7 @@ function applyRole(){
  $("currentRoleLabel").textContent=" • "+(currentUser.role==="admin"?"Administrator":"User");
  const isAdmin=currentUser.role==="admin";
  // Admin gets all parent controls. Regular users only get the child-facing test controls.
- document.querySelectorAll("[data-admin-only]").forEach(el=>el.classList.add("hidden"));
+ document.querySelectorAll("[data-admin-only]").forEach(el=>el.classList.toggle("hidden",!isAdmin));
  $("userManagement").classList.add("hidden");
  if(!isAdmin){
    // Prevent a regular user from seeing the parent review/history UI.
@@ -719,7 +694,7 @@ function applyRole(){
  renderWeek();renderMonthly();renderYearly();
 }
 function switchUser(){
- const users=getUsers().filter(u=>u.active!==false && u.role!=="admin");
+ const users=getUsers().filter(u=>u.active!==false);
  const choices=users.map((u,i)=>`${i+1}. ${u.name} (${u.role})`).join("\n");
  const pick=prompt("Select user:\n"+choices);
  if(pick===null)return;
@@ -775,8 +750,51 @@ function adminUsers(){
   try{return JSON.parse(localStorage.getItem("poorviMathUsers")||"[]")}catch(e){return []}
 }
 
-
-
+function renderAdminReviewCenter(){
+ if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
+ const all=allPendingSubs().slice().sort((a,b)=>(b.created||0)-(a.created||0));
+ const users=getUsers();
+ $("adminReviewSummary").innerHTML='<div class="adminStats"><div class="adminStat"><b>'+all.length+'</b> Pending Worksheets</div><div class="adminStat"><b>'+new Set(all.map(x=>x.userId||"guest")).size+'</b> Users</div></div>';
+ if(!all.length){
+   $("adminReviewList").innerHTML='<div class="detailSheet"><div class="muted">🎉 No worksheets are waiting for review.</div></div>';
+ }else{
+   $("adminReviewList").innerHTML=all.map(x=>{
+     const u=users.find(z=>z.id===(x.userId||"guest"));
+     const name=x.userName||u?.name||"Guest";
+     const dt=new Date(x.created||Date.now()).toLocaleString();
+     return '<div class="adminPendingCard"><div class="adminPendingHead"><div><b>👤 '+name+'</b><div class="muted">'+dt+' • '+opName(x.operation||"mixed")+(x.range?' • '+x.range:'')+' • '+x.total+' questions</div></div><div class="actions"><button class="primary" data-admin-review="'+x.id+'">📝 Review</button><button class="danger" data-admin-void="'+x.id+'">🚫 Void</button></div></div></div>';
+   }).join("");
+ }
+ document.querySelectorAll("[data-admin-review]").forEach(btn=>btn.onclick=()=>{
+   const s=allPendingSubs().find(x=>x.id===btn.dataset.adminReview);
+   if(s){reviewUnlocked=true;renderReview(s);$("adminReviewCenter").classList.add("hidden");$("parentReview").scrollIntoView({behavior:"smooth"});}
+ });
+ document.querySelectorAll("[data-admin-void]").forEach(btn=>btn.onclick=()=>{
+   const s=allPendingSubs().find(x=>x.id===btn.dataset.adminVoid);
+   if(!s)return;
+   if(!confirm("Void this pending worksheet? It will not be scored or appear in progress."))return;
+   const reason=prompt("Optional reason:","")||"Voided by parent";
+   const v=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
+   v.push({id:s.id,userId:s.userId||"guest",userName:s.userName||"Guest",date:s.date,operation:s.operation||"mixed",reason,voidedAt:Date.now()});
+   localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(v.slice(-200)));
+   localStorage.setItem("poorviPendingSubmissions",JSON.stringify(allPendingSubs().filter(x=>x.id!==s.id)));
+   renderAdminReviewCenter();
+ });
+ $("adminReviewCenter").classList.remove("hidden");
+}
+function renderAdminUserOverview(){
+  if(!currentUser || currentUser.role!=="admin"){
+    $("adminUserOverview").classList.add("hidden");
+    return;
+  }
+  const users=adminUsers().filter(u=>u.active!==false);
+  const sel=$("adminUserSelect");
+  sel.innerHTML=users.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
+  const selected=sel.value || (users[0]&&users[0].id);
+  if(selected) sel.value=selected;
+  $("adminUserOverview").classList.remove("hidden");
+  renderAdminSelectedUser();
+}
 function renderAdminSelectedUser(){
   if(!currentUser || currentUser.role!=="admin")return;
   const uid=$("adminUserSelect").value;
@@ -830,11 +848,33 @@ function renderAdminSelectedUser(){
     }).join("")+'</div>';
 }
 
-
-
-
-
-
+function usersForAdmin(){
+ try{
+   const u=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
+   return Array.isArray(u)?u:[];
+ }catch(e){return []}
+}
+function getSubmissionUserName(s){
+ if(s.userName)return s.userName;
+ const u=usersForAdmin().find(x=>x.id===s.userId);
+ return u?u.name:"Guest";
+}
+function ensureSubmissionIdentity(s){
+ if(!s.userId){
+   s.userId=currentUser?.id||"guest";
+   s.userName=currentUser?.name||"Guest";
+ }
+ return s;
+}
+function getAllPendingForAdmin(){
+ try{
+   const a=JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]");
+   return Array.isArray(a)?a.map(ensureSubmissionIdentity):[];
+ }catch(e){return []}
+}
+function saveAllPendingForAdmin(list){
+ localStorage.setItem("poorviPendingSubmissions",JSON.stringify(list.slice(-100)));
+}
 function renderAdminSubmissionQueue(){
  if(!currentUser || currentUser.role!=="admin"){
    alert("Admin access required.");
@@ -890,8 +930,6 @@ function renderAdminSubmissionQueue(){
  });
 }
 
-
-
 function updateRangeControls(){
  const o=$("op").value;
  const addSub=(o==="addition"||o==="subtraction");
@@ -921,14 +959,197 @@ $("adminSubmittedBtn").onclick=()=>{
  $("adminSubmissionQueue").scrollIntoView({behavior:"smooth"});
 };
 $("adminRefreshBtn").onclick=renderAdminSubmissionQueue;
-$("adminPastTestsBtn").onclick=()=>{
- if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
- renderAdminPastTests();
- $("adminPastTests").scrollIntoView({behavior:"smooth"});
-};
-$("refreshPastTestsBtn").onclick=renderAdminPastTests;
-$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");loadCurrentUser(); setupUserQuickSelect(); if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
+$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");loadCurrentUser(); if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
  if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
  openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
-</script></body></html>
+</script>
+<script>
+(function(){
+ function el(id){return document.getElementById(id)}
+ function hideByIds(ids){
+   ids.forEach(id=>{const x=el(id);if(x)x.classList.add("hidden")});
+ }
+ function showById(id){const x=el(id);if(x)x.classList.remove("hidden")}
+ function setActive(id){
+   document.querySelectorAll("#userNav button").forEach(b=>b.classList.remove("active"));
+   const b=el(id);if(b)b.classList.add("active");
+ }
+ 
+function endActiveTestForUserSwitch(){
+  // Any active worksheet belongs to the currently selected user.
+  // Switching users must terminate that session so the worksheet/timer
+  // cannot continue under the next user.
+  try{
+    if(typeof testStarted!=="undefined" && testStarted){
+      testStarted=false;
+    }
+  }catch(e){}
+  try{
+    if(typeof timerInterval!=="undefined" && timerInterval){
+      clearInterval(timerInterval);
+      timerInterval=null;
+    }
+  }catch(e){}
+  try{
+    if(typeof stopTimer==="function")stopTimer();
+  }catch(e){}
+  try{
+    if(typeof currentTest!=="undefined")currentTest=null;
+  }catch(e){}
+  try{
+    if(typeof activeTest!=="undefined")activeTest=null;
+  }catch(e){}
+  try{
+    if(typeof worksheetStarted!=="undefined")worksheetStarted=false;
+  }catch(e){}
+  // Clear any persisted active-session markers used by the app.
+  [
+    "poorviActiveTest","poorviActiveSession",
+    "poorviCurrentTest","poorviTestInProgress"
+  ].forEach(k=>localStorage.removeItem(k));
+  sessionStorage.removeItem("poorviActiveTest");
+  sessionStorage.removeItem("poorviActiveSession");
+
+  // Reset common test UI so the next user starts clean.
+  ["timer","timerDisplay","questionTimer"].forEach(id=>{
+    const x=$(id); if(x)x.textContent="";
+  });
+  ["startBtn","submitBtn"].forEach(id=>{
+    const x=$(id); if(x)x.disabled=false;
+  });
+}
+
+function hardEndCurrentUserTest(){
+  // Stop every timer pattern used by previous versions.
+  ["timerInterval","countdownInterval","interval","testTimer","questionTimerInterval"].forEach(n=>{
+    try{
+      if(window[n]){clearInterval(window[n]);clearTimeout(window[n]);window[n]=null;}
+    }catch(e){}
+  });
+
+  // Call known cleanup functions if they exist.
+  ["stopTimer","endTest","resetTest","cancelTest","clearTest","finishTest"].forEach(fn=>{
+    try{
+      if(typeof window[fn]==="function") window[fn]();
+    }catch(e){}
+  });
+
+  // Explicitly reset common active-test variables.
+  [
+    "testStarted","testRunning","isTestRunning","worksheetStarted",
+    "testActive","timerRunning","inTest","hasActiveTest"
+  ].forEach(n=>{
+    try{ if(n in window) window[n]=false; }catch(e){}
+  });
+
+  [
+    "currentTest","activeTest","currentWorksheet","activeWorksheet",
+    "currentQuestions","questions","answers","currentAnswers"
+  ].forEach(n=>{
+    try{ if(n in window) window[n]=null; }catch(e){}
+  });
+
+  // Remove persisted active-session state. Do NOT touch submitted history.
+  [
+    "poorviActiveTest","poorviActiveSession","poorviCurrentTest",
+    "poorviTestInProgress","poorviTestSession","poorviWorksheet",
+    "poorviCurrentWorksheet"
+  ].forEach(k=>{
+    try{localStorage.removeItem(k)}catch(e){}
+    try{sessionStorage.removeItem(k)}catch(e){}
+  });
+
+  // Hide/clear active worksheet areas where present.
+  ["testArea","testContainer","worksheet","questionArea","activeTest"].forEach(id=>{
+    const x=document.getElementById(id);
+    if(x && id!=="activeTest") x.classList.add("hidden");
+  });
+
+  // Re-enable the normal Start Test state.
+  ["startBtn","newBtn"].forEach(id=>{
+    const x=document.getElementById(id);
+    if(x){x.disabled=false;x.classList.remove("hidden");}
+  });
+}
+
+function bindAuthoritativeUserSwitch(){
+  const sel=document.getElementById("userHeaderSelect");
+  if(!sel || sel.dataset.authoritativeSwitch==="1") return;
+  sel.dataset.authoritativeSwitch="1";
+
+  sel.addEventListener("change", function(){
+    const previousId=(typeof currentUser!=="undefined" && currentUser)?currentUser.id:"guest";
+    const targetId=this.value;
+    if(targetId===previousId)return;
+
+    const list=(typeof getUsers==="function"?getUsers():[]).filter(u=>u.active!==false && u.role!=="admin");
+    const target=list.find(u=>u.id===targetId);
+    if(!target){this.value=previousId;return;}
+
+    const pin=prompt("Enter PIN for "+target.name+":");
+    if(String(pin)!==String(target.pin)){
+      alert("Incorrect PIN.");
+      this.value=previousId;
+      return;
+    }
+
+    // This happens BEFORE currentUser changes.
+    hardEndCurrentUserTest();
+
+    currentUser=target;
+    sessionStorage.setItem("poorviCurrentUser",target.id);
+
+    if(typeof applyRole==="function")applyRole();
+    const name=document.getElementById("userHeaderName");
+    if(name)name.textContent=target.name;
+    this.value=target.id;
+
+    // Force all test-related state/UI to start fresh for the new user.
+    hardEndCurrentUserTest();
+
+    if(typeof renderWeek==="function")renderWeek();
+    if(typeof renderMonthly==="function")renderMonthly();
+    if(typeof renderYearly==="function")renderYearly();
+
+    alert("Switched to "+target.name+". The previous test session was ended.");
+  });
+}
+function setupUserNav(){
+   const sel=el("userHeaderSelect");
+   if(typeof getUsers==="function" && sel){
+     const list=getUsers().filter(u=>u.active!==false && u.role!=="admin");
+     sel.innerHTML=list.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
+     sel.value=(typeof currentUser!=="undefined"&&currentUser?.id)||"guest";
+     if(typeof currentUser!=="undefined")el("userHeaderName").textContent=currentUser?.name||"Guest";
+     // User switching is handled by bindAuthoritativeUserSwitch().
+   }
+   el("navPractice").onclick=()=>showPractice();
+   el("navResults").onclick=()=>showResults();
+   el("navProgress").onclick=()=>showProgress();
+   showPractice();
+   bindAuthoritativeUserSwitch();
+ }
+ function showPractice(){
+   setActive("navPractice");
+   // Keep the existing worksheet controls visible; hide tracker/results cards.
+   const ids=["progressTracker","result","parentReview","adminPastTests"];
+   hideByIds(ids);
+ }
+ function showResults(){
+   setActive("navResults");
+   // Results card in the existing v25.4 User Clean - User Switch Fixed page.
+   const result=el("result");
+   if(result){result.classList.remove("hidden");result.scrollIntoView({behavior:"smooth"});}
+   else alert("Results will appear after a test is submitted.");
+ }
+ function showProgress(){
+   setActive("navProgress");
+   // Existing tracker section.
+   const tracker=el("progressTracker");
+   if(tracker){tracker.classList.remove("hidden");tracker.scrollIntoView({behavior:"smooth"});}
+ }
+ window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();});
+})();
+</script>
+</body></html>

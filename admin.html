@@ -1,1118 +1,371 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Poorvi Math">
-<title>Poorvi Math</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Math Practice — Admin</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,Arial;color:#17191c}
-.app{max-width:1160px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #ddd;border-radius:14px;padding:14px;margin:10px 0}
-h1{font-size:24px;margin:0}.muted{color:#68717a;font-size:13px}.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-label{display:block;font-size:12px;font-weight:700;margin-bottom:4px}select,input,button{font:inherit}select,input{padding:9px;border:1px solid #bbb;border-radius:8px;background:#fff}
-button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:44px}.primary{background:#2563eb;color:#fff}.secondary{background:#e8ebef}.danger{background:#fee2e2;color:#991b1b}.erase{background:#fee2e2;color:#991b1b}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.timer{font-size:28px;font-weight:800}.warn{color:#c62828}
-.lock{padding:10px;background:#edf7ed;border-radius:9px;text-align:center;font-weight:700}
-.sheet{border:1px solid #aaa;background:#fff}.head{padding:12px;border-bottom:1px solid #777}.title{text-align:center;font:bold 21px Georgia}
-.info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font:13px Georgia;margin-top:10px}.line{display:inline-block;width:90px;border-bottom:1px solid #444}
-.grid{display:grid;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr));width:100%;overflow:hidden}.cell{height:86px;min-width:0;border-right:1px solid #bbb;border-bottom:1px solid #bbb;display:flex;align-items:center;justify-content:center;text-align:center;padding:2px}
-.q{font:clamp(10px,1.6vw,18px) Georgia;white-space:nowrap}.ans{width:clamp(20px,4vw,45px);border:0;border-bottom:1px solid #444;outline:0;text-align:center;background:transparent}
-.pad{width:clamp(42px,6vw,64px);height:44px;border:1px solid #aeb5bb;border-radius:6px;background:#fff;display:block;touch-action:none}
-.fb{height:16px;font-size:10px;min-width:34px}.ok{color:#16803c}.bad{color:#c62828}
-.accountBar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 2px;margin-bottom:8px;flex-wrap:wrap}
-.userCard{border:1px solid #ddd;border-radius:10px;padding:10px;margin:8px 0;background:#fafafa}
-.userActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.rolePill{display:inline-block;padding:3px 8px;border-radius:999px;background:#eef2ff;font-size:12px}
-
-.adminWorksheet{border:1px solid #ddd;border-radius:12px;padding:12px;margin:8px 0;background:#fafafa}
-.adminWorksheetHead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.adminScore{font-size:20px;font-weight:700}
-.adminStats{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.adminStat{padding:7px 10px;border-radius:9px;background:#f1f3f5}
- .adminPendingCard{border:1px solid #ddd;border-radius:12px;padding:12px;margin:8px 0;background:#fafafa}
-.adminPendingHead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-
-.adminUserGroup{border:1px solid #ddd;border-radius:12px;margin:10px 0;padding:10px;background:#fafafa}
-.adminSubmission{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid #e5e5e5;padding:10px 0}
-.adminSubmission:first-child{border-top:0}
-.adminTag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:#fff3cd}
- .pastTestUser{border:1px solid #ddd;border-radius:12px;padding:10px;margin:9px 0;background:#fafafa}
-.pastTestRow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid #e5e5e5;padding:9px 0}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f5f7fb;color:#17202a}
+button,select,input{font:inherit}
+button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
+.primary{background:#1769ff;color:white}
+.secondary{background:white;border:1px solid #ccd3dd}
+.danger{background:#fff0f0;color:#b42318;border:1px solid #f0b8b8}
+.muted{color:#667085;font-size:13px}
 .hidden{display:none!important}
-.reviewItem{border:1px solid #ccc;border-radius:10px;padding:10px;margin:8px 0;background:#fafafa}
-.reviewRow{display:grid;grid-template-columns:38px 1fr 82px 180px;gap:8px;align-items:center}
-.reviewCanvas{width:72px;height:52px;border:1px solid #bbb;background:#fff;border-radius:6px;object-fit:contain}
-.reviewButtons{display:flex;gap:5px;flex-wrap:wrap}
-.reviewButtons button{min-height:38px;padding:7px 10px}
-.reviewCorrect{background:#dcfce7!important;color:#166534!important}
-.reviewWrong{background:#fee2e2!important;color:#991b1b!important}
-.reviewNA{background:#f3f4f6!important;color:#4b5563!important}
-.detailSheet{border:1px solid #ddd;border-radius:10px;padding:10px;margin-top:8px}
-.detailRow{display:grid;grid-template-columns:1fr 80px 80px 100px;gap:6px;padding:7px 0;border-bottom:1px solid #eee}
-.statusPill{border-radius:20px;padding:4px 7px;text-align:center;font-size:12px;font-weight:700}
-
-@media(max-width:650px){.reviewRow{grid-template-columns:30px 1fr 70px}.reviewButtons{grid-column:2/4}.reviewCanvas{width:62px;height:46px}}
-.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{padding:7px;border:1px solid #ccc;border-radius:8px;text-align:center}.done{background:#edf9ef}.day b,.day strong{display:block}.day strong{font-size:18px}.small{font-size:10px;color:#68717a}
-.overlay{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}.modal{background:#fff;border-radius:15px;padding:20px;max-width:350px;width:100%}
-@media(max-width:800px){.controls{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.controls{grid-template-columns:1fr 1fr}.cell{height:88px}.q{font-size:clamp(10px,3vw,15px)}.week{grid-template-columns:repeat(4,1fr)}}
-</style><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script><style>.adminChildOnly{display:none!important}</style></head>
-
-<body><div id="adminHeader" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      <div><b>👑 Math Practice — Admin</b><div class="muted">Review and manage user worksheets.</div></div>
-      <a href="index.html">← User Practice</a>
-    </div>
-    
-<button class="secondary" id="adminReviewBtn">📝 Review Worksheets</button><button id="adminUsersBtn" class="secondary">👥 User Worksheets</button><button class="secondary" id="adminPastTestsBtn">🗂️ Manage Past Tests</button><button class="secondary" id="switchUserBtn">Switch User</button>
-</div>
-<div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4 Admin.4 Admin Review + Past Tests.4 Admin Review.2.1</div></div><button class="secondary" id="parentBtn">🔒 Parent</button><button class="secondary" id="adminSubmittedBtn">👑 Submitted Worksheets</button></header>
-
-<section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
-<div class="controls" style="margin-top:10px">
-<div><label>Operation</label><option value="subtraction">Subtraction</option><option value="multiplication">Multiplication</option><option value="division">Division</option><option value="mixed">Mixed</option></select></div>
-<div><label>Questions</label><select id="count"><option>100</option><option>50</option><option>25</option></select></div>
-<div><label>Answer Method</label><option value="keyboard">⌨️ Keyboard</option></select></div>
-<div><label>Timer</label><select id="mins"><option value="4">4 minutes</option><option value="5">5 minutes</option><option value="0">No timer</option></select></div>
-<div><label>Edition</label><option value="regroup">More regrouping</option></select></div>
-<div id="addSubRangeWrap"><label>Add/Sub Range</label><option value="two">Two digit (0–20)</option><option value="mixed">Mixed 0–20</option></select></div>
-<div id="mdRangeWrap" class="hidden"><label>Mul/Div Range</label></select></div>
-</div>
-<div class="actions"><button class="secondary" id="resultsBtn" data-admin-only>📊 Results / Review</button><button class="secondary" id="usersBtn" data-admin-only>👥 Users</button><button class="danger" id="clearBtn">Clear History</button></div>
-</section>
-
-<section class="card"><div class="lock">🔒 CHILD MODE — During the test, parent controls are locked.</div>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><b>Timer</b><span id="timer" class="timer">4:00</span></div>
-<div class="actions">
-
-
-</div>
-
-<button class="secondary" id="eraseBtn">🧽 Erase</button>
-<span class="muted" id="modeText">Write mode — write with Apple Pencil</span>
-</div></section>
-
-<section class="card"><div id="sheet" class="sheet"></div></section>
-<section class="card hidden" id="ocrStatus" style="text-align:center">
-<b>✏️ Checking handwriting…</b><div id="ocrProgress" class="muted" style="margin-top:6px">Preparing score.</div>
-</section>
-
-<section class="card hidden" id="userManagement">
-  <b>👥 User Management</b>
-  <div class="muted" style="margin-top:4px">Admin controls who can use this app. User accounts can be used for separate child profiles.</div>
-  <div id="userList" style="margin-top:10px"></div>
-  <div class="actions">
-    <button class="primary" id="addUserBtn">＋ Add User</button>
-    <button class="secondary" id="closeUsersBtn">Close</button>
+.app{max-width:1050px;margin:auto;padding:16px}
+.header{background:white;border:1px solid #e1e5eb;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.header h1{margin:0;font-size:22px}
+.nav{display:flex;gap:7px;flex-wrap:wrap}
+.card{background:white;border:1px solid #e1e5eb;border-radius:16px;padding:15px;margin:12px 0}
+.card h2{font-size:17px;margin:0 0 5px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.stat{background:#f7f8fa;border-radius:11px;padding:10px}
+.stat b{display:block;font-size:20px}
+.user-tabs{display:flex;gap:7px;overflow:auto;padding:3px 0 8px}
+.user-tab{white-space:nowrap}
+.user-tab.active{background:#1769ff;color:white;border-color:#1769ff}
+.user-section{border:1px solid #e0e4ea;border-radius:12px;margin:9px 0;overflow:hidden}
+.user-head{padding:11px 12px;background:#f8f9fb;display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;border-top:1px solid #e8ebef;flex-wrap:wrap}
+.row-left{min-width:0}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#fff3cd;font-size:12px}
+.review-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-top:1px solid #e5e7eb}
+.empty{padding:18px;text-align:center;color:#667085}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal-box{background:white;border-radius:16px;padding:20px;width:min(420px,100%)}
+.pin{font-size:24px;text-align:center;letter-spacing:5px;width:100%;padding:10px;border:1px solid #ccd3dd;border-radius:10px}
+.notice{padding:10px 12px;border-radius:10px;background:#fff8e6;margin-top:10px}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.app{padding:10px}}
+</style>
+</head>
+<body>
+<div id="login" class="modal">
+  <div class="modal-box">
+    <div style="font-size:34px">👑</div>
+    <h2>Math Practice — Admin</h2>
+    <div class="muted">Admin access only</div>
+    <input id="pin" class="pin" type="password" inputmode="numeric" placeholder="Admin PIN" autocomplete="off" style="margin-top:14px">
+    <button id="loginBtn" class="primary" style="width:100%;margin-top:10px">🔓 Enter Admin</button>
+    <div id="loginError" class="muted" style="text-align:center;margin-top:8px"></div>
   </div>
-</section>
+</div>
 
-<section class="card hidden" id="adminPastTests">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+<div id="app" class="app hidden">
+  <header class="header">
     <div>
-      <b>🗂️ Admin — Manage Past Tests</b>
-      <div class="muted">All users' completed worksheets in one place.</div>
+      <h1>👑 Math Practice — Admin</h1>
+      <div class="muted">Manage and review user worksheets</div>
     </div>
-    <button class="secondary" id="refreshPastTestsBtn">🔄 Refresh</button>
-  </div>
-  <div id="pastTestsList" style="margin-top:10px"></div>
-</section>
-<section class="card hidden" id="parentReview">
-<b>📝 Parent Review</b>
-<div class="lock" style="margin-top:8px">🔒 Enter the Parent PIN once to open the review. After that, no PIN is needed for individual answers.</div>
-<div class="muted" id="reviewSummary" style="margin-top:4px"></div>
-<div id="reviewList" style="margin-top:10px"></div>
-<div class="actions" style="justify-content:center">
-<button class="primary" id="saveReviewBtn" data-admin-only>💾 Save Review & Score</button>
-<button class="danger" id="voidReviewBtn" data-admin-only>🚫 Void Test</button>
-<button class="secondary" id="closeReviewBtn">Close</button>
-</div>
-</section>
-<section class="card hidden" id="result"><div class="score" id="score"></div><div id="msg" style="text-align:center"></div>
-<div class="stats" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px"><div class="stat"><b id="acc"></b>Accuracy</div><div class="stat"><b id="used"></b>Time</div><div class="stat"><b id="best"></b>Best</div></div>
-<div class="actions" style="justify-content:center">
-<button class="secondary" id="reviewBtn" data-admin-only>Review Mistakes</button>
-<button class="secondary" id="manageHistoryBtn" data-admin-only>🗂️ Manage Past Tests</button>
-</div>
-<div id="mistakes" class="hidden"></div>
-<div id="historyManager" class="hidden" style="margin-top:12px"></div></section>
-
-<section class="card hidden" id="adminReviewCenter">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-<div><b>📝 Admin Review Center</b><div class="muted">All pending worksheets from all users in one place.</div></div>
-<button class="secondary" id="refreshAdminReviewsBtn">🔄 Refresh</button>
-</div>
-<div id="adminReviewSummary" style="margin-top:10px"></div>
-<div id="adminReviewList" style="margin-top:10px"></div>
-</section>
-<section class="card hidden" id="adminUserOverview">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-    <div><b>👨‍👩‍👧 Admin — User Worksheets</b>
-      <div class="muted">View each user's completed worksheets and scores separately.</div>
+    <div class="nav">
+      <button class="secondary" data-page="dashboard">📊 Dashboard</button>
+      <button class="secondary" data-page="pending">📝 Pending Reviews</button>
+      <button class="secondary" data-page="past">🗂️ Past Tests</button>
+      <button class="secondary" data-page="users">👥 Users</button>
+      <a class="secondary" href="index.html" style="text-decoration:none;display:inline-flex;align-items:center">← User Page</a>
     </div>
-    <select id="adminUserSelect" style="max-width:220px"></select>
-  </div>
-  <div id="adminUserSummary" style="margin-top:12px"></div>
-  <div id="adminUserWorksheets" style="margin-top:12px"></div>
-</section>
+  </header>
 
-<section class="card hidden" id="adminSubmissionQueue">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-    <div>
-      <b>👑 Admin — Submitted Worksheets</b>
-      <div class="muted">See exactly which user submitted each worksheet.</div>
-    </div>
-    <button class="secondary" id="adminRefreshBtn">🔄 Refresh</button>
-  </div>
-  <div id="adminQueue"></div>
-</section>
+  <main>
+    <section id="dashboard" class="page">
+      <div class="card">
+        <h2>📊 Dashboard</h2>
+        <div class="muted">Choose a user to see their completed worksheets and scores.</div>
+        <div id="dashStats" class="stats"></div>
+      </div>
+      <div class="card">
+        <h2>👥 Users</h2>
+        <div id="dashUsers"></div>
+      </div>
+    </section>
 
-<section class="card" id="adminHome">
-  <b>👑 Admin Dashboard</b>
-  <div class="muted" style="margin-top:4px">Choose a user to review progress, pending worksheets, and past tests.</div>
-  <div class="actions" style="margin-top:10px">
-    <button class="primary" id="adminReviewHomeBtn">📝 Pending Reviews</button>
-    <button class="secondary" id="adminPastHomeBtn">🗂️ Manage Past Tests</button>
-    <button class="secondary" id="adminUsersHomeBtn">👥 User Worksheets</button>
-  </div>
-</section>
-<section class="card">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-<b>📊 Progress Tracker</b>
-<div class="actions" style="margin:0">
-<button class="primary" id="weekTab">Weekly</button>
-<button class="secondary" id="monthTab">Monthly</button>
-<button class="secondary" id="yearTab">Yearly</button>
-</div>
-</div>
-<div id="weeklyTracker">
-<div class="week" id="week" style="margin-top:10px"></div>
-<div class="muted" id="summary" style="margin-top:8px"></div>
-<div id="dayDetails" class="hidden" style="margin-top:12px"></div>
-</div>
-<div id="monthlyTracker" class="hidden" style="margin-top:10px">
-<div id="monthSummary"></div>
-<div id="monthDetails" class="hidden" style="margin-top:12px"></div>
-</div>
-<div id="yearlyTracker" class="hidden" style="margin-top:10px">
-<div id="yearSummary"></div>
-<div id="yearDetails" class="hidden" style="margin-top:12px"></div>
-</div>
-</section>
-</div>
+    <section id="pending" class="page hidden">
+      <div class="card">
+        <h2>📝 Pending Reviews</h2>
+        <div class="muted">Every submitted worksheet waiting for parent review.</div>
+        <div id="pendingList" style="margin-top:8px"></div>
+      </div>
+    </section>
 
-<div id="modal" class="overlay hidden"><div class="modal"><h2>🔒 Parent Access</h2><div class="muted">Enter parent PIN.</div><input id="pin" type="password" inputmode="numeric" style="width:100%;margin-top:10px"><div class="actions"><button class="primary" id="unlock">Unlock</button><button class="secondary" id="cancel">Cancel</button></div></div></div>
+    <section id="past" class="page hidden">
+      <div class="card">
+        <h2>🗂️ Past Tests</h2>
+        <div class="muted">Completed/reviewed worksheets for all users.</div>
+        <div id="pastList" style="margin-top:8px"></div>
+      </div>
+    </section>
+
+    <section id="users" class="page hidden">
+      <div class="card">
+        <h2>👥 User Worksheets</h2>
+        <div id="userTabs" class="user-tabs"></div>
+        <div id="userDetails"></div>
+      </div>
+    </section>
+
+    <section id="review" class="page hidden">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+          <div>
+            <h2>✏️ Review Worksheet</h2>
+            <div id="reviewMeta" class="muted"></div>
+          </div>
+          <button class="secondary" id="backToPending">← Back</button>
+        </div>
+        <div id="reviewQuestions" style="margin-top:10px"></div>
+        <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button class="primary" id="saveReview">💾 Save Review</button>
+          <button class="danger" id="voidPending">🚫 Void Test</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
 
 <script>
-"use strict";
-const $=id=>document.getElementById(id),R=n=>Math.floor(Math.random()*n);
-let qs=[],started=false,done=false,left=240,tid=null,begin=0,pencilTool="write",parentAction="";
-function sym(o){return({addition:"+",subtraction:"−",multiplication:"×",division:"÷"})[o]}
-function randIn(lo,hi){return lo+R(hi-lo+1)}
-function make(o,ed){
- if(o==="mixed")o=["addition","subtraction","multiplication","division"][R(4)];
- let a,b,ans,range=$("addSubRange")?.value||"single";
- if(o==="addition"||o==="subtraction"){
-   let hi=range==="single"?9:20;
-   if(range==="mixed")hi=R(2)?9:20;
-   a=randIn(0,hi); b=randIn(0,hi);
-   if(ed==="regroup"&&o==="addition"){
-     // Favor sums that cross 10 when possible.
-     let tries=0;
-     while(a+b<10 && tries++<20){a=randIn(0,hi);b=randIn(0,hi)}
-   }
-   if(o==="subtraction"&&b>a){[a,b]=[b,a]}
-   ans=o==="addition"?a+b:a-b;
- }else if(o==="multiplication"){
-   a=randIn(0,12);b=randIn(0,12);ans=a*b;
- }else{
-   // Division is always exact and uses factors from 0–12.
-   b=randIn(1,12);ans=randIn(0,12);a=b*ans;
-   // Keep the dividend within the requested 0–12 table range when possible.
-   if(a>144){a=144;ans=Math.floor(a/b)}
- }
- return{a,b,ans,o}
-}
-function newEdition(){if(started)return;clearInterval(tid);done=false;left=(+$("mins").value||0)*60;updateTimer();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));qs.sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
-function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div><div class="fb" id="f'+i+'"></div></div>';g.appendChild(c)});$("sheet").appendChild(g);if($("answerMode").value==="pencil")setupPencil();requestAnimationFrame(fitGrid)}
-function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>drawing=false;c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";setTool("write")}},true)})}
-function setTool(m){pencilTool=m;$("writeBtn").className=m==="write"?"primary":"secondary";$("eraseBtn").className=m==="erase"?"erase":"secondary";$("modeText").textContent=m==="erase"?"Erase mode — tap one answer to clear it":"Write mode — write with Apple Pencil"}
-function fitGrid(){let g=document.querySelector(".grid");if(!g)return;let w=g.clientWidth,min=$("answerMode").value==="pencil"?150:120,cols=Math.max(2,Math.min(10,Math.floor(w/min)));g.style.setProperty("--cols",cols);[...g.children].forEach((c,i)=>c.style.borderRight=((i+1)%cols===0)?"0":"1px solid #bbb")}
-function startTest(){if(started||done)return;started=true;begin=Date.now();left=(+$("mins").value||0)*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}if(left)tid=setInterval(()=>{left--;updateTimer();if(left<=0)finish(true,false)},1000)}
-function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
-function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
+const ADMIN_PIN="2580";
+let currentReview=null;
+let activeUser="";
 
-let pendingSubmission=null, reviewUnlocked=false;
+function $(id){return document.getElementById(id)}
+function users(){
+  try{
+    const a=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
+    return Array.isArray(a)?a:[];
+  }catch(e){return []}
+}
+function allPending(){
+  try{
+    const a=JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]");
+    return Array.isArray(a)?a:[];
+  }catch(e){return []}
+}
+function history(uid){
+  try{
+    const a=JSON.parse(localStorage.getItem("poorviMathHistoryByUser")||"{}");
+    if(a && Array.isArray(a[uid]))return a[uid];
+    // v25.4 fallback for a single legacy history store
+    if(uid==="guest"){
+      const old=JSON.parse(localStorage.getItem("poorviMathHistory")||"[]");
+      return Array.isArray(old)?old:[];
+    }
+    return [];
+  }catch(e){return []}
+}
+function saveHistory(uid,list){
+  let a={};
+  try{a=JSON.parse(localStorage.getItem("poorviMathHistoryByUser")||"{}")||{}}catch(e){}
+  a[uid]=list;
+  localStorage.setItem("poorviMathHistoryByUser",JSON.stringify(a));
+}
+function userName(uid,submission){
+  if(submission && submission.userName)return submission.userName;
+  const u=users().find(x=>x.id===uid);
+  return u?u.name:"Guest";
+}
+function opName(op){
+  return ({addition:"➕ Addition",subtraction:"➖ Subtraction",multiplication:"✖️ Multiplication",division:"➗ Division"})[op]||op||"Worksheet";
+}
+function page(name){
+  document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));
+  $(name).classList.remove("hidden");
+}
+function formatDate(x){
+  if(!x)return "";
+  const d=new Date(x);
+  return isNaN(d)?x:d.toLocaleString();
+}
+function renderDashboard(){
+  const us=users().filter(u=>u.active!==false);
+  const p=allPending();
+  let total=0,correct=0,wrong=0,na=0;
+  us.forEach(u=>history(u.id).forEach(x=>{
+    total++;correct+=x.n||0;wrong+=x.wrong||0;na+=x.notAnswered||0;
+  }));
+  $("dashStats").innerHTML=
+    '<div class="stat"><b>'+us.length+'</b><span class="muted">Users</span></div>'+
+    '<div class="stat"><b>'+p.length+'</b><span class="muted">Pending Reviews</span></div>'+
+    '<div class="stat"><b>'+total+'</b><span class="muted">Completed Tests</span></div>'+
+    '<div class="stat"><b>'+((correct+wrong+na)?Math.round(correct/(correct+wrong+na)*100):0)+'%</b><span class="muted">Overall Accuracy</span></div>';
 
-function makeSubmission(){
- const answers=[];
- if($("answerMode").value==="pencil"){
-   document.querySelectorAll(".pad").forEach((c,i)=>{
-     answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:c.toDataURL("image/png"),ocr:"",status:"pending"});
-   });
- }else{
-   document.querySelectorAll(".ans").forEach((e,i)=>{
-     const v=e.value.trim();
-     answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:"",ocr:v,status:v!==""?(+v===qs[i].ans?"correct":"wrong"):"not_answered"});
-   });
- }
- return {id:"sub_"+Date.now(),date:key(),created:Date.now(),userId:currentUser?.id||"guest",userName:currentUser?.name||"Guest",operation:$("op").value,range:$("op").value==="addition"||$("op").value==="subtraction"?$("addSubRange").value:"0-12",total:qs.length,elapsed:elapsed(),answers};
+  $("dashUsers").innerHTML=us.length?us.map(u=>{
+    const h=history(u.id),pending=p.filter(x=>(x.userId||"guest")===u.id);
+    const avg=h.length?Math.round(h.reduce((s,x)=>s+(x.a||0),0)/h.length):0;
+    return '<div class="user-section"><div class="user-head"><div><b>👤 '+u.name+'</b><div class="muted">'+h.length+' completed • '+pending.length+' pending</div></div><button class="secondary" data-user="'+u.id+'">View Worksheets</button></div>'+
+      '<div class="row"><div class="row-left">Average score</div><b>'+avg+'%</b></div></div>';
+  }).join(""):'<div class="empty">No users found.</div>';
+  document.querySelectorAll("[data-user]").forEach(b=>b.onclick=()=>{activeUser=b.dataset.user;renderUsers();page("users")});
 }
-function pendingSubs(){return JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]")}
-function savePendingSubmission(s){
- s=ensureSubmissionIdentity(s);
- const all=getAllPendingForAdmin();
- all.push(s);
- saveAllPendingForAdmin(all);
+function renderPending(){
+  const p=allPending().sort((a,b)=>(b.created||0)-(a.created||0));
+  if(!p.length){$("pendingList").innerHTML='<div class="empty">🎉 No worksheets waiting for review.</div>';return}
+  $("pendingList").innerHTML=p.map(s=>{
+    const uid=s.userId||"guest";
+    return '<div class="review-row"><div><b>👤 '+userName(uid,s)+'</b><div><b>'+opName(s.operation)+'</b> <span class="badge">⏳ Pending Review</span></div><div class="muted">'+formatDate(s.created||s.date)+' • '+(s.total||0)+' questions'+(s.range?' • '+s.range:'')+'</div></div><button class="primary" data-review="'+s.id+'">Review</button></div>';
+  }).join("");
+  document.querySelectorAll("[data-review]").forEach(b=>b.onclick=()=>openReview(b.dataset.review));
 }
-function renderReview(s){
- pendingSubmission=s;
- $("reviewSummary").textContent="🔓 Review unlocked. You can now mark every answer without entering the PIN again.";
- $("reviewList").innerHTML=s.answers.map(x=>{
-   const correct=x.status==="correct",wrong=x.status==="wrong",na=x.status==="not_answered";
-   const img=x.image?'<img class="reviewCanvas" src="'+x.image+'">':'<div class="reviewCanvas"></div>';
-   const ocr=x.ocr?x.ocr:"not recognized";
-   return '<div class="reviewItem" data-review="'+x.i+'"><div class="reviewRow"><b>#'+(x.i+1)+'</b><div><b>'+x.problem+' = '+x.ans+'</b><div class="muted">App read: '+ocr+'</div></div>'+img+'<div class="reviewButtons"><button class="'+(correct?"reviewCorrect":"secondary")+'" data-set="correct">✓ Correct</button><button class="'+(wrong?"reviewWrong":"secondary")+'" data-set="wrong">✗ Wrong</button><button class="'+(na?"reviewNA":"secondary")+'" data-set="not_answered">— Not Answered</button></div></div></div>';
- }).join("");
- document.querySelectorAll("[data-review]").forEach(row=>{
-   row.querySelectorAll("[data-set]").forEach(btn=>btn.onclick=()=>{
-     if(!reviewUnlocked)return;
-     const item=s.answers.find(a=>a.i===+row.dataset.review);
-     item.status=btn.dataset.set;
-     renderReview(s);
-   });
- });
- $("parentReview").classList.remove("hidden");
-}
-function openReviewWithPin(){
- if(!currentUser||currentUser.role!=="admin"){alert("Only Admin can open Parent Review.");return}
- reviewUnlocked=false;
- ask("review");
-}
-function openLatestReview(){
- const all=pendingSubs();
- if(!all.length){
-   $("result").classList.remove("hidden");
-   $("result").scrollIntoView({behavior:"smooth"});
-   return;
- }
- renderReview(all[all.length-1]);
- $("parentReview").scrollIntoView({behavior:"smooth"});
-}
-function voidCurrentReview(){
- if(!pendingSubmission)return;
- if(!confirm("Void this test? It will be excluded from weekly, monthly, yearly, and overall results."))return;
- const reason=prompt("Optional reason for voiding this test:","")||"Voided by parent";
- const voided=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
- voided.push({
-   id:pendingSubmission.id,
-   date:pendingSubmission.date,
-   operation:pendingSubmission.operation,
-   total:pendingSubmission.total,
-   reason,
-   voidedAt:Date.now()
- });
- localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(voided.slice(-100)));
-
- const remaining=pendingSubs().filter(x=>x.id!==pendingSubmission.id);
- localStorage.setItem("poorviPendingSubmissions",JSON.stringify(remaining));
- pendingSubmission=null;
- $("parentReview").classList.add("hidden");
- $("result").classList.add("hidden");
- renderWeek();renderMonthly();renderYearly();
- alert("Test voided. It will not affect Poorvi's results or progress totals.");
-}
-function saveCurrentReview(){
- if(!pendingSubmission)return;
- const correct=pendingSubmission.answers.filter(x=>x.status==="correct").length;
- const total=pendingSubmission.total;
- const acc=Math.round(correct/total*100);
- if(pendingSubmission.answers.some(x=>x.status==="pending")){
-   if(!confirm("Some answers are still awaiting review. Save anyway? They will not count as correct."))return;
- }
- const ownerId=pendingSubmission.userId||"guest";
- const h=hist(ownerId);
- const wrong=pendingSubmission.answers.filter(x=>x.status==="wrong").length;
- const notAnswered=pendingSubmission.answers.filter(x=>x.status==="not_answered").length;
- h.push({id:pendingSubmission.id,date:pendingSubmission.date,n:correct,wrong,notAnswered,total,a:acc,et:pendingSubmission.elapsed,reviewed:true,operation:pendingSubmission.operation,range:pendingSubmission.range,userId:ownerId,userName:pendingSubmission.userName||"Guest"});
- saveHist(h,ownerId);
- const remaining=pendingSubs().filter(x=>x.id!==pendingSubmission.id);
- localStorage.setItem("poorviPendingSubmissions",JSON.stringify(remaining));
- $("parentReview").classList.add("hidden");
- pendingSubmission=null;
- $("score").textContent=correct+" / "+total;
- $("acc").textContent=acc+"%";
- $("used").textContent=time(h[h.length-1].et);
- $("best").textContent=Math.max(acc,...h.map(x=>x.a||0))+"%";
- $("msg").textContent=acc===100?"🎉 Perfect!":acc>=90?"⭐ Excellent!":"👍 Keep practicing!";
- $("result").classList.remove("hidden");
- renderWeek();
-}
-async function finish(up=false,early=false){
- if(done)return;
- done=true;started=false;clearInterval(tid);$("app").classList.remove("active");
- $("pencilTools").classList.add("hidden");$("submitBtn").classList.add("hidden");
- const et=elapsed(),pencil=$("answerMode").value==="pencil";
- const submission=makeSubmission();
-
- if(pencil){
-   $("ocrStatus").classList.remove("hidden");$("result").classList.add("hidden");
-   let recognized=0;
-   try{
-     if(!window.Tesseract)throw new Error("Recognition library unavailable");
-     const worker=await Tesseract.createWorker("eng",1,{logger:m=>{
-       if(m&&typeof m.progress==="number")$("ocrProgress").textContent="Preparing recognition… "+Math.round(m.progress*100)+"%";
-     }});
-     await worker.setParameters({tessedit_char_whitelist:"0123456789",tessedit_pageseg_mode:"10"});
-     for(let i=0;i<submission.answers.length;i++){
-       const item=submission.answers[i],c=document.querySelector('.pad[data-i="'+i+'"]'),f=$("f"+i);
-       if(!c||canvasIsBlank(c)){item.status="not_answered";if(f)f.textContent="•";continue}
-       $("ocrProgress").textContent="Reading answer "+(i+1)+" of "+submission.total+"…";
-       let value="",confidence=0;
-       try{
-         const r=await worker.recognize(preprocessHandwriting(c));
-         value=(r.data.text||"").replace(/[^0-9]/g,"");
-         if(value.length>2)value=value.slice(-2);
-         confidence=Number(r.data.confidence||0);
-       }catch(e){}
-       if(value&&confidence>=25){
-         item.ocr=value;item.status=(+value===item.ans)?"correct":"wrong";recognized++;
-       }else item.status="pending";
-       if(f){
-         const ok=item.status==="correct";
-         f.innerHTML=item.ocr?'<span class="'+(ok?"ok":"bad")+'">'+(ok?"✓":"✗")+' '+item.ocr+'</span>':'<span class="bad">?</span>';
-         f.className="fb";
-       }
-     }
-     await worker.terminate();
-   }catch(e){
-     submission.answers.forEach(x=>{x.ocr="";x.status=(x.image?"pending":"not_answered")});
-     $("ocrProgress").textContent="OCR unavailable. Parent can score the answers manually.";
-   }
-   savePendingSubmission(submission);
-   $("ocrStatus").classList.add("hidden");
-   $("score").textContent="Pending Parent Review";
-   $("acc").textContent="—";$("used").textContent=time(et);$("best").textContent="—";
-   $("msg").textContent=early?"🎉 Great job! You finished early!":"✓ Test submitted — waiting for parent review.";
-   $("result").classList.remove("hidden");renderWeek();
- }else{
-   savePendingSubmission(submission);
-   $("score").textContent="Pending Parent Review";
-   $("acc").textContent="—";$("used").textContent=time(et);$("best").textContent="—";
-   $("msg").textContent=early?"🎉 Great job! You finished early!":"✓ Test submitted — waiting for parent review.";
-   $("result").classList.remove("hidden");renderWeek();
- }
-}
-function canvasIsBlank(c){
- const ctx=c.getContext("2d"),d=ctx.getImageData(0,0,c.width,c.height).data;
- let ink=0;
- for(let i=0;i<d.length;i+=4){
-   if(d[i+3]>20 && (d[i]<245||d[i+1]<245||d[i+2]<245))ink++;
- }
- return ink<30;
-}
-function preprocessHandwriting(source){
- // Create a large, clean black-on-white image from the Pencil strokes.
- const sw=source.width,sh=source.height;
- const srcCtx=source.getContext("2d"),data=srcCtx.getImageData(0,0,sw,sh).data;
- let minX=sw,minY=sh,maxX=0,maxY=0,found=false;
- for(let y=0;y<sh;y++){
-   for(let x=0;x<sw;x++){
-     const p=(y*sw+x)*4;
-     const alpha=data[p+3], dark=data[p]<245||data[p+1]<245||data[p+2]<245;
-     if(alpha>20&&dark){
-       found=true;minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
-     }
-   }
- }
- if(!found)return source;
-
- const pad=16;
- minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
- maxX=Math.min(sw-1,maxX+pad);maxY=Math.min(sh-1,maxY+pad);
- const cw=maxX-minX+1,ch=maxY-minY+1;
- const scale=Math.max(3,Math.min(6,180/Math.max(cw,ch)));
- const out=document.createElement("canvas");
- out.width=Math.max(180,Math.round(cw*scale));
- out.height=Math.max(180,Math.round(ch*scale));
- const ctx=out.getContext("2d");
- ctx.fillStyle="#fff";ctx.fillRect(0,0,out.width,out.height);
- const tmp=document.createElement("canvas");tmp.width=cw;tmp.height=ch;
- const tctx=tmp.getContext("2d");tctx.fillStyle="#fff";tctx.fillRect(0,0,cw,ch);
- tctx.drawImage(source,minX,minY,cw,ch,0,0,cw,ch);
-
- // Threshold + slightly thicken strokes for child handwriting.
- const td=tctx.getImageData(0,0,cw,ch),px=td.data;
- for(let i=0;i<px.length;i+=4){
-   const lum=.299*px[i]+.587*px[i+1]+.114*px[i+2];
-   const v=lum<210?0:255;
-   px[i]=px[i+1]=px[i+2]=v;px[i+3]=255;
- }
- tctx.putImageData(td,0,0);
- ctx.imageSmoothingEnabled=true;
- ctx.drawImage(tmp,0,0,cw,ch,0,0,out.width,out.height);
- return out;
-}
-function time(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
-function save(n,total,a,et){let h=hist();h.push({date:key(),n,total,a,et});localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)))}
-function historyKey(userId){return "poorviMathHistory_"+(userId||"guest")}
-function hist(userId=currentUser?.id||"guest"){
- return JSON.parse(localStorage.getItem(historyKey(userId))||"[]");
-}
-function saveHist(list,userId=currentUser?.id||"guest"){
- localStorage.setItem(historyKey(userId),JSON.stringify(list.slice(-100)));
-}
-function key(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function showScore(n,total,a,et,up,early){let h=hist(currentUser?.id||"guest");$("score").textContent=n+" / "+total;$("acc").textContent=a+"%";$("used").textContent=time(et);$("best").textContent=Math.max(a,...h.map(x=>x.a||0))+"%";$("msg").textContent=early?"🎉 Great job! You finished early!":up?"⏰ Time's up — submitted automatically.":a===100?"🎉 Perfect!":a>=90?"⭐ Excellent!":"👍 Keep practicing!";$("result").classList.remove("hidden");renderWeek()}
-function weekDates(){
- let d=new Date(),day=d.getDay(),m=new Date(d);
- m.setDate(d.getDate()-(day===0?6:day-1));
- return Array.from({length:7},(_,i)=>{let x=new Date(m);x.setDate(m.getDate()+i);return x})
-}
-function opName(op){return (op||"mixed")[0].toUpperCase()+(op||"mixed").slice(1)}
-
-function voidedIds(){
- return new Set(JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]").map(x=>x.id));
-}
-function renderHistoryManager(){
- const h=hist(currentUser?.id||"guest"),v=voidedIds();
- let html='<div class="detailSheet"><b>🗂️ Past Submitted Tests</b><div class="muted" style="margin-top:4px">Void any old test you no longer want included in Poorvi’s progress.</div>';
- if(!h.length){html+='<div class="muted" style="margin-top:10px">No saved tests.</div>'}
- else{
-   [...h].reverse().forEach((x,revIndex)=>{
-     const originalIndex=h.length-1-revIndex;
-     const label=new Date(x.date+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
-     html+='<div class="reviewItem" style="margin-top:8px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">'+
-       '<div><b>'+label+' — '+opName(x.operation||"mixed")+'</b>'+
-       '<div class="muted">'+(x.total||0)+' questions • '+(x.a||0)+'% • ✓ '+(x.n||0)+' • ✗ '+(x.wrong||0)+' • — '+(x.notAnswered||0)+'</div></div>'+
-       '<button class="danger" data-void-history="'+originalIndex+'">🚫 Void Test</button></div></div>';
-   });
- }
- html+='</div>';
- $("historyManager").innerHTML=html;$("historyManager").classList.remove("hidden");
- document.querySelectorAll("[data-void-history]").forEach(btn=>btn.onclick=()=>{
-   const idx=+btn.dataset.voidHistory;
-   voidSavedHistoryTest(idx);
- });
-}
-function voidSavedHistoryTest(index){
- const ownerId=currentUser?.id||"guest";
- const h=hist(ownerId);
- const item=h[index];
- if(!item)return;
- if(!confirm("Void this past test? It will be excluded from weekly, monthly, yearly, and overall results."))return;
- const reason=prompt("Optional reason for voiding this test:","")||"Voided by parent";
- const voided=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
- const id=item.id||("history_"+item.date+"_"+index+"_"+Date.now());
- voided.push({id,date:item.date,operation:item.operation||"mixed",total:item.total||0,reason,voidedAt:Date.now()});
- localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(voided.slice(-200)));
- h.splice(index,1);
- saveHist(h,ownerId);
- renderHistoryManager();renderWeek();renderMonthly();renderYearly();
- alert("Past test voided. It no longer affects Poorvi's progress.");
-}
-function renderWeek(){
- const h=hist(currentUser?.id||"guest"),byDate={};
- h.forEach(x=>{(byDate[x.date]||(byDate[x.date]=[])).push(x)});
- const dates=weekDates();
- $("week").innerHTML=dates.map(d=>{
-   const k=key(d),items=byDate[k]||[],best=items.length?Math.max(...items.map(x=>x.a||0)):"—";
-   return '<button class="day '+(items.length?"done":"")+'" data-day="'+k+'"><b>'+d.toLocaleDateString(undefined,{weekday:"short"})+'</b><strong>'+best+(items.length?"%":"")+'</strong><span class="small">'+(items.length?items.length+" worksheet"+(items.length===1?"":"s"):"Not done")+'</span></button>';
- }).join("");
- document.querySelectorAll("[data-day]").forEach(btn=>btn.onclick=()=>showDayDetails(btn.dataset.day));
- $("summary").textContent=dates.filter(d=>(byDate[key(d)]||[]).length).length+" of 7 days completed this week. Tap a day for details.";
-}
-function showDayDetails(dateStr){
- const items=hist(currentUser?.id||"guest").filter(x=>x.date===dateStr);
- const d=new Date(dateStr+"T12:00:00");
- if(!items.length){$("dayDetails").innerHTML='<b>'+d.toLocaleDateString()+'</b><div class="muted">No worksheets completed.</div>';$("dayDetails").classList.remove("hidden");return}
- const groups={};items.forEach(x=>(groups[x.operation||"mixed"]||(groups[x.operation||"mixed"]=[])).push(x));
- let html='<div class="detailSheet"><b>📅 '+d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric",year:"numeric"})+'</b>';
- Object.keys(groups).forEach(op=>{
-   html+='<div style="margin-top:12px"><b>'+opName(op)+'</b>';
-   groups[op].forEach((x,i)=>{
-     const na=x.notAnswered!=null?x.notAnswered:Math.max(0,x.total-x.n-(x.wrong||0));
-     html+='<div class="detailRow"><div>Worksheet '+(i+1)+'<div class="muted">'+time(x.et||0)+'</div></div><div class="statusPill reviewCorrect">✓ '+x.n+'</div><div class="statusPill reviewWrong">✗ '+(x.wrong||0)+'</div><div class="statusPill reviewNA">— '+na+'</div><b>'+x.a+'%</b></div>';
-   });
-   html+='</div>';
- });
- html+='<div style="margin-top:10px"><b>✓ Correct &nbsp; ✗ Wrong &nbsp; — Not Answered</b></div></div>';
- $("dayDetails").innerHTML=html;$("dayDetails").classList.remove("hidden");$("dayDetails").scrollIntoView({behavior:"smooth"});
-}
-function renderMonthly(){
- const now=new Date(),y=now.getFullYear(),m=now.getMonth();
- const items=hist().filter(x=>{
-   const d=new Date(x.date+"T12:00:00");
-   return d.getFullYear()===y&&d.getMonth()===m;
- });
- const byDate={};
- items.forEach(x=>(byDate[x.date]||(byDate[x.date]=[])).push(x));
- const days=Object.keys(byDate).length, worksheets=items.length;
- const avg=worksheets?Math.round(items.reduce((s,x)=>s+(x.a||0),0)/worksheets):0;
- const correct=items.reduce((s,x)=>s+(x.n||0),0);
- const wrong=items.reduce((s,x)=>s+(x.wrong||0),0);
- const na=items.reduce((s,x)=>s+(x.notAnswered||0),0);
-
- $("monthSummary").innerHTML=
-   '<div class="detailSheet"><b>📅 '+now.toLocaleDateString(undefined,{month:"long",year:"numeric"})+
-   '</b><div class="stats" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
-   '<div class="stat"><b>'+days+'</b> Days Practiced</div>'+
-   '<div class="stat"><b>'+worksheets+'</b> Worksheets</div>'+
-   '<div class="stat"><b>'+avg+'%</b> Avg Score</div>'+
-   '<div class="stat"><b>✓ '+correct+'</b> Correct</div>'+
-   '<div class="stat"><b>✗ '+wrong+'</b> Wrong</div>'+
-   '<div class="stat"><b>— '+na+'</b> Not Answered</div>'+
-   '</div></div>';
-
- let html='<div class="detailSheet"><b>📚 Worksheets Completed by Day</b>'+
-   '<div class="muted" style="margin-top:4px">Each day shows exactly what type of worksheet was completed.</div>';
-
- const dates=Object.keys(byDate).sort();
- if(!dates.length){
-   html+='<div class="muted" style="margin-top:10px">No worksheets completed this month.</div>';
- }else{
-   dates.forEach(dateStr=>{
-     const d=new Date(dateStr+"T12:00:00");
-     const arr=byDate[dateStr];
-     html+='<div style="margin-top:14px;padding:10px;border:1px solid #ddd;border-radius:10px;background:#fafafa">'+
-       '<b>📅 '+d.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})+
-       '</b><div class="muted">'+arr.length+' worksheet'+(arr.length===1?"":"s")+'</div>';
-
-     const byOp={};
-     arr.forEach(x=>(byOp[x.operation||"mixed"]||(byOp[x.operation||"mixed"]=[])).push(x));
-
-     Object.keys(byOp).forEach(op=>{
-       const list=byOp[op];
-       html+='<div style="margin-top:8px"><b>'+opName(op)+'</b>';
-       list.forEach((x,i)=>{
-         const nax=x.notAnswered!=null?x.notAnswered:Math.max(0,x.total-(x.n||0)-(x.wrong||0));
-         html+='<div class="detailRow" style="grid-template-columns:1fr 70px 70px 95px 65px">'+
-           '<div><b>Worksheet '+(i+1)+'</b>'+
-           '<div class="muted">'+(x.range?("Range: "+x.range+" • "):"")+time(x.et||0)+'</div></div>'+
-           '<div class="statusPill reviewCorrect">✓ '+(x.n||0)+'</div>'+
-           '<div class="statusPill reviewWrong">✗ '+(x.wrong||0)+'</div>'+
-           '<div class="statusPill reviewNA">— '+nax+'</div>'+
-           '<b>'+x.a+'%</b></div>';
-       });
-       html+='</div>';
-     });
-     html+='</div>';
-   });
- }
- html+='</div>';
- $("monthDetails").innerHTML=html;
- $("monthDetails").classList.remove("hidden");
-}
-function renderYearly(){
- const now=new Date(),y=now.getFullYear();
- const items=hist(currentUser?.id||"guest").filter(x=>new Date(x.date+"T12:00:00").getFullYear()===y);
- const byMonth={};
- items.forEach(x=>(byMonth[x.date.slice(0,7)]||(byMonth[x.date.slice(0,7)]=[])).push(x));
- const months=Object.keys(byMonth).length,worksheets=items.length;
- const days=new Set(items.map(x=>x.date)).size;
- const avg=worksheets?Math.round(items.reduce((s,x)=>s+(x.a||0),0)/worksheets):0;
- const correct=items.reduce((s,x)=>s+(x.n||0),0);
- const wrong=items.reduce((s,x)=>s+(x.wrong||0),0);
- const na=items.reduce((s,x)=>s+(x.notAnswered||0),0);
-
- $("yearSummary").innerHTML=
-   '<div class="detailSheet"><b>📅 '+y+' Year</b><div class="stats" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
-   '<div class="stat"><b>'+days+'</b> Days Practiced</div>'+
-   '<div class="stat"><b>'+months+'</b> Months</div>'+
-   '<div class="stat"><b>'+worksheets+'</b> Worksheets</div>'+
-   '<div class="stat"><b>'+avg+'%</b> Avg Score</div>'+
-   '<div class="stat"><b>✓ '+correct+'</b> Correct</div>'+
-   '<div class="stat"><b>✗ '+wrong+'</b> Wrong</div>'+
-   '<div class="stat"><b>— '+na+'</b> Not Answered</div></div></div>';
-
- let html='<div class="detailSheet"><b>📆 Monthly Breakdown</b>'+
-   '<div class="muted" style="margin-top:4px">Tap Monthly for the full day-by-day worksheet details.</div>';
-
- Object.keys(byMonth).sort().forEach(k=>{
-   const arr=byMonth[k];
-   const monthDays=new Set(arr.map(x=>x.date)).size;
-   const av=Math.round(arr.reduce((s,x)=>s+(x.a||0),0)/arr.length);
-   const [yy,mm]=k.split("-");
-   const label=new Date(+yy,+mm-1,1).toLocaleDateString(undefined,{month:"long"});
-   const ops=[...new Set(arr.map(x=>opName(x.operation||"mixed")))].join(", ");
-
-   html+='<div class="detailRow" style="grid-template-columns:1.1fr 80px 90px 110px 70px">'+
-     '<div><b>'+label+'</b><div class="muted">'+monthDays+' day'+(monthDays===1?"":"s")+
-     ' • '+arr.length+' worksheet'+(arr.length===1?"":"s")+' • '+ops+'</div></div>'+
-     '<div class="statusPill reviewCorrect">✓ '+arr.reduce((s,x)=>s+(x.n||0),0)+'</div>'+
-     '<div class="statusPill reviewWrong">✗ '+arr.reduce((s,x)=>s+(x.wrong||0),0)+'</div>'+
-     '<div class="statusPill reviewNA">— '+arr.reduce((s,x)=>s+(x.notAnswered||0),0)+'</div>'+
-     '<b>'+av+'%</b></div>';
- });
- html+='</div>';
- $("yearDetails").innerHTML=html;
- $("yearDetails").classList.remove("hidden");
-}
-function showTracker(name){
- ["weeklyTracker","monthlyTracker","yearlyTracker"].forEach(x=>$(x).classList.add("hidden"));
- ["weekTab","monthTab","yearTab"].forEach(x=>$(x).className="secondary");
- if(name==="week"){$("weeklyTracker").classList.remove("hidden");$("weekTab").className="primary";renderWeek()}
- if(name==="month"){$("monthlyTracker").classList.remove("hidden");$("monthTab").className="primary";renderMonthly()}
- if(name==="year"){$("yearlyTracker").classList.remove("hidden");$("yearTab").className="primary";renderYearly()}
-}
-function ask(a){parentAction=a;$("modal").classList.remove("hidden");$("pin").value="";$("pin").focus()}
-function unlock(){
- if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
- if($("pin").value!=="2580"){alert("Incorrect PIN.");return}
- $("modal").classList.add("hidden");
- if(parentAction==="clear"){
-   if(confirm("Clear saved progress?")){saveHist([],currentUser?.id||"guest");renderWeek()}
- }else{
-   reviewUnlocked=true;
-   openLatestReview();
- }
-}
-$("submitBtn").onclick=()=>{if(started&&confirm("Submit the test now? You still have time remaining."))finish(false,true)};
-
-const DEFAULT_USERS=[
- {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
- {id:"admin",name:"Admin",role:"admin",pin:"2580",active:true},
- {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
- {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
-];
-let currentUser=null;
-
-function getUsers(){
- const raw=localStorage.getItem("poorviMathUsers");
- if(!raw){
-   localStorage.setItem("poorviMathUsers",JSON.stringify(DEFAULT_USERS));
-   return [...DEFAULT_USERS];
- }
- try{
-   let users=JSON.parse(raw);
-   if(!Array.isArray(users)||!users.length)users=[...DEFAULT_USERS];
-
-   // Migrate the previous default names once.
-   let changed=false;
-   users=users.map(u=>{
-     if(u.id==="user1" || (u.name||"").toLowerCase()==="user1"){
-       changed=true; return {...u,id:"poorvi",name:"Poorvi Dondeti"};
-     }
-     if(u.id==="poorvi" && (u.name||"").toLowerCase()==="poorvi"){
-       changed=true; return {...u,name:"Poorvi Dondeti"};
-     }
-     if(u.id==="user2" || (u.name||"").toLowerCase()==="user2"){
-       changed=true; return {...u,id:"mahiram",name:"Mahiram Dondeti"};
-     }
-     if(u.id==="mahiram" && (u.name||"").toLowerCase()==="mahiram"){
-       changed=true; return {...u,name:"Mahiram Dondeti"};
-     }
-     if(u.id==="admin" && !u.pin){changed=true;return {...u,pin:"2580"};}
-     return u;
-   });
-   if(!users.some(u=>u.id==="guest")){
-     users.unshift({id:"guest",name:"Guest",role:"user",pin:"0000",active:true});
-     changed=true;
-   }
-   if(changed)localStorage.setItem("poorviMathUsers",JSON.stringify(users));
-   return users;
- }catch(e){
-   localStorage.setItem("poorviMathUsers",JSON.stringify(DEFAULT_USERS));
-   return [...DEFAULT_USERS];
- }
-}
-function saveUsers(users){localStorage.setItem("poorviMathUsers",JSON.stringify(users))}
-function loadCurrentUser(){
- const users=getUsers(),id=sessionStorage.getItem("poorviCurrentUser")||"guest";
- currentUser=users.find(u=>u.id===id&&u.active!==false)||users.find(u=>u.role==="admin")||users[0];
- sessionStorage.setItem("poorviCurrentUser",currentUser.id);
- applyRole();
-}
-function applyRole(){
- $("currentUserLabel").textContent=currentUser.name;
- $("currentRoleLabel").textContent=" • "+(currentUser.role==="admin"?"Administrator":"User");
- const isAdmin=currentUser.role==="admin";
- // Admin gets all parent controls. Regular users only get the child-facing test controls.
- document.querySelectorAll("[data-admin-only]").forEach(el=>el.classList.toggle("hidden",!isAdmin));
- $("userManagement").classList.add("hidden");
- if(!isAdmin){
-   // Prevent a regular user from seeing the parent review/history UI.
-   $("parentReview").classList.add("hidden");
-   $("result").classList.add("hidden");
-   $("historyManager").classList.add("hidden");
- }
- renderWeek();renderMonthly();renderYearly();
-}
-function switchUser(){
- const users=getUsers().filter(u=>u.active!==false);
- const choices=users.map((u,i)=>`${i+1}. ${u.name} (${u.role})`).join("\n");
- const pick=prompt("Select user:\n"+choices);
- if(pick===null)return;
- const n=Number(pick);
- if(!Number.isInteger(n)||n<1||n>users.length){alert("Invalid user.");return}
- const u=users[n-1];
- const pin=prompt("Enter PIN for "+u.name+":");
- if(pin!==u.pin){alert("Incorrect PIN.");return}
- currentUser=u;sessionStorage.setItem("poorviCurrentUser",u.id);applyRole();renderWeek();renderMonthly();renderYearly();$("dayDetails").classList.add("hidden");
+function renderPast(){
+  const us=users().filter(u=>u.active!==false);
+  let html='';
+  us.forEach(u=>{
+    const h=history(u.id).slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+    if(!h.length)return;
+    html+='<div class="user-section"><div class="user-head"><b>👤 '+u.name+'</b><span class="muted">'+h.length+' completed</span></div>';
+    h.forEach((x,i)=>{
+      html+='<div class="row"><div><b>'+opName(x.operation)+'</b><div class="muted">'+formatDate(x.date||x.created)+' • '+(x.total||0)+' questions • ✓ '+(x.n||0)+' • ✗ '+(x.wrong||0)+' • — '+(x.notAnswered||0)+'</div></div><div style="display:flex;align-items:center;gap:8px"><b>'+((x.a||0))+'%</b><button class="danger" data-void-user="'+u.id+'" data-void-index="'+i+'">🚫 Void</button></div></div>';
+    });
+    html+='</div>';
+  });
+  $("pastList").innerHTML=html||'<div class="empty">No completed worksheets found.</div>';
+  document.querySelectorAll("[data-void-user]").forEach(b=>b.onclick=()=>voidPast(b.dataset.voidUser,Number(b.dataset.voidIndex)));
 }
 function renderUsers(){
- const users=getUsers();
- $("userList").innerHTML=users.map(u=>`
-   <div class="userCard">
-     <div><b>${u.name}</b> <span class="rolePill">${u.role==="admin"?"Admin":"User"}</span> ${u.active===false?'<span class="muted"> (Inactive)</span>':''}</div>
-     <div class="muted">PIN: ${u.pin}</div>
-     <div class="userActions">
-       ${u.id!=="admin"?`<button class="secondary" data-edit-user="${u.id}">Edit</button><button class="secondary" data-toggle-user="${u.id}">${u.active===false?"Activate":"Deactivate"}</button><button class="danger" data-delete-user="${u.id}">Delete</button>`:"<span class=\"muted\">Primary administrator</span>"}
-     </div>
-   </div>`).join("");
- document.querySelectorAll("[data-edit-user]").forEach(b=>b.onclick=()=>editUser(b.dataset.editUser));
- document.querySelectorAll("[data-toggle-user]").forEach(b=>b.onclick=()=>toggleUser(b.dataset.toggleUser));
- document.querySelectorAll("[data-delete-user]").forEach(b=>b.onclick=()=>deleteUser(b.dataset.deleteUser));
- $("userManagement").classList.remove("hidden");
+  const us=users().filter(u=>u.active!==false);
+  $("userTabs").innerHTML=us.map(u=>'<button class="secondary user-tab '+(u.id===activeUser?"active":"")+'" data-tab-user="'+u.id+'">'+u.name+'</button>').join("");
+  if(!activeUser && us.length)activeUser=us[0].id;
+  if(activeUser)showUser(activeUser);
+  document.querySelectorAll("[data-tab-user]").forEach(b=>b.onclick=()=>showUser(b.dataset.tabUser));
 }
-function editUser(id){
- const users=getUsers(),u=users.find(x=>x.id===id);if(!u)return;
- const name=prompt("User name:",u.name);if(name===null)return;
- const pin=prompt("User PIN:",u.pin);if(pin===null)return;
- if(!name.trim()||!/^\d{4,8}$/.test(pin)){alert("Name required and PIN must be 4–8 digits.");return}
- u.name=name.trim();u.pin=pin;saveUsers(users);renderUsers();
+function showUser(uid){
+  activeUser=uid;
+  const u=users().find(x=>x.id===uid);if(!u)return;
+  const h=history(uid).slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+  const p=allPending().filter(x=>(x.userId||"guest")===uid);
+  const avg=h.length?Math.round(h.reduce((s,x)=>s+(x.a||0),0)/h.length):0;
+  $("userDetails").innerHTML='<div class="stats"><div class="stat"><b>'+h.length+'</b><span class="muted">Completed</span></div><div class="stat"><b>'+p.length+'</b><span class="muted">Pending</span></div><div class="stat"><b>'+avg+'%</b><span class="muted">Average</span></div><div class="stat"><b>'+h.reduce((s,x)=>s+(x.n||0),0)+'</b><span class="muted">Correct</span></div></div>'+
+    '<div class="notice">👤 <b>'+u.name+'</b> — all worksheets below belong to this user.</div>'+
+    (p.length?'<h3>⏳ Pending</h3>'+p.map(x=>'<div class="row"><div><b>'+opName(x.operation)+'</b><div class="muted">'+formatDate(x.created||x.date)+' • '+x.total+' questions</div></div><button class="primary" data-review="'+x.id+'">Review</button></div>').join(""):'')+
+    '<h3>📚 Completed</h3>'+
+    (h.length?h.map((x,i)=>'<div class="row"><div><b>'+opName(x.operation)+'</b><div class="muted">'+formatDate(x.date)+' • '+x.total+' questions • ✓ '+(x.n||0)+' • ✗ '+(x.wrong||0)+' • — '+(x.notAnswered||0)+'</div></div><div style="display:flex;gap:7px;align-items:center"><b>'+x.a+'%</b><button class="danger" data-void-user="'+uid+'" data-void-index="'+i+'">Void</button></div></div>').join(""):'<div class="empty">No completed worksheets.</div>');
+  document.querySelectorAll("[data-review]").forEach(b=>b.onclick=()=>openReview(b.dataset.review));
+  document.querySelectorAll("[data-void-user]").forEach(b=>b.onclick=()=>voidPast(b.dataset.voidUser,Number(b.dataset.voidIndex)));
+  document.querySelectorAll("[data-tab-user]").forEach(b=>b.classList.toggle("active",b.dataset.tabUser===uid));
 }
-function addUser(){
- const name=prompt("New user name (example: User3):");if(name===null)return;
- const pin=prompt("PIN (4–8 digits):");if(pin===null)return;
- if(!name.trim()||!/^\d{4,8}$/.test(pin)){alert("Name required and PIN must be 4–8 digits.");return}
- const users=getUsers();
- if(users.some(u=>u.name.toLowerCase()===name.trim().toLowerCase())){alert("That user already exists.");return}
- const id="user_"+Date.now();
- users.push({id,name:name.trim(),role:"user",pin,active:true});saveUsers(users);renderUsers();
-}
-function toggleUser(id){
- const users=getUsers(),u=users.find(x=>x.id===id);if(!u)return;
- u.active=u.active===false;saveUsers(users);renderUsers();
-}
-function deleteUser(id){
- const users=getUsers(),u=users.find(x=>x.id===id);if(!u)return;
- if(!confirm("Delete "+u.name+"? Their account will no longer be available on this device."))return;
- saveUsers(users.filter(x=>x.id!==id));renderUsers();
-}
+function openReview(id){
+  const s=allPending().find(x=>x.id===id);
+  if(!s)return;
+  currentReview=s;
+  page("review");
 
-function adminUsers(){
-  try{return JSON.parse(localStorage.getItem("poorviMathUsers")||"[]")}catch(e){return []}
-}
+  const uid=s.userId||"guest";
+  $("reviewMeta").innerHTML=
+    '👤 <b>'+userName(uid,s)+'</b> • '+opName(s.operation||"mixed")+
+    ' • '+formatDate(s.created||s.date)+' • '+(s.total||s.answers?.length||0)+' questions';
 
-function renderAdminReviewCenter(){
- if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
- const all=allPendingSubs().slice().sort((a,b)=>(b.created||0)-(a.created||0));
- const users=getUsers();
- $("adminReviewSummary").innerHTML='<div class="adminStats"><div class="adminStat"><b>'+all.length+'</b> Pending Worksheets</div><div class="adminStat"><b>'+new Set(all.map(x=>x.userId||"guest")).size+'</b> Users</div></div>';
- if(!all.length){
-   $("adminReviewList").innerHTML='<div class="detailSheet"><div class="muted">🎉 No worksheets are waiting for review.</div></div>';
- }else{
-   $("adminReviewList").innerHTML=all.map(x=>{
-     const u=users.find(z=>z.id===(x.userId||"guest"));
-     const name=x.userName||u?.name||"Guest";
-     const dt=new Date(x.created||Date.now()).toLocaleString();
-     return '<div class="adminPendingCard"><div class="adminPendingHead"><div><b>👤 '+name+'</b><div class="muted">'+dt+' • '+opName(x.operation||"mixed")+(x.range?' • '+x.range:'')+' • '+x.total+' questions</div></div><div class="actions"><button class="primary" data-admin-review="'+x.id+'">📝 Review</button><button class="danger" data-admin-void="'+x.id+'">🚫 Void</button></div></div></div>';
-   }).join("");
- }
- document.querySelectorAll("[data-admin-review]").forEach(btn=>btn.onclick=()=>{
-   const s=allPendingSubs().find(x=>x.id===btn.dataset.adminReview);
-   if(s){reviewUnlocked=true;renderReview(s);$("adminReviewCenter").classList.add("hidden");$("parentReview").scrollIntoView({behavior:"smooth"});}
- });
- document.querySelectorAll("[data-admin-void]").forEach(btn=>btn.onclick=()=>{
-   const s=allPendingSubs().find(x=>x.id===btn.dataset.adminVoid);
-   if(!s)return;
-   if(!confirm("Void this pending worksheet? It will not be scored or appear in progress."))return;
-   const reason=prompt("Optional reason:","")||"Voided by parent";
-   const v=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
-   v.push({id:s.id,userId:s.userId||"guest",userName:s.userName||"Guest",date:s.date,operation:s.operation||"mixed",reason,voidedAt:Date.now()});
-   localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(v.slice(-200)));
-   localStorage.setItem("poorviPendingSubmissions",JSON.stringify(allPendingSubs().filter(x=>x.id!==s.id)));
-   renderAdminReviewCenter();
- });
- $("adminReviewCenter").classList.remove("hidden");
+  const answers=s.answers||[];
+  $("reviewQuestions").innerHTML=answers.length ? answers.map((a,i)=>{
+    const status=a.status||"not_answered";
+    const expected=(a.ans===undefined||a.ans===null)?"—":a.ans;
+    const childRead=a.ocr!==undefined && a.ocr!=="" ? a.ocr : "Not recognized";
+    const img=a.image
+      ? '<img src="'+a.image+'" style="width:110px;height:80px;object-fit:contain;border:1px solid #ddd;border-radius:8px;background:#fff">'
+      : '<div style="width:110px;height:80px;border:1px solid #e5e7eb;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#667085;font-size:12px">No handwriting image</div>';
+
+    return '<div class="row" style="align-items:center">'+
+      '<div style="flex:1;min-width:240px">'+
+        '<b style="font-size:18px">#'+(i+1)+' '+(a.problem||"Problem "+(i+1))+'</b>'+
+        '<div class="muted">Expected answer: <b>'+expected+'</b></div>'+
+        '<div class="muted">App/OCR read: '+childRead+'</div>'+
+      '</div>'+
+      img+
+      '<select data-status="'+i+'" style="min-width:155px">'+
+        '<option value="correct" '+(status==="correct"?"selected":"")+'>✓ Correct</option>'+
+        '<option value="wrong" '+(status==="wrong"?"selected":"")+'>✗ Wrong</option>'+
+        '<option value="not_answered" '+(status==="not_answered"?"selected":"")+'>— Not Answered</option>'+
+      '</select>'+
+    '</div>';
+  }).join("") : '<div class="empty">No answer records were saved with this worksheet.</div>';
 }
-function renderAdminUserOverview(){
-  if(!currentUser || currentUser.role!=="admin"){
-    $("adminUserOverview").classList.add("hidden");
-    return;
-  }
-  const users=adminUsers().filter(u=>u.active!==false);
-  const sel=$("adminUserSelect");
-  sel.innerHTML=users.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
-  const selected=sel.value || (users[0]&&users[0].id);
-  if(selected) sel.value=selected;
-  $("adminUserOverview").classList.remove("hidden");
-  renderAdminSelectedUser();
+function removePending(id){
+  localStorage.setItem("poorviPendingSubmissions",JSON.stringify(allPending().filter(x=>x.id!==id)));
 }
-function renderAdminSelectedUser(){
-  if(!currentUser || currentUser.role!=="admin")return;
-  const uid=$("adminUserSelect").value;
-  const users=adminUsers();
-  const user=users.find(u=>u.id===uid);
-  if(!user)return;
-  const rows=hist(uid).slice().sort((a,b)=>{
-    const da=String(a.date||""); const db=String(b.date||"");
-    return db.localeCompare(da) || ((b.created||0)-(a.created||0));
+function saveReview(){
+  if(!currentReview)return;
+
+  const answers=currentReview.answers||[];
+  document.querySelectorAll("[data-status]").forEach(sel=>{
+    const i=Number(sel.dataset.status);
+    if(answers[i])answers[i].status=sel.value;
   });
-  const total=rows.length;
-  const avg=total?Math.round(rows.reduce((s,x)=>s+(x.a||0),0)/total):0;
-  const correct=rows.reduce((s,x)=>s+(x.n||0),0);
-  const wrong=rows.reduce((s,x)=>s+(x.wrong||0),0);
-  const na=rows.reduce((s,x)=>s+(x.notAnswered||0),0);
 
-  $("adminUserSummary").innerHTML=
-    '<div class="detailSheet"><b>👤 '+user.name+'</b>'+
-    '<div class="adminStats">'+
-    '<div class="adminStat"><b>'+total+'</b> Worksheets</div>'+
-    '<div class="adminStat"><b>'+avg+'%</b> Average</div>'+
-    '<div class="adminStat">✓ <b>'+correct+'</b> Correct</div>'+
-    '<div class="adminStat">✗ <b>'+wrong+'</b> Wrong</div>'+
-    '<div class="adminStat">— <b>'+na+'</b> Not Answered</div>'+
-    '</div></div>';
+  let correct=0,wrong=0,notAnswered=0;
+  answers.forEach(a=>{
+    if(a.status==="correct")correct++;
+    else if(a.status==="wrong")wrong++;
+    else notAnswered++;
+  });
 
-  if(!rows.length){
-    $("adminUserWorksheets").innerHTML='<div class="detailSheet"><div class="muted">No completed worksheets for this user.</div></div>';
-    return;
-  }
+  const total=answers.length||currentReview.total||0;
+  const score=total?Math.round(correct/total*100):0;
+  const uid=currentReview.userId||"guest";
+  const h=history(uid);
 
-  $("adminUserWorksheets").innerHTML=
-    '<div class="detailSheet"><b>📚 Completed Worksheets</b>'+
-    rows.map((x,i)=>{
-      const d=new Date((x.date||"")+"T12:00:00");
-      const date=d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
-      const op=opName(x.operation||"mixed");
-      return '<div class="adminWorksheet">'+
-        '<div class="adminWorksheetHead">'+
-        '<div><b>'+date+'</b><div class="muted">'+op+
-        (x.range?' • Range: '+x.range:'')+
-        (x.total?' • '+x.total+' questions':'')+
-        '</div></div>'+
-        '<div class="adminScore">'+(x.a||0)+'%</div></div>'+
-        '<div class="adminStats">'+
-        '<div class="adminStat">✓ '+(x.n||0)+'</div>'+
-        '<div class="adminStat">✗ '+(x.wrong||0)+'</div>'+
-        '<div class="adminStat">— '+(x.notAnswered||0)+'</div>'+
-        '<div class="adminStat">⏱ '+time(x.et||0)+'</div>'+
-        '</div></div>';
-    }).join("")+'</div>';
+  h.push({
+    id:currentReview.id,
+    date:currentReview.date||new Date().toISOString().slice(0,10),
+    created:currentReview.created||Date.now(),
+    operation:currentReview.operation||"mixed",
+    range:currentReview.range||"",
+    total,
+    n:correct,
+    wrong,
+    notAnswered,
+    a:score,
+    et:currentReview.elapsed||0,
+    reviewed:true,
+    userId:uid,
+    userName:userName(uid,currentReview)
+  });
+
+  saveHistory(uid,h.slice(-200));
+  removePending(currentReview.id);
+
+  currentReview=null;
+  alert("Review saved. Score: "+score+"%");
+  page("pending");
+  renderPending();
+  renderDashboard();
 }
-
-function usersForAdmin(){
- try{
-   const u=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
-   return Array.isArray(u)?u:[];
- }catch(e){return []}
+function voidPending(){
+  if(!currentReview)return;
+  if(!confirm("Void this submitted worksheet? It will not be scored."))return;
+  const uid=currentReview.userId||"guest";
+  const v=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
+  v.push({id:currentReview.id,userId:uid,userName:userName(uid,currentReview),date:currentReview.date,operation:currentReview.operation,reason:"Voided by Admin",voidedAt:Date.now()});
+  localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(v.slice(-200)));
+  removePending(currentReview.id);
+  currentReview=null;
+  alert("Worksheet voided.");
+  page("pending");renderPending();renderDashboard();
 }
-function getSubmissionUserName(s){
- if(s.userName)return s.userName;
- const u=usersForAdmin().find(x=>x.id===s.userId);
- return u?u.name:"Guest";
+function voidPast(uid,index){
+  const h=history(uid),x=h[index];if(!x)return;
+  if(!confirm("Void this completed worksheet for "+userName(uid,x)+"?"))return;
+  const v=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
+  v.push({id:x.id,userId:uid,userName:userName(uid,x),date:x.date,operation:x.operation,reason:"Voided by Admin",voidedAt:Date.now()});
+  localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(v.slice(-200)));
+  h.splice(index,1);saveHistory(uid,h);
+  renderPast();renderUsers();renderDashboard();
 }
-function ensureSubmissionIdentity(s){
- if(!s.userId){
-   s.userId=currentUser?.id||"guest";
-   s.userName=currentUser?.name||"Guest";
- }
- return s;
+function enter(){
+  if($("pin").value!==ADMIN_PIN){$("loginError").textContent="Incorrect Admin PIN.";return}
+  $("login").classList.add("hidden");$("app").classList.remove("hidden");
+  renderDashboard();
 }
-function getAllPendingForAdmin(){
- try{
-   const a=JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]");
-   return Array.isArray(a)?a.map(ensureSubmissionIdentity):[];
- }catch(e){return []}
-}
-function saveAllPendingForAdmin(list){
- localStorage.setItem("poorviPendingSubmissions",JSON.stringify(list.slice(-100)));
-}
-function renderAdminSubmissionQueue(){
- if(!currentUser || currentUser.role!=="admin"){
-   alert("Admin access required.");
-   return;
- }
- const pending=getAllPendingForAdmin().sort((a,b)=>(b.created||0)-(a.created||0));
- const users=usersForAdmin();
- const groups={};
-
- pending.forEach(s=>{
-   const uid=s.userId||"guest";
-   if(!groups[uid])groups[uid]=[];
-   groups[uid].push(s);
- });
-
- let html='';
- const groupIds=Object.keys(groups);
-
- if(!groupIds.length){
-   html='<div class="detailSheet" style="margin-top:10px"><b>🎉 No pending worksheets.</b><div class="muted">All submitted worksheets have been reviewed or there are no submissions yet.</div></div>';
- }else{
-   groupIds.forEach(uid=>{
-     const arr=groups[uid];
-     const name=getSubmissionUserName(arr[0]);
-     html+='<div class="adminUserGroup"><b>👤 '+name+'</b><div class="muted">'+arr.length+' worksheet'+(arr.length===1?'':'s')+' waiting for review</div>';
-     arr.forEach(s=>{
-       const op=opName(s.operation||"mixed");
-       const dt=s.created?new Date(s.created).toLocaleString():s.date;
-       html+='<div class="adminSubmission">'+
-         '<div><b>📚 '+op+'</b>'+
-         '<div class="muted">'+dt+' • '+(s.total||0)+' questions'+
-         (s.range?' • '+s.range:'')+'</div></div>'+
-         '<button class="primary" data-admin-review-id="'+s.id+'">📝 Review</button>'+
-         '</div>';
-     });
-     html+='</div>';
-   });
- }
- $("adminQueue").innerHTML=html;
- $("adminSubmissionQueue").classList.remove("hidden");
-
- document.querySelectorAll("[data-admin-review-id]").forEach(btn=>{
-   btn.onclick=()=>{
-     const all=getAllPendingForAdmin();
-     const s=all.find(x=>x.id===btn.dataset.adminReviewId);
-     if(!s)return;
-     pendingSubmission=s;
-     reviewUnlocked=true;
-     renderReview(s);
-     $("adminSubmissionQueue").classList.add("hidden");
-     $("parentReview").scrollIntoView({behavior:"smooth"});
-   };
- });
-}
-
-
-function renderAdminPastTests(){
- if(!currentUser||currentUser.role!=="admin"){
-   alert("Admin access required.");
-   return;
- }
- const users=getUsers().filter(u=>u.active!==false);
- let html='';
- let total=0;
-
- users.forEach(u=>{
-   const tests=hist(u.id).slice().sort((a,b)=>{
-     return String(b.date||"").localeCompare(String(a.date||""));
-   });
-   if(!tests.length)return;
-   total+=tests.length;
-   html+='<div class="pastTestUser"><b>👤 '+u.name+'</b><div class="muted">'+tests.length+' completed worksheet'+(tests.length===1?'':'s')+'</div>';
-   tests.forEach((x,index)=>{
-     const date=new Date((x.date||"")+"T12:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
-     html+='<div class="pastTestRow">'+
-       '<div><b>📚 '+opName(x.operation||"mixed")+'</b>'+
-       '<div class="muted">'+date+' • '+(x.total||0)+' questions'+
-       (x.range?' • '+x.range:'')+
-       ' • ✓ '+(x.n||0)+' • ✗ '+(x.wrong||0)+' • — '+(x.notAnswered||0)+'</div></div>'+
-       '<div style="display:flex;align-items:center;gap:8px">'+
-       '<b style="font-size:18px">'+(x.a||0)+'%</b>'+
-       '<button class="danger" data-past-void-user="'+u.id+'" data-past-void-index="'+index+'">🚫 Void</button>'+
-       '</div></div>';
-   });
-   html+='</div>';
- });
-
- if(!html)html='<div class="detailSheet"><div class="muted">No completed worksheets found.</div></div>';
- $("pastTestsList").innerHTML=
-   '<div class="muted" style="margin-bottom:8px">'+total+' completed worksheet'+(total===1?'':'s')+' across users.</div>'+html;
- $("adminPastTests").classList.remove("hidden");
-
- document.querySelectorAll("[data-past-void-user]").forEach(btn=>{
-   btn.onclick=()=>{
-     const uid=btn.dataset.pastVoidUser;
-     const index=Number(btn.dataset.pastVoidIndex);
-     const list=hist(uid);
-     const item=list[index];
-     if(!item)return;
-     const user=getUsers().find(u=>u.id===uid);
-     if(!confirm("Void "+(user?.name||"this user's")+" "+opName(item.operation||"mixed")+" test? It will no longer count in progress."))return;
-     const reason=prompt("Optional reason:","")||"Voided by parent";
-     const voided=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
-     voided.push({
-       id:item.id||("voided_"+Date.now()),
-       userId:uid,
-       userName:user?.name||item.userName||"Guest",
-       date:item.date,
-       operation:item.operation||"mixed",
-       total:item.total||0,
-       reason,
-       voidedAt:Date.now()
-     });
-     localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(voided.slice(-200)));
-     list.splice(index,1);
-     saveHist(list,uid);
-     renderAdminPastTests();
-     renderWeek();
-     renderMonthly();
-     renderYearly();
-   };
- });
-}
-function updateRangeControls(){
- const o=$("op").value;
- const addSub=(o==="addition"||o==="subtraction");
- $("addSubRangeWrap").classList.toggle("hidden",!addSub);
- $("mdRangeWrap").classList.toggle("hidden",!(o==="multiplication"||o==="division"));
-}
-$("op").addEventListener("change",()=>{updateRangeControls();if(!started)newEdition()});
-$("addSubRange").addEventListener("change",()=>{if(!started)newEdition()});
-$("mdRange").addEventListener("change",()=>{if(!started)newEdition()});
-$("weekTab").onclick=()=>showTracker("week");
-$("monthTab").onclick=()=>showTracker("month");
-$("yearTab").onclick=()=>showTracker("year");
-$("newBtn").onclick=newEdition;$("startBtn").onclick=()=>{alert("Admin is review-only. Use a User account to take tests.");}; // original handler intentionally disabled
-// startTest;$("writeBtn").onclick=()=>setTool("write");$("eraseBtn").onclick=()=>setTool("erase");$("resultsBtn").onclick=()=>{if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}renderAdminSubmissionQueue();};$("clearBtn").onclick=()=>ask("clear");$("parentBtn").onclick=()=>ask("results");$("unlock").onclick=unlock;$("cancel").onclick=()=>$("modal").classList.add("hidden");$("adminReviewBtn").onclick=()=>{
- if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
- renderAdminReviewCenter();$("adminReviewCenter").scrollIntoView({behavior:"smooth"});
-};
-$("refreshAdminReviewsBtn").onclick=renderAdminReviewCenter;
-$("adminUsersBtn").onclick=()=>{
-  if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
-  renderAdminUserOverview();
-  $("adminUserOverview").scrollIntoView({behavior:"smooth"});
-};
-$("adminUserSelect").onchange=renderAdminSelectedUser;
-$("adminSubmittedBtn").onclick=()=>{
- if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
- renderAdminSubmissionQueue();
- $("adminSubmissionQueue").scrollIntoView({behavior:"smooth"});
-};
-$("adminRefreshBtn").onclick=renderAdminSubmissionQueue;
-$("adminPastTestsBtn").onclick=()=>{
- if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
- renderAdminPastTests();
- $("adminPastTests").scrollIntoView({behavior:"smooth"});
-};
-$("refreshPastTestsBtn").onclick=renderAdminPastTests;
-$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");loadCurrentUser(); if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
- if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
- openReviewWithPin();
-};$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
+$("loginBtn").onclick=enter;
+$("pin").onkeydown=e=>{if(e.key==="Enter")enter()};
+document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{
+  page(b.dataset.page);
+  if(b.dataset.page==="dashboard")renderDashboard();
+  if(b.dataset.page==="pending")renderPending();
+  if(b.dataset.page==="past")renderPast();
+  if(b.dataset.page==="users")renderUsers();
+});
+$("saveReview").onclick=saveReview;
+$("voidPending").onclick=voidPending;
+$("backToPending").onclick=()=>{page("pending");renderPending()};
 </script>
-<script>
-(function(){
- const ADMIN_PIN="2580";
- function adminGate(){
-   const pin=prompt("Enter Admin PIN:");
-   if(String(pin)!==ADMIN_PIN){
-     document.body.innerHTML='<div style="max-width:520px;margin:60px auto;padding:20px;text-align:center;font-family:system-ui"><h2>🔒 Admin Access</h2><p>Incorrect PIN.</p><a href="index.html">Return to User Practice</a></div>';
-     return false;
-   }
-   return true;
- }
- window.addEventListener("DOMContentLoaded",()=>{
-   if(!adminGate())return;
-   if(typeof currentUser!=="undefined"){
-     const users=typeof getUsers==="function"?getUsers():[];
-     currentUser=users.find(u=>u.role==="admin")||{id:"admin",name:"Admin",role:"admin",pin:ADMIN_PIN,active:true};
-     sessionStorage.setItem("poorviCurrentUser","admin");
-     if(typeof applyRole==="function")applyRole();
-   }
-   if(document.getElementById("adminReviewHomeBtn")){
-     document.getElementById("adminReviewHomeBtn").onclick=()=>{
-       if(typeof openLatestReview==="function")openLatestReview();
-       else if(typeof renderAdminReviewCenter==="function")renderAdminReviewCenter();
-       else if(typeof renderPendingQueue==="function")renderPendingQueue();
-     };
-   }
-   if(document.getElementById("adminPastHomeBtn") && typeof renderAdminPastTests==="function"){
-     document.getElementById("adminPastHomeBtn").onclick=()=>renderAdminPastTests();
-   }
-   if(document.getElementById("adminUsersHomeBtn") && typeof renderAdminUserOverview==="function"){
-     document.getElementById("adminUsersHomeBtn").onclick=()=>renderAdminUserOverview();
-   }
- });
-})();
-</script>
-</body></html>
+</body>
+</html>
