@@ -52,61 +52,38 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{padding:7px;border:1px solid #ccc;border-radius:8px;text-align:center}.done{background:#edf9ef}.day b,.day strong{display:block}.day strong{font-size:18px}.small{font-size:10px;color:#68717a}
 .overlay{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}.modal{background:#fff;border-radius:15px;padding:20px;max-width:350px;width:100%}
 @media(max-width:800px){.controls{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.controls{grid-template-columns:1fr 1fr}.cell{height:88px}.q{font-size:clamp(10px,3vw,15px)}.week{grid-template-columns:repeat(4,1fr)}}
-</style><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
-function setupUserQuickSelect(){
- const sel=$("userQuickSelect");
- if(!sel)return;
- const users=getUsers().filter(u=>u.active!==false && u.role!=="admin");
- sel.innerHTML=users.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
- sel.value=currentUser?.id||"guest";
- $("quickUserName").textContent=currentUser?.name||"Guest";
- sel.onchange=()=>{
-   const u=users.find(x=>x.id===sel.value);
-   if(!u)return;
-   const pin=prompt("Enter PIN for "+u.name+":");
-   if(String(pin)!==String(u.pin)){alert("Incorrect PIN.");sel.value=currentUser?.id||"guest";return}
-   currentUser=u;sessionStorage.setItem("poorviCurrentUser",u.id);
-   applyRole();
-   $("quickUserName").textContent=u.name;
-   sel.value=u.id;
-   if(typeof renderWeek==="function")renderWeek();
-   if(typeof renderMonthly==="function")renderMonthly();
-   if(typeof renderYearly==="function")renderYearly();
- };
-}
-</script></head>
+</style><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script><style>.adminChildOnly{display:none!important}</style></head>
 
-<body><div id="userQuickBar" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-      <b>👤 <span id="quickUserName">Guest</span></b>
-      <select id="userQuickSelect" style="max-width:190px"></select>
+<body><div id="adminHeader" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <div><b>👑 Math Practice — Admin</b><div class="muted">Review and manage user worksheets.</div></div>
+      <a href="index.html">← User Practice</a>
     </div>
-    <div style="text-align:right;margin:6px 0"><a href="admin.html" style="font-size:13px">🔒 Parent / Admin</a></div>
-<button class="secondary" id="switchUserBtn">Switch User</button>
+    
+<button class="secondary" id="adminReviewBtn">📝 Review Worksheets</button><button id="adminUsersBtn" class="secondary">👥 User Worksheets</button><button class="secondary" id="adminPastTestsBtn">🗂️ Manage Past Tests</button><button class="secondary" id="switchUserBtn">Switch User</button>
 </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4 User.4 Admin Review + Past Tests.4 Admin Review.2.1</div></div><button class="secondary" id="parentBtn">🔒 Parent</button></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4 Admin.4 Admin Review + Past Tests.4 Admin Review.2.1</div></div><button class="secondary" id="parentBtn">🔒 Parent</button><button class="secondary" id="adminSubmittedBtn">👑 Submitted Worksheets</button></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
-<div><label>Operation</label><select id="op"><option value="addition">Addition</option><option value="subtraction">Subtraction</option><option value="multiplication">Multiplication</option><option value="division">Division</option><option value="mixed">Mixed</option></select></div>
+<div><label>Operation</label><option value="subtraction">Subtraction</option><option value="multiplication">Multiplication</option><option value="division">Division</option><option value="mixed">Mixed</option></select></div>
 <div><label>Questions</label><select id="count"><option>100</option><option>50</option><option>25</option></select></div>
-<div><label>Answer Method</label><select id="answerMode"><option value="pencil">✏️ Apple Pencil</option><option value="keyboard">⌨️ Keyboard</option></select></div>
+<div><label>Answer Method</label><option value="keyboard">⌨️ Keyboard</option></select></div>
 <div><label>Timer</label><select id="mins"><option value="4">4 minutes</option><option value="5">5 minutes</option><option value="0">No timer</option></select></div>
-<div><label>Edition</label><select id="edition"><option value="random">Random</option><option value="regroup">More regrouping</option></select></div>
-<div id="addSubRangeWrap"><label>Add/Sub Range</label><select id="addSubRange"><option value="single">Single digit (0–9)</option><option value="two">Two digit (0–20)</option><option value="mixed">Mixed 0–20</option></select></div>
-<div id="mdRangeWrap" class="hidden"><label>Mul/Div Range</label><select id="mdRange"><option value="12">0–12</option></select></div>
+<div><label>Edition</label><option value="regroup">More regrouping</option></select></div>
+<div id="addSubRangeWrap"><label>Add/Sub Range</label><option value="two">Two digit (0–20)</option><option value="mixed">Mixed 0–20</option></select></div>
+<div id="mdRangeWrap" class="hidden"><label>Mul/Div Range</label></select></div>
 </div>
-<div class="actions"><button class="primary" id="newBtn">✨ Create Edition</button><button class="secondary" id="resultsBtn" data-admin-only>📊 Results / Review</button><button class="secondary" id="usersBtn" data-admin-only>👥 Users</button><button class="danger" id="clearBtn">Clear History</button></div>
+<div class="actions"><button class="secondary" id="resultsBtn" data-admin-only>📊 Results / Review</button><button class="secondary" id="usersBtn" data-admin-only>👥 Users</button><button class="danger" id="clearBtn">Clear History</button></div>
 </section>
 
 <section class="card"><div class="lock">🔒 CHILD MODE — During the test, parent controls are locked.</div>
 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><b>Timer</b><span id="timer" class="timer">4:00</span></div>
 <div class="actions">
-<button class="primary" id="startBtn">▶ Start Test</button>
-<button class="secondary hidden" id="submitBtn">✓ Submit Test</button>
+
+
 </div>
-<div id="pencilTools" class="hidden" style="text-align:center;margin-top:10px">
-<button class="primary" id="writeBtn">🖊️ Write</button>
+
 <button class="secondary" id="eraseBtn">🧽 Erase</button>
 <span class="muted" id="modeText">Write mode — write with Apple Pencil</span>
 </div></section>
@@ -126,6 +103,16 @@ function setupUserQuickSelect(){
   </div>
 </section>
 
+<section class="card hidden" id="adminPastTests">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+    <div>
+      <b>🗂️ Admin — Manage Past Tests</b>
+      <div class="muted">All users' completed worksheets in one place.</div>
+    </div>
+    <button class="secondary" id="refreshPastTestsBtn">🔄 Refresh</button>
+  </div>
+  <div id="pastTestsList" style="margin-top:10px"></div>
+</section>
 <section class="card hidden" id="parentReview">
 <b>📝 Parent Review</b>
 <div class="lock" style="margin-top:8px">🔒 Enter the Parent PIN once to open the review. After that, no PIN is needed for individual answers.</div>
@@ -146,6 +133,25 @@ function setupUserQuickSelect(){
 <div id="mistakes" class="hidden"></div>
 <div id="historyManager" class="hidden" style="margin-top:12px"></div></section>
 
+<section class="card hidden" id="adminReviewCenter">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+<div><b>📝 Admin Review Center</b><div class="muted">All pending worksheets from all users in one place.</div></div>
+<button class="secondary" id="refreshAdminReviewsBtn">🔄 Refresh</button>
+</div>
+<div id="adminReviewSummary" style="margin-top:10px"></div>
+<div id="adminReviewList" style="margin-top:10px"></div>
+</section>
+<section class="card hidden" id="adminUserOverview">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+    <div><b>👨‍👩‍👧 Admin — User Worksheets</b>
+      <div class="muted">View each user's completed worksheets and scores separately.</div>
+    </div>
+    <select id="adminUserSelect" style="max-width:220px"></select>
+  </div>
+  <div id="adminUserSummary" style="margin-top:12px"></div>
+  <div id="adminUserWorksheets" style="margin-top:12px"></div>
+</section>
+
 <section class="card hidden" id="adminSubmissionQueue">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
     <div>
@@ -155,6 +161,16 @@ function setupUserQuickSelect(){
     <button class="secondary" id="adminRefreshBtn">🔄 Refresh</button>
   </div>
   <div id="adminQueue"></div>
+</section>
+
+<section class="card" id="adminHome">
+  <b>👑 Admin Dashboard</b>
+  <div class="muted" style="margin-top:4px">Choose a user to review progress, pending worksheets, and past tests.</div>
+  <div class="actions" style="margin-top:10px">
+    <button class="primary" id="adminReviewHomeBtn">📝 Pending Reviews</button>
+    <button class="secondary" id="adminPastHomeBtn">🗂️ Manage Past Tests</button>
+    <button class="secondary" id="adminUsersHomeBtn">👥 User Worksheets</button>
+  </div>
 </section>
 <section class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
@@ -708,7 +724,7 @@ function applyRole(){
  $("currentRoleLabel").textContent=" • "+(currentUser.role==="admin"?"Administrator":"User");
  const isAdmin=currentUser.role==="admin";
  // Admin gets all parent controls. Regular users only get the child-facing test controls.
- document.querySelectorAll("[data-admin-only]").forEach(el=>el.classList.add("hidden"));
+ document.querySelectorAll("[data-admin-only]").forEach(el=>el.classList.toggle("hidden",!isAdmin));
  $("userManagement").classList.add("hidden");
  if(!isAdmin){
    // Prevent a regular user from seeing the parent review/history UI.
@@ -719,7 +735,7 @@ function applyRole(){
  renderWeek();renderMonthly();renderYearly();
 }
 function switchUser(){
- const users=getUsers().filter(u=>u.active!==false && u.role!=="admin");
+ const users=getUsers().filter(u=>u.active!==false);
  const choices=users.map((u,i)=>`${i+1}. ${u.name} (${u.role})`).join("\n");
  const pick=prompt("Select user:\n"+choices);
  if(pick===null)return;
@@ -775,8 +791,51 @@ function adminUsers(){
   try{return JSON.parse(localStorage.getItem("poorviMathUsers")||"[]")}catch(e){return []}
 }
 
-
-
+function renderAdminReviewCenter(){
+ if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
+ const all=allPendingSubs().slice().sort((a,b)=>(b.created||0)-(a.created||0));
+ const users=getUsers();
+ $("adminReviewSummary").innerHTML='<div class="adminStats"><div class="adminStat"><b>'+all.length+'</b> Pending Worksheets</div><div class="adminStat"><b>'+new Set(all.map(x=>x.userId||"guest")).size+'</b> Users</div></div>';
+ if(!all.length){
+   $("adminReviewList").innerHTML='<div class="detailSheet"><div class="muted">🎉 No worksheets are waiting for review.</div></div>';
+ }else{
+   $("adminReviewList").innerHTML=all.map(x=>{
+     const u=users.find(z=>z.id===(x.userId||"guest"));
+     const name=x.userName||u?.name||"Guest";
+     const dt=new Date(x.created||Date.now()).toLocaleString();
+     return '<div class="adminPendingCard"><div class="adminPendingHead"><div><b>👤 '+name+'</b><div class="muted">'+dt+' • '+opName(x.operation||"mixed")+(x.range?' • '+x.range:'')+' • '+x.total+' questions</div></div><div class="actions"><button class="primary" data-admin-review="'+x.id+'">📝 Review</button><button class="danger" data-admin-void="'+x.id+'">🚫 Void</button></div></div></div>';
+   }).join("");
+ }
+ document.querySelectorAll("[data-admin-review]").forEach(btn=>btn.onclick=()=>{
+   const s=allPendingSubs().find(x=>x.id===btn.dataset.adminReview);
+   if(s){reviewUnlocked=true;renderReview(s);$("adminReviewCenter").classList.add("hidden");$("parentReview").scrollIntoView({behavior:"smooth"});}
+ });
+ document.querySelectorAll("[data-admin-void]").forEach(btn=>btn.onclick=()=>{
+   const s=allPendingSubs().find(x=>x.id===btn.dataset.adminVoid);
+   if(!s)return;
+   if(!confirm("Void this pending worksheet? It will not be scored or appear in progress."))return;
+   const reason=prompt("Optional reason:","")||"Voided by parent";
+   const v=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
+   v.push({id:s.id,userId:s.userId||"guest",userName:s.userName||"Guest",date:s.date,operation:s.operation||"mixed",reason,voidedAt:Date.now()});
+   localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(v.slice(-200)));
+   localStorage.setItem("poorviPendingSubmissions",JSON.stringify(allPendingSubs().filter(x=>x.id!==s.id)));
+   renderAdminReviewCenter();
+ });
+ $("adminReviewCenter").classList.remove("hidden");
+}
+function renderAdminUserOverview(){
+  if(!currentUser || currentUser.role!=="admin"){
+    $("adminUserOverview").classList.add("hidden");
+    return;
+  }
+  const users=adminUsers().filter(u=>u.active!==false);
+  const sel=$("adminUserSelect");
+  sel.innerHTML=users.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
+  const selected=sel.value || (users[0]&&users[0].id);
+  if(selected) sel.value=selected;
+  $("adminUserOverview").classList.remove("hidden");
+  renderAdminSelectedUser();
+}
 function renderAdminSelectedUser(){
   if(!currentUser || currentUser.role!=="admin")return;
   const uid=$("adminUserSelect").value;
@@ -830,11 +889,33 @@ function renderAdminSelectedUser(){
     }).join("")+'</div>';
 }
 
-
-
-
-
-
+function usersForAdmin(){
+ try{
+   const u=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
+   return Array.isArray(u)?u:[];
+ }catch(e){return []}
+}
+function getSubmissionUserName(s){
+ if(s.userName)return s.userName;
+ const u=usersForAdmin().find(x=>x.id===s.userId);
+ return u?u.name:"Guest";
+}
+function ensureSubmissionIdentity(s){
+ if(!s.userId){
+   s.userId=currentUser?.id||"guest";
+   s.userName=currentUser?.name||"Guest";
+ }
+ return s;
+}
+function getAllPendingForAdmin(){
+ try{
+   const a=JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]");
+   return Array.isArray(a)?a.map(ensureSubmissionIdentity):[];
+ }catch(e){return []}
+}
+function saveAllPendingForAdmin(list){
+ localStorage.setItem("poorviPendingSubmissions",JSON.stringify(list.slice(-100)));
+}
 function renderAdminSubmissionQueue(){
  if(!currentUser || currentUser.role!=="admin"){
    alert("Admin access required.");
@@ -891,7 +972,73 @@ function renderAdminSubmissionQueue(){
 }
 
 
+function renderAdminPastTests(){
+ if(!currentUser||currentUser.role!=="admin"){
+   alert("Admin access required.");
+   return;
+ }
+ const users=getUsers().filter(u=>u.active!==false);
+ let html='';
+ let total=0;
 
+ users.forEach(u=>{
+   const tests=hist(u.id).slice().sort((a,b)=>{
+     return String(b.date||"").localeCompare(String(a.date||""));
+   });
+   if(!tests.length)return;
+   total+=tests.length;
+   html+='<div class="pastTestUser"><b>👤 '+u.name+'</b><div class="muted">'+tests.length+' completed worksheet'+(tests.length===1?'':'s')+'</div>';
+   tests.forEach((x,index)=>{
+     const date=new Date((x.date||"")+"T12:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+     html+='<div class="pastTestRow">'+
+       '<div><b>📚 '+opName(x.operation||"mixed")+'</b>'+
+       '<div class="muted">'+date+' • '+(x.total||0)+' questions'+
+       (x.range?' • '+x.range:'')+
+       ' • ✓ '+(x.n||0)+' • ✗ '+(x.wrong||0)+' • — '+(x.notAnswered||0)+'</div></div>'+
+       '<div style="display:flex;align-items:center;gap:8px">'+
+       '<b style="font-size:18px">'+(x.a||0)+'%</b>'+
+       '<button class="danger" data-past-void-user="'+u.id+'" data-past-void-index="'+index+'">🚫 Void</button>'+
+       '</div></div>';
+   });
+   html+='</div>';
+ });
+
+ if(!html)html='<div class="detailSheet"><div class="muted">No completed worksheets found.</div></div>';
+ $("pastTestsList").innerHTML=
+   '<div class="muted" style="margin-bottom:8px">'+total+' completed worksheet'+(total===1?'':'s')+' across users.</div>'+html;
+ $("adminPastTests").classList.remove("hidden");
+
+ document.querySelectorAll("[data-past-void-user]").forEach(btn=>{
+   btn.onclick=()=>{
+     const uid=btn.dataset.pastVoidUser;
+     const index=Number(btn.dataset.pastVoidIndex);
+     const list=hist(uid);
+     const item=list[index];
+     if(!item)return;
+     const user=getUsers().find(u=>u.id===uid);
+     if(!confirm("Void "+(user?.name||"this user's")+" "+opName(item.operation||"mixed")+" test? It will no longer count in progress."))return;
+     const reason=prompt("Optional reason:","")||"Voided by parent";
+     const voided=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
+     voided.push({
+       id:item.id||("voided_"+Date.now()),
+       userId:uid,
+       userName:user?.name||item.userName||"Guest",
+       date:item.date,
+       operation:item.operation||"mixed",
+       total:item.total||0,
+       reason,
+       voidedAt:Date.now()
+     });
+     localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(voided.slice(-200)));
+     list.splice(index,1);
+     saveHist(list,uid);
+     renderAdminPastTests();
+     renderWeek();
+     renderMonthly();
+     renderYearly();
+   };
+ });
+}
 function updateRangeControls(){
  const o=$("op").value;
  const addSub=(o==="addition"||o==="subtraction");
@@ -904,7 +1051,8 @@ $("mdRange").addEventListener("change",()=>{if(!started)newEdition()});
 $("weekTab").onclick=()=>showTracker("week");
 $("monthTab").onclick=()=>showTracker("month");
 $("yearTab").onclick=()=>showTracker("year");
-$("newBtn").onclick=newEdition;$("startBtn").onclick=startTest;$("writeBtn").onclick=()=>setTool("write");$("eraseBtn").onclick=()=>setTool("erase");$("resultsBtn").onclick=()=>{if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}renderAdminSubmissionQueue();};$("clearBtn").onclick=()=>ask("clear");$("parentBtn").onclick=()=>ask("results");$("unlock").onclick=unlock;$("cancel").onclick=()=>$("modal").classList.add("hidden");$("adminReviewBtn").onclick=()=>{
+$("newBtn").onclick=newEdition;$("startBtn").onclick=()=>{alert("Admin is review-only. Use a User account to take tests.");}; // original handler intentionally disabled
+// startTest;$("writeBtn").onclick=()=>setTool("write");$("eraseBtn").onclick=()=>setTool("erase");$("resultsBtn").onclick=()=>{if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}renderAdminSubmissionQueue();};$("clearBtn").onclick=()=>ask("clear");$("parentBtn").onclick=()=>ask("results");$("unlock").onclick=unlock;$("cancel").onclick=()=>$("modal").classList.add("hidden");$("adminReviewBtn").onclick=()=>{
  if(!currentUser||currentUser.role!=="admin"){alert("Admin access required.");return}
  renderAdminReviewCenter();$("adminReviewCenter").scrollIntoView({behavior:"smooth"});
 };
@@ -927,8 +1075,44 @@ $("adminPastTestsBtn").onclick=()=>{
  $("adminPastTests").scrollIntoView({behavior:"smooth"});
 };
 $("refreshPastTestsBtn").onclick=renderAdminPastTests;
-$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");loadCurrentUser(); setupUserQuickSelect(); if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
+$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");loadCurrentUser(); if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
  if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
  openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
-</script></body></html>
+</script>
+<script>
+(function(){
+ const ADMIN_PIN="2580";
+ function adminGate(){
+   const pin=prompt("Enter Admin PIN:");
+   if(String(pin)!==ADMIN_PIN){
+     document.body.innerHTML='<div style="max-width:520px;margin:60px auto;padding:20px;text-align:center;font-family:system-ui"><h2>🔒 Admin Access</h2><p>Incorrect PIN.</p><a href="index.html">Return to User Practice</a></div>';
+     return false;
+   }
+   return true;
+ }
+ window.addEventListener("DOMContentLoaded",()=>{
+   if(!adminGate())return;
+   if(typeof currentUser!=="undefined"){
+     const users=typeof getUsers==="function"?getUsers():[];
+     currentUser=users.find(u=>u.role==="admin")||{id:"admin",name:"Admin",role:"admin",pin:ADMIN_PIN,active:true};
+     sessionStorage.setItem("poorviCurrentUser","admin");
+     if(typeof applyRole==="function")applyRole();
+   }
+   if(document.getElementById("adminReviewHomeBtn")){
+     document.getElementById("adminReviewHomeBtn").onclick=()=>{
+       if(typeof openLatestReview==="function")openLatestReview();
+       else if(typeof renderAdminReviewCenter==="function")renderAdminReviewCenter();
+       else if(typeof renderPendingQueue==="function")renderPendingQueue();
+     };
+   }
+   if(document.getElementById("adminPastHomeBtn") && typeof renderAdminPastTests==="function"){
+     document.getElementById("adminPastHomeBtn").onclick=()=>renderAdminPastTests();
+   }
+   if(document.getElementById("adminUsersHomeBtn") && typeof renderAdminUserOverview==="function"){
+     document.getElementById("adminUsersHomeBtn").onclick=()=>renderAdminUserOverview();
+   }
+ });
+})();
+</script>
+</body></html>
