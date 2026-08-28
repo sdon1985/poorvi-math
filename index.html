@@ -5,7 +5,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,Arial;color:#17191c}
 .app{max-width:1160px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #ddd;border-radius:14px;padding:14px;margin:10px 0}
-h1{font-size:24px;margin:0}.muted{color:#68717a;font-size:13px}.controls{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+h1{font-size:24px;margin:0}.muted{color:#68717a;font-size:13px}.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 label{display:block;font-size:12px;font-weight:700;margin-bottom:4px}select,input,button{font:inherit}select,input{padding:9px;border:1px solid #bbb;border-radius:8px;background:#fff}
 button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:44px}.primary{background:#2563eb;color:#fff}.secondary{background:#e8ebef}.danger{background:#fee2e2;color:#991b1b}.erase{background:#fee2e2;color:#991b1b}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.timer{font-size:28px;font-weight:800}.warn{color:#c62828}
@@ -34,7 +34,7 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 @media(max-width:800px){.controls{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.controls{grid-template-columns:1fr 1fr}.cell{height:88px}.q{font-size:clamp(10px,3vw,15px)}.week{grid-template-columns:repeat(4,1fr)}}
 </style><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script></head>
 <body><div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Poorvi Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v18</div></div><button class="secondary" id="parentBtn">🔒 Parent</button></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Poorvi Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v22</div></div><button class="secondary" id="parentBtn">🔒 Parent</button></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -43,6 +43,8 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 <div><label>Answer Method</label><select id="answerMode"><option value="pencil">✏️ Apple Pencil</option><option value="keyboard">⌨️ Keyboard</option></select></div>
 <div><label>Timer</label><select id="mins"><option value="4">4 minutes</option><option value="5">5 minutes</option><option value="0">No timer</option></select></div>
 <div><label>Edition</label><select id="edition"><option value="random">Random</option><option value="regroup">More regrouping</option></select></div>
+<div id="addSubRangeWrap"><label>Add/Sub Range</label><select id="addSubRange"><option value="single">Single digit (0–9)</option><option value="two">Two digit (0–20)</option><option value="mixed">Mixed 0–20</option></select></div>
+<div id="mdRangeWrap" class="hidden"><label>Mul/Div Range</label><select id="mdRange"><option value="12">0–12</option></select></div>
 </div>
 <div class="actions"><button class="primary" id="newBtn">✨ Create Edition</button><button class="secondary" id="resultsBtn">📊 Results / Review</button><button class="danger" id="clearBtn">Clear History</button></div>
 </section>
@@ -70,14 +72,41 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 <div id="reviewList" style="margin-top:10px"></div>
 <div class="actions" style="justify-content:center">
 <button class="primary" id="saveReviewBtn">💾 Save Review & Score</button>
+<button class="danger" id="voidReviewBtn">🚫 Void Test</button>
 <button class="secondary" id="closeReviewBtn">Close</button>
 </div>
 </section>
 <section class="card hidden" id="result"><div class="score" id="score"></div><div id="msg" style="text-align:center"></div>
 <div class="stats" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px"><div class="stat"><b id="acc"></b>Accuracy</div><div class="stat"><b id="used"></b>Time</div><div class="stat"><b id="best"></b>Best</div></div>
-<div class="actions" style="justify-content:center"><button class="secondary" id="reviewBtn">Review Mistakes</button></div><div id="mistakes" class="hidden"></div></section>
-<section class="card"><b>This Week</b><div class="week" id="week"></div><div class="muted" id="summary" style="margin-top:8px"></div>
-<div id="dayDetails" class="hidden" style="margin-top:12px"></div></section>
+<div class="actions" style="justify-content:center">
+<button class="secondary" id="reviewBtn">Review Mistakes</button>
+<button class="secondary" id="manageHistoryBtn">🗂️ Manage Past Tests</button>
+</div>
+<div id="mistakes" class="hidden"></div>
+<div id="historyManager" class="hidden" style="margin-top:12px"></div></section>
+<section class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+<b>📊 Progress Tracker</b>
+<div class="actions" style="margin:0">
+<button class="primary" id="weekTab">Weekly</button>
+<button class="secondary" id="monthTab">Monthly</button>
+<button class="secondary" id="yearTab">Yearly</button>
+</div>
+</div>
+<div id="weeklyTracker">
+<div class="week" id="week" style="margin-top:10px"></div>
+<div class="muted" id="summary" style="margin-top:8px"></div>
+<div id="dayDetails" class="hidden" style="margin-top:12px"></div>
+</div>
+<div id="monthlyTracker" class="hidden" style="margin-top:10px">
+<div id="monthSummary"></div>
+<div id="monthDetails" class="hidden" style="margin-top:12px"></div>
+</div>
+<div id="yearlyTracker" class="hidden" style="margin-top:10px">
+<div id="yearSummary"></div>
+<div id="yearDetails" class="hidden" style="margin-top:12px"></div>
+</div>
+</section>
 </div>
 
 <div id="modal" class="overlay hidden"><div class="modal"><h2>🔒 Parent Access</h2><div class="muted">Enter parent PIN.</div><input id="pin" type="password" inputmode="numeric" style="width:100%;margin-top:10px"><div class="actions"><button class="primary" id="unlock">Unlock</button><button class="secondary" id="cancel">Cancel</button></div></div></div>
@@ -87,7 +116,31 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 const $=id=>document.getElementById(id),R=n=>Math.floor(Math.random()*n);
 let qs=[],started=false,done=false,left=240,tid=null,begin=0,pencilTool="write",parentAction="";
 function sym(o){return({addition:"+",subtraction:"−",multiplication:"×",division:"÷"})[o]}
-function make(o,ed){if(o==="mixed")o=["addition","subtraction","multiplication","division"][R(4)];let a,b,ans;if(o==="addition"){a=R(10);b=R(10);if(ed==="regroup"&&a+b<10)b=Math.min(9,10-a+R(a+1));ans=a+b}else if(o==="subtraction"){a=R(10);b=R(a+1);ans=a-b}else if(o==="multiplication"){a=R(10);b=R(10);ans=a*b}else{b=1+R(9);ans=R(10);a=b*ans}return{a,b,ans,o}}
+function randIn(lo,hi){return lo+R(hi-lo+1)}
+function make(o,ed){
+ if(o==="mixed")o=["addition","subtraction","multiplication","division"][R(4)];
+ let a,b,ans,range=$("addSubRange")?.value||"single";
+ if(o==="addition"||o==="subtraction"){
+   let hi=range==="single"?9:20;
+   if(range==="mixed")hi=R(2)?9:20;
+   a=randIn(0,hi); b=randIn(0,hi);
+   if(ed==="regroup"&&o==="addition"){
+     // Favor sums that cross 10 when possible.
+     let tries=0;
+     while(a+b<10 && tries++<20){a=randIn(0,hi);b=randIn(0,hi)}
+   }
+   if(o==="subtraction"&&b>a){[a,b]=[b,a]}
+   ans=o==="addition"?a+b:a-b;
+ }else if(o==="multiplication"){
+   a=randIn(0,12);b=randIn(0,12);ans=a*b;
+ }else{
+   // Division is always exact and uses factors from 0–12.
+   b=randIn(1,12);ans=randIn(0,12);a=b*ans;
+   // Keep the dividend within the requested 0–12 table range when possible.
+   if(a>144){a=144;ans=Math.floor(a/b)}
+ }
+ return{a,b,ans,o}
+}
 function newEdition(){if(started)return;clearInterval(tid);done=false;left=(+$("mins").value||0)*60;updateTimer();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));qs.sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
 function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div><div class="fb" id="f'+i+'"></div></div>';g.appendChild(c)});$("sheet").appendChild(g);if($("answerMode").value==="pencil")setupPencil();requestAnimationFrame(fitGrid)}
 function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>drawing=false;c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";setTool("write")}},true)})}
@@ -111,7 +164,7 @@ function makeSubmission(){
      answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:"",ocr:v,status:v!==""?(+v===qs[i].ans?"correct":"wrong"):"not_answered"});
    });
  }
- return {id:"sub_"+Date.now(),date:key(),created:Date.now(),operation:$("op").value,total:qs.length,elapsed:elapsed(),answers};
+ return {id:"sub_"+Date.now(),date:key(),created:Date.now(),operation:$("op").value,range:$("op").value==="addition"||$("op").value==="subtraction"?$("addSubRange").value:"0-12",total:qs.length,elapsed:elapsed(),answers};
 }
 function pendingSubs(){return JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]")}
 function savePendingSubmission(s){
@@ -150,6 +203,29 @@ function openLatestReview(){
  renderReview(all[all.length-1]);
  $("parentReview").scrollIntoView({behavior:"smooth"});
 }
+function voidCurrentReview(){
+ if(!pendingSubmission)return;
+ if(!confirm("Void this test? It will be excluded from weekly, monthly, yearly, and overall results."))return;
+ const reason=prompt("Optional reason for voiding this test:","")||"Voided by parent";
+ const voided=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
+ voided.push({
+   id:pendingSubmission.id,
+   date:pendingSubmission.date,
+   operation:pendingSubmission.operation,
+   total:pendingSubmission.total,
+   reason,
+   voidedAt:Date.now()
+ });
+ localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(voided.slice(-100)));
+
+ const remaining=pendingSubs().filter(x=>x.id!==pendingSubmission.id);
+ localStorage.setItem("poorviPendingSubmissions",JSON.stringify(remaining));
+ pendingSubmission=null;
+ $("parentReview").classList.add("hidden");
+ $("result").classList.add("hidden");
+ renderWeek();renderMonthly();renderYearly();
+ alert("Test voided. It will not affect Poorvi's results or progress totals.");
+}
 function saveCurrentReview(){
  if(!pendingSubmission)return;
  const correct=pendingSubmission.answers.filter(x=>x.status==="correct").length;
@@ -161,7 +237,7 @@ function saveCurrentReview(){
  const h=hist();
  const wrong=pendingSubmission.answers.filter(x=>x.status==="wrong").length;
  const notAnswered=pendingSubmission.answers.filter(x=>x.status==="not_answered").length;
- h.push({date:pendingSubmission.date,n:correct,wrong,notAnswered,total,a:acc,et:pendingSubmission.elapsed,reviewed:true,operation:pendingSubmission.operation});
+ h.push({id:pendingSubmission.id,date:pendingSubmission.date,n:correct,wrong,notAnswered,total,a:acc,et:pendingSubmission.elapsed,reviewed:true,operation:pendingSubmission.operation,range:pendingSubmission.range});
  localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)));
  const remaining=pendingSubs().filter(x=>x.id!==pendingSubmission.id);
  localStorage.setItem("poorviPendingSubmissions",JSON.stringify(remaining));
@@ -284,42 +360,195 @@ function time(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function save(n,total,a,et){let h=hist();h.push({date:key(),n,total,a,et});localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)))}
 function hist(){return JSON.parse(localStorage.getItem("poorviMathHistory")||"[]")}function key(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function showScore(n,total,a,et,up,early){let h=hist();$("score").textContent=n+" / "+total;$("acc").textContent=a+"%";$("used").textContent=time(et);$("best").textContent=Math.max(a,...h.map(x=>x.a||0))+"%";$("msg").textContent=early?"🎉 Great job! You finished early!":up?"⏰ Time's up — submitted automatically.":a===100?"🎉 Perfect!":a>=90?"⭐ Excellent!":"👍 Keep practicing!";$("result").classList.remove("hidden");renderWeek()}
-function weekDates(){let d=new Date(),day=d.getDay(),m=new Date(d);m.setDate(d.getDate()-(day===0?6:day-1));return Array.from({length:7},(_,i)=>{let x=new Date(m);x.setDate(m.getDate()+i);return x})}
-function renderWeek(){
+function weekDates(){
+ let d=new Date(),day=d.getDay(),m=new Date(d);
+ m.setDate(d.getDate()-(day===0?6:day-1));
+ return Array.from({length:7},(_,i)=>{let x=new Date(m);x.setDate(m.getDate()+i);return x})
+}
+function opName(op){return (op||"mixed")[0].toUpperCase()+(op||"mixed").slice(1)}
+
+function voidedIds(){
+ return new Set(JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]").map(x=>x.id));
+}
+function renderHistoryManager(){
+ const h=hist(),v=voidedIds();
+ let html='<div class="detailSheet"><b>🗂️ Past Submitted Tests</b><div class="muted" style="margin-top:4px">Void any old test you no longer want included in Poorvi’s progress.</div>';
+ if(!h.length){html+='<div class="muted" style="margin-top:10px">No saved tests.</div>'}
+ else{
+   [...h].reverse().forEach((x,revIndex)=>{
+     const originalIndex=h.length-1-revIndex;
+     const label=new Date(x.date+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+     html+='<div class="reviewItem" style="margin-top:8px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">'+
+       '<div><b>'+label+' — '+opName(x.operation||"mixed")+'</b>'+
+       '<div class="muted">'+(x.total||0)+' questions • '+(x.a||0)+'% • ✓ '+(x.n||0)+' • ✗ '+(x.wrong||0)+' • — '+(x.notAnswered||0)+'</div></div>'+
+       '<button class="danger" data-void-history="'+originalIndex+'">🚫 Void Test</button></div></div>';
+   });
+ }
+ html+='</div>';
+ $("historyManager").innerHTML=html;$("historyManager").classList.remove("hidden");
+ document.querySelectorAll("[data-void-history]").forEach(btn=>btn.onclick=()=>{
+   const idx=+btn.dataset.voidHistory;
+   voidSavedHistoryTest(idx);
+ });
+}
+function voidSavedHistoryTest(index){
  const h=hist();
- const byDate={};
+ const item=h[index];
+ if(!item)return;
+ if(!confirm("Void this past test? It will be excluded from weekly, monthly, yearly, and overall results."))return;
+ const reason=prompt("Optional reason for voiding this test:","")||"Voided by parent";
+ const voided=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
+ const id=item.id||("history_"+item.date+"_"+index+"_"+Date.now());
+ voided.push({id,date:item.date,operation:item.operation||"mixed",total:item.total||0,reason,voidedAt:Date.now()});
+ localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(voided.slice(-200)));
+ h.splice(index,1);
+ localStorage.setItem("poorviMathHistory",JSON.stringify(h));
+ renderHistoryManager();renderWeek();renderMonthly();renderYearly();
+ alert("Past test voided. It no longer affects Poorvi's progress.");
+}
+function renderWeek(){
+ const h=hist(),byDate={};
  h.forEach(x=>{(byDate[x.date]||(byDate[x.date]=[])).push(x)});
  const dates=weekDates();
  $("week").innerHTML=dates.map(d=>{
-   const k=key(d),items=byDate[k]||[];
-   const count=items.length;
-   const best=count?Math.max(...items.map(x=>x.a||0)):"—";
-   return '<button class="day '+(count?"done":"")+'" data-day="'+k+'"><b>'+d.toLocaleDateString(undefined,{weekday:"short"})+'</b><strong>'+best+(count?"%":"")+'</strong><span class="small">'+(count?count+" worksheet"+(count===1?"":"s"):"Not done")+'</span></button>';
+   const k=key(d),items=byDate[k]||[],best=items.length?Math.max(...items.map(x=>x.a||0)):"—";
+   return '<button class="day '+(items.length?"done":"")+'" data-day="'+k+'"><b>'+d.toLocaleDateString(undefined,{weekday:"short"})+'</b><strong>'+best+(items.length?"%":"")+'</strong><span class="small">'+(items.length?items.length+" worksheet"+(items.length===1?"":"s"):"Not done")+'</span></button>';
  }).join("");
  document.querySelectorAll("[data-day]").forEach(btn=>btn.onclick=()=>showDayDetails(btn.dataset.day));
- $("summary").textContent=dates.filter(d=>(byDate[key(d)]||[]).length).length+" of 7 days completed this week. Tap a day for worksheet details.";
+ $("summary").textContent=dates.filter(d=>(byDate[key(d)]||[]).length).length+" of 7 days completed this week. Tap a day for details.";
 }
 function showDayDetails(dateStr){
  const items=hist().filter(x=>x.date===dateStr);
  const d=new Date(dateStr+"T12:00:00");
  if(!items.length){$("dayDetails").innerHTML='<b>'+d.toLocaleDateString()+'</b><div class="muted">No worksheets completed.</div>';$("dayDetails").classList.remove("hidden");return}
- const groups={};
- items.forEach((x,i)=>{
-   const op=(x.operation||"mixed");
-   (groups[op]||(groups[op]=[])).push(x);
- });
- let html='<div class="detailSheet"><b>📅 '+d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})+'</b>';
+ const groups={};items.forEach(x=>(groups[x.operation||"mixed"]||(groups[x.operation||"mixed"]=[])).push(x));
+ let html='<div class="detailSheet"><b>📅 '+d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric",year:"numeric"})+'</b>';
  Object.keys(groups).forEach(op=>{
-   const arr=groups[op];
-   html+='<div style="margin-top:12px"><b>'+op[0].toUpperCase()+op.slice(1)+'</b>';
-   arr.forEach((x,i)=>{
-     const na=x.notAnswered!=null?x.notAnswered:(x.total-x.n-(x.wrong||0));
-     html+='<div class="detailRow"><div>Worksheet '+(i+1)+'<div class="muted">'+time(x.et||0)+'</div></div><div class="statusPill reviewCorrect">✓ '+x.n+'</div><div class="statusPill reviewWrong">✗ '+(x.wrong||0)+'</div><div class="statusPill reviewNA">— '+Math.max(0,na)+'</div><b>'+x.a+'%</b></div>';
+   html+='<div style="margin-top:12px"><b>'+opName(op)+'</b>';
+   groups[op].forEach((x,i)=>{
+     const na=x.notAnswered!=null?x.notAnswered:Math.max(0,x.total-x.n-(x.wrong||0));
+     html+='<div class="detailRow"><div>Worksheet '+(i+1)+'<div class="muted">'+time(x.et||0)+'</div></div><div class="statusPill reviewCorrect">✓ '+x.n+'</div><div class="statusPill reviewWrong">✗ '+(x.wrong||0)+'</div><div class="statusPill reviewNA">— '+na+'</div><b>'+x.a+'%</b></div>';
    });
    html+='</div>';
  });
- html+='<div style="margin-top:10px"><b>Legend:</b> ✓ Correct &nbsp; ✗ Wrong &nbsp; — Not Answered</div></div>';
+ html+='<div style="margin-top:10px"><b>✓ Correct &nbsp; ✗ Wrong &nbsp; — Not Answered</b></div></div>';
  $("dayDetails").innerHTML=html;$("dayDetails").classList.remove("hidden");$("dayDetails").scrollIntoView({behavior:"smooth"});
+}
+function renderMonthly(){
+ const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+ const items=hist().filter(x=>{
+   const d=new Date(x.date+"T12:00:00");
+   return d.getFullYear()===y&&d.getMonth()===m;
+ });
+ const byDate={};
+ items.forEach(x=>(byDate[x.date]||(byDate[x.date]=[])).push(x));
+ const days=Object.keys(byDate).length, worksheets=items.length;
+ const avg=worksheets?Math.round(items.reduce((s,x)=>s+(x.a||0),0)/worksheets):0;
+ const correct=items.reduce((s,x)=>s+(x.n||0),0);
+ const wrong=items.reduce((s,x)=>s+(x.wrong||0),0);
+ const na=items.reduce((s,x)=>s+(x.notAnswered||0),0);
+
+ $("monthSummary").innerHTML=
+   '<div class="detailSheet"><b>📅 '+now.toLocaleDateString(undefined,{month:"long",year:"numeric"})+
+   '</b><div class="stats" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+   '<div class="stat"><b>'+days+'</b> Days Practiced</div>'+
+   '<div class="stat"><b>'+worksheets+'</b> Worksheets</div>'+
+   '<div class="stat"><b>'+avg+'%</b> Avg Score</div>'+
+   '<div class="stat"><b>✓ '+correct+'</b> Correct</div>'+
+   '<div class="stat"><b>✗ '+wrong+'</b> Wrong</div>'+
+   '<div class="stat"><b>— '+na+'</b> Not Answered</div>'+
+   '</div></div>';
+
+ let html='<div class="detailSheet"><b>📚 Worksheets Completed by Day</b>'+
+   '<div class="muted" style="margin-top:4px">Each day shows exactly what type of worksheet was completed.</div>';
+
+ const dates=Object.keys(byDate).sort();
+ if(!dates.length){
+   html+='<div class="muted" style="margin-top:10px">No worksheets completed this month.</div>';
+ }else{
+   dates.forEach(dateStr=>{
+     const d=new Date(dateStr+"T12:00:00");
+     const arr=byDate[dateStr];
+     html+='<div style="margin-top:14px;padding:10px;border:1px solid #ddd;border-radius:10px;background:#fafafa">'+
+       '<b>📅 '+d.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})+
+       '</b><div class="muted">'+arr.length+' worksheet'+(arr.length===1?"":"s")+'</div>';
+
+     const byOp={};
+     arr.forEach(x=>(byOp[x.operation||"mixed"]||(byOp[x.operation||"mixed"]=[])).push(x));
+
+     Object.keys(byOp).forEach(op=>{
+       const list=byOp[op];
+       html+='<div style="margin-top:8px"><b>'+opName(op)+'</b>';
+       list.forEach((x,i)=>{
+         const nax=x.notAnswered!=null?x.notAnswered:Math.max(0,x.total-(x.n||0)-(x.wrong||0));
+         html+='<div class="detailRow" style="grid-template-columns:1fr 70px 70px 95px 65px">'+
+           '<div><b>Worksheet '+(i+1)+'</b>'+
+           '<div class="muted">'+(x.range?("Range: "+x.range+" • "):"")+time(x.et||0)+'</div></div>'+
+           '<div class="statusPill reviewCorrect">✓ '+(x.n||0)+'</div>'+
+           '<div class="statusPill reviewWrong">✗ '+(x.wrong||0)+'</div>'+
+           '<div class="statusPill reviewNA">— '+nax+'</div>'+
+           '<b>'+x.a+'%</b></div>';
+       });
+       html+='</div>';
+     });
+     html+='</div>';
+   });
+ }
+ html+='</div>';
+ $("monthDetails").innerHTML=html;
+ $("monthDetails").classList.remove("hidden");
+}
+function renderYearly(){
+ const now=new Date(),y=now.getFullYear();
+ const items=hist().filter(x=>new Date(x.date+"T12:00:00").getFullYear()===y);
+ const byMonth={};
+ items.forEach(x=>(byMonth[x.date.slice(0,7)]||(byMonth[x.date.slice(0,7)]=[])).push(x));
+ const months=Object.keys(byMonth).length,worksheets=items.length;
+ const days=new Set(items.map(x=>x.date)).size;
+ const avg=worksheets?Math.round(items.reduce((s,x)=>s+(x.a||0),0)/worksheets):0;
+ const correct=items.reduce((s,x)=>s+(x.n||0),0);
+ const wrong=items.reduce((s,x)=>s+(x.wrong||0),0);
+ const na=items.reduce((s,x)=>s+(x.notAnswered||0),0);
+
+ $("yearSummary").innerHTML=
+   '<div class="detailSheet"><b>📅 '+y+' Year</b><div class="stats" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+   '<div class="stat"><b>'+days+'</b> Days Practiced</div>'+
+   '<div class="stat"><b>'+months+'</b> Months</div>'+
+   '<div class="stat"><b>'+worksheets+'</b> Worksheets</div>'+
+   '<div class="stat"><b>'+avg+'%</b> Avg Score</div>'+
+   '<div class="stat"><b>✓ '+correct+'</b> Correct</div>'+
+   '<div class="stat"><b>✗ '+wrong+'</b> Wrong</div>'+
+   '<div class="stat"><b>— '+na+'</b> Not Answered</div></div></div>';
+
+ let html='<div class="detailSheet"><b>📆 Monthly Breakdown</b>'+
+   '<div class="muted" style="margin-top:4px">Tap Monthly for the full day-by-day worksheet details.</div>';
+
+ Object.keys(byMonth).sort().forEach(k=>{
+   const arr=byMonth[k];
+   const monthDays=new Set(arr.map(x=>x.date)).size;
+   const av=Math.round(arr.reduce((s,x)=>s+(x.a||0),0)/arr.length);
+   const [yy,mm]=k.split("-");
+   const label=new Date(+yy,+mm-1,1).toLocaleDateString(undefined,{month:"long"});
+   const ops=[...new Set(arr.map(x=>opName(x.operation||"mixed")))].join(", ");
+
+   html+='<div class="detailRow" style="grid-template-columns:1.1fr 80px 90px 110px 70px">'+
+     '<div><b>'+label+'</b><div class="muted">'+monthDays+' day'+(monthDays===1?"":"s")+
+     ' • '+arr.length+' worksheet'+(arr.length===1?"":"s")+' • '+ops+'</div></div>'+
+     '<div class="statusPill reviewCorrect">✓ '+arr.reduce((s,x)=>s+(x.n||0),0)+'</div>'+
+     '<div class="statusPill reviewWrong">✗ '+arr.reduce((s,x)=>s+(x.wrong||0),0)+'</div>'+
+     '<div class="statusPill reviewNA">— '+arr.reduce((s,x)=>s+(x.notAnswered||0),0)+'</div>'+
+     '<b>'+av+'%</b></div>';
+ });
+ html+='</div>';
+ $("yearDetails").innerHTML=html;
+ $("yearDetails").classList.remove("hidden");
+}
+function showTracker(name){
+ ["weeklyTracker","monthlyTracker","yearlyTracker"].forEach(x=>$(x).classList.add("hidden"));
+ ["weekTab","monthTab","yearTab"].forEach(x=>$(x).className="secondary");
+ if(name==="week"){$("weeklyTracker").classList.remove("hidden");$("weekTab").className="primary";renderWeek()}
+ if(name==="month"){$("monthlyTracker").classList.remove("hidden");$("monthTab").className="primary";renderMonthly()}
+ if(name==="year"){$("yearlyTracker").classList.remove("hidden");$("yearTab").className="primary";renderYearly()}
 }
 function ask(a){parentAction=a;$("modal").classList.remove("hidden");$("pin").value="";$("pin").focus()}
 function unlock(){
@@ -332,8 +561,21 @@ function unlock(){
    openLatestReview();
  }
 }
-$("submitBtn").onclick=()=>{if(started&&confirm("Submit the test now? You still have time remaining."))finish(false,true)};$("newBtn").onclick=newEdition;$("startBtn").onclick=startTest;$("writeBtn").onclick=()=>setTool("write");$("eraseBtn").onclick=()=>setTool("erase");$("resultsBtn").onclick=()=>openReviewWithPin();$("clearBtn").onclick=()=>ask("clear");$("parentBtn").onclick=()=>ask("results");$("unlock").onclick=unlock;$("cancel").onclick=()=>$("modal").classList.add("hidden");$("saveReviewBtn").onclick=saveCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
+$("submitBtn").onclick=()=>{if(started&&confirm("Submit the test now? You still have time remaining."))finish(false,true)};
+function updateRangeControls(){
+ const o=$("op").value;
+ const addSub=(o==="addition"||o==="subtraction");
+ $("addSubRangeWrap").classList.toggle("hidden",!addSub);
+ $("mdRangeWrap").classList.toggle("hidden",!(o==="multiplication"||o==="division"));
+}
+$("op").addEventListener("change",()=>{updateRangeControls();if(!started)newEdition()});
+$("addSubRange").addEventListener("change",()=>{if(!started)newEdition()});
+$("mdRange").addEventListener("change",()=>{if(!started)newEdition()});
+$("weekTab").onclick=()=>showTracker("week");
+$("monthTab").onclick=()=>showTracker("month");
+$("yearTab").onclick=()=>showTracker("year");
+$("newBtn").onclick=newEdition;$("startBtn").onclick=startTest;$("writeBtn").onclick=()=>setTool("write");$("eraseBtn").onclick=()=>setTool("erase");$("resultsBtn").onclick=()=>openReviewWithPin();$("clearBtn").onclick=()=>ask("clear");$("parentBtn").onclick=()=>ask("results");$("unlock").onclick=unlock;$("cancel").onclick=()=>$("modal").classList.add("hidden");$("saveReviewBtn").onclick=saveCurrentReview;$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
  if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
  openReviewWithPin();
-};$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);newEdition();renderWeek();fitGrid();
+};$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 </script></body></html>
