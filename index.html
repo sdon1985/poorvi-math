@@ -1,13 +1,3 @@
-
-window.addEventListener("storage",function(e){
-  if(e.key==="poorviMathHistoryByUser" || e.key==="poorviVoidedSubmissions"){
-    refreshProgressAfterAdminSave();
-  }
-});
-window.addEventListener("focus",refreshProgressAfterAdminSave);
-document.addEventListener("visibilitychange",function(){
-  if(!document.hidden)refreshProgressAfterAdminSave();
-});
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Poorvi Math">
@@ -168,7 +158,7 @@ body.test-focus-mode #testFocusBadge{display:inline-flex}
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.11 — Persistent Test Session - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.16 — Code Display Fix - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -1453,5 +1443,14 @@ window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch()
 window.addEventListener("pagehide",()=>{if(started&&!done)persistActiveSession();});
 window.addEventListener("beforeunload",()=>{if(started&&!done)persistActiveSession();});
 })();
+window.addEventListener("storage",function(e){
+  if(e.key==="poorviMathHistoryByUser" || e.key==="poorviVoidedSubmissions"){
+    refreshProgressAfterAdminSave();
+  }
+});
+window.addEventListener("focus",refreshProgressAfterAdminSave);
+document.addEventListener("visibilitychange",function(){
+  if(!document.hidden)refreshProgressAfterAdminSave();
+});
 </script>
 </body></html>
