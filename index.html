@@ -59,7 +59,11 @@ document.addEventListener("visibilitychange",()=>{
     }
   }
 });
-</script><style>#userNav button.active{background:#1769ff;color:#fff;border-color:#1769ff}</style></head>
+</script><style>#userNav button.active{background:#1769ff;color:#fff;border-color:#1769ff}</style><style>
+body.test-session-locked .testNavigationControl{pointer-events:none!important;opacity:.45!important}
+body.test-session-locked .test-session-allowed{pointer-events:auto!important;opacity:1!important}
+body.test-session-locked{overscroll-behavior:none}
+</style></head>
 
 <body>
 <div id="productionPageNav" style="display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:6px 0 10px">
@@ -86,7 +90,7 @@ document.addEventListener("visibilitychange",()=>{
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.7 — 100 Questions / Auto-submit Timer - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.8 — Test Navigation Lock - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -105,11 +109,11 @@ document.addEventListener("visibilitychange",()=>{
 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><b>Timer</b><span id="timer" class="timer">3:00</span></div>
 <div class="actions">
 <button class="primary" id="startBtn">▶ Start Test</button>
-<button class="secondary hidden" id="submitBtn">✓ Submit Test</button>
+<button class="secondary hidden" id="submitBtn" class="test-session-allowed">✓ Submit Test</button>
 </div>
 <div id="pencilTools" class="hidden" style="text-align:center;margin-top:10px">
 <button class="primary" id="writeBtn">🖊️ Write</button>
-<button class="secondary" id="eraseBtn">🧽 Erase</button>
+<button class="secondary" id="eraseBtn" class="test-session-allowed">🧽 Erase</button>
 <span class="muted" id="modeText">Write mode — write with Apple Pencil</span>
 </div></section>
 
@@ -197,7 +201,24 @@ function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").va
 function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>drawing=false;c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";setTool("write")}},true)})}
 function setTool(m){pencilTool=m;$("writeBtn").className=m==="write"?"primary":"secondary";$("eraseBtn").className=m==="erase"?"erase":"secondary";$("modeText").textContent=m==="erase"?"Erase mode — tap one answer to clear it":"Write mode — write with Apple Pencil"}
 function fitGrid(){let g=document.querySelector(".grid");if(!g)return;let w=g.clientWidth,min=$("answerMode").value==="pencil"?150:120,cols=Math.max(2,Math.min(10,Math.floor(w/min)));g.style.setProperty("--cols",cols);[...g.children].forEach((c,i)=>c.style.borderRight=((i+1)%cols===0)?"0":"1px solid #bbb")}
-function startTest(){if(started||done)return;if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}if(left)tid=setInterval(()=>{left--;if(left<=0){left=0;updateTimer();clearInterval(tid);tid=null;finish(true,false);return}updateTimer()},1000)}
+let __testSessionLock=false;
+let __beforeUnloadArmed=false;
+function setTestSessionLock(locked){
+  __testSessionLock=!!locked;
+  document.body.classList.toggle("test-session-locked",__testSessionLock);
+}
+function installTestNavigationLock(){
+  if(__beforeUnloadArmed)return;
+  __beforeUnloadArmed=true;
+  window.addEventListener("beforeunload",function(e){
+    if(__testSessionLock){e.preventDefault();e.returnValue="";}
+  });
+  history.pushState({poorviTestLock:true},"",location.href);
+  window.addEventListener("popstate",function(){
+    if(__testSessionLock)history.pushState({poorviTestLock:true},"",location.href);
+  });
+}
+function startTest(){if(started||done)return;installTestNavigationLock();setTestSessionLock(true);if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}if(left)tid=setInterval(()=>{left--;if(left<=0){left=0;updateTimer();clearInterval(tid);tid=null;finish(true,false);return}updateTimer()},1000)}
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
@@ -309,7 +330,7 @@ function saveCurrentReview(){
 }
 async function finish(up=false,early=false){
  if(done)return;
- done=true;started=false;clearInterval(tid);$("app").classList.remove("active");
+ done=true;setTestSessionLock(false)started=false;clearInterval(tid);$("app").classList.remove("active");
  $("pencilTools").classList.add("hidden");$("submitBtn").classList.add("hidden");
  const et=elapsed(),pencil=$("answerMode").value==="pencil";
  const submission=makeSubmission();
