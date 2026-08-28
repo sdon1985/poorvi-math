@@ -59,11 +59,7 @@ document.addEventListener("visibilitychange",()=>{
     }
   }
 });
-</script><style>#userNav button.active{background:#1769ff;color:#fff;border-color:#1769ff}</style><style>
-body.test-session-locked .testNavigationControl{pointer-events:none!important;opacity:.45!important}
-body.test-session-locked .test-session-allowed{pointer-events:auto!important;opacity:1!important}
-body.test-session-locked{overscroll-behavior:none}
-</style></head>
+</script><style>#userNav button.active{background:#1769ff;color:#fff;border-color:#1769ff}</style></head>
 
 <body>
 <div id="productionPageNav" style="display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:6px 0 10px">
@@ -77,11 +73,7 @@ body.test-session-locked{overscroll-behavior:none}
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <span style="font-size:13px">👤 <b id="userHeaderName">Guest</b></span>
-    <select id="userHeaderSelect" style="max-width:170px">
-<option value="guest">Guest</option>
-<option value="poorvi">Poorvi Dondeti</option>
-<option value="mahiram">Mahiram Dondeti</option>
-</select>
+    <select id="userHeaderSelect" style="max-width:170px"></select>
   </div>
 </header>
 <nav id="userNav" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
@@ -94,7 +86,7 @@ body.test-session-locked{overscroll-behavior:none}
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.10 — User Selector Guaranteed - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.7 — 100 Questions / Auto-submit Timer - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -113,11 +105,11 @@ body.test-session-locked{overscroll-behavior:none}
 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><b>Timer</b><span id="timer" class="timer">3:00</span></div>
 <div class="actions">
 <button class="primary" id="startBtn">▶ Start Test</button>
-<button class="secondary hidden" id="submitBtn" class="test-session-allowed">✓ Submit Test</button>
+<button class="secondary hidden" id="submitBtn">✓ Submit Test</button>
 </div>
 <div id="pencilTools" class="hidden" style="text-align:center;margin-top:10px">
 <button class="primary" id="writeBtn">🖊️ Write</button>
-<button class="secondary" id="eraseBtn" class="test-session-allowed">🧽 Erase</button>
+<button class="secondary" id="eraseBtn">🧽 Erase</button>
 <span class="muted" id="modeText">Write mode — write with Apple Pencil</span>
 </div></section>
 
@@ -205,24 +197,7 @@ function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").va
 function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>drawing=false;c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";setTool("write")}},true)})}
 function setTool(m){pencilTool=m;$("writeBtn").className=m==="write"?"primary":"secondary";$("eraseBtn").className=m==="erase"?"erase":"secondary";$("modeText").textContent=m==="erase"?"Erase mode — tap one answer to clear it":"Write mode — write with Apple Pencil"}
 function fitGrid(){let g=document.querySelector(".grid");if(!g)return;let w=g.clientWidth,min=$("answerMode").value==="pencil"?150:120,cols=Math.max(2,Math.min(10,Math.floor(w/min)));g.style.setProperty("--cols",cols);[...g.children].forEach((c,i)=>c.style.borderRight=((i+1)%cols===0)?"0":"1px solid #bbb")}
-let __testSessionLock=false;
-let __beforeUnloadArmed=false;
-function setTestSessionLock(locked){
-  __testSessionLock=!!locked;
-  document.body.classList.toggle("test-session-locked",__testSessionLock);
-}
-function installTestNavigationLock(){
-  if(__beforeUnloadArmed)return;
-  __beforeUnloadArmed=true;
-  window.addEventListener("beforeunload",function(e){
-    if(__testSessionLock){e.preventDefault();e.returnValue="";}
-  });
-  history.pushState({poorviTestLock:true},"",location.href);
-  window.addEventListener("popstate",function(){
-    if(__testSessionLock)history.pushState({poorviTestLock:true},"",location.href);
-  });
-}
-function startTest(){if(started||done)return;installTestNavigationLock();setTestSessionLock(true);if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}if(left)tid=setInterval(()=>{left--;if(left<=0){left=0;updateTimer();clearInterval(tid);tid=null;finish(true,false);return}updateTimer()},1000)}
+function startTest(){if(started||done)return;if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}if(left)tid=setInterval(()=>{left--;if(left<=0){left=0;updateTimer();clearInterval(tid);tid=null;finish(true,false);return}updateTimer()},1000)}
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
@@ -334,7 +309,7 @@ function saveCurrentReview(){
 }
 async function finish(up=false,early=false){
  if(done)return;
- done=true;setTestSessionLock(false)started=false;clearInterval(tid);$("app").classList.remove("active");
+ done=true;started=false;clearInterval(tid);$("app").classList.remove("active");
  $("pencilTools").classList.add("hidden");$("submitBtn").classList.add("hidden");
  const et=elapsed(),pencil=$("answerMode").value==="pencil";
  const submission=makeSubmission();
@@ -662,49 +637,50 @@ const DEFAULT_USERS=[
 let currentUser=null;
 
 function getUsers(){
-  const required=[
-    {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
-    {id:"admin",name:"Admin",role:"admin",pin:"2580",active:true},
-    {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
-    {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
-  ];
-  const raw=localStorage.getItem("poorviMathUsers");
-  if(!raw){
-    localStorage.setItem("poorviMathUsers",JSON.stringify(required));
-    return [...required];
-  }
-  try{
-    let users=JSON.parse(raw);
-    if(!Array.isArray(users))users=[];
-    users=users.filter(Boolean).map(u=>{
-      if(u.id==="user1")return {...u,id:"poorvi",name:"Poorvi Dondeti",role:"user",active:true};
-      if(u.id==="user2")return {...u,id:"mahiram",name:"Mahiram Dondeti",role:"user",active:true};
-      return u;
-    });
-    let changed=false;
-    required.forEach(r=>{
-      const u=users.find(x=>x.id===r.id);
-      if(!u){users.push({...r});changed=true;}
-      else if(r.id!=="admin" && (u.role==="admin"||u.active===false)){
-        Object.assign(u,{name:r.name,role:"user",pin:r.pin,active:true});changed=true;
-      }
-    });
-    if(changed)localStorage.setItem("poorviMathUsers",JSON.stringify(users));
-    return users;
-  }catch(e){
-    localStorage.setItem("poorviMathUsers",JSON.stringify(required));
-    return [...required];
-  }
-}
+ const raw=localStorage.getItem("poorviMathUsers");
+ if(!raw){
+   localStorage.setItem("poorviMathUsers",JSON.stringify(DEFAULT_USERS));
+   return [...DEFAULT_USERS];
+ }
+ try{
+   let users=JSON.parse(raw);
+   if(!Array.isArray(users)||!users.length)users=[...DEFAULT_USERS];
 
+   // Migrate the previous default names once.
+   let changed=false;
+   users=users.map(u=>{
+     if(u.id==="user1" || (u.name||"").toLowerCase()==="user1"){
+       changed=true; return {...u,id:"poorvi",name:"Poorvi Dondeti"};
+     }
+     if(u.id==="poorvi" && (u.name||"").toLowerCase()==="poorvi"){
+       changed=true; return {...u,name:"Poorvi Dondeti"};
+     }
+     if(u.id==="user2" || (u.name||"").toLowerCase()==="user2"){
+       changed=true; return {...u,id:"mahiram",name:"Mahiram Dondeti"};
+     }
+     if(u.id==="mahiram" && (u.name||"").toLowerCase()==="mahiram"){
+       changed=true; return {...u,name:"Mahiram Dondeti"};
+     }
+     if(u.id==="admin" && !u.pin){changed=true;return {...u,pin:"2580"};}
+     return u;
+   });
+   if(!users.some(u=>u.id==="guest")){
+     users.unshift({id:"guest",name:"Guest",role:"user",pin:"0000",active:true});
+     changed=true;
+   }
+   if(changed)localStorage.setItem("poorviMathUsers",JSON.stringify(users));
+   return users;
+ }catch(e){
+   localStorage.setItem("poorviMathUsers",JSON.stringify(DEFAULT_USERS));
+   return [...DEFAULT_USERS];
+ }
+}
 function saveUsers(users){localStorage.setItem("poorviMathUsers",JSON.stringify(users))}
 function loadCurrentUser(){
-  const users=getUsers();
-  const id=sessionStorage.getItem("poorviCurrentUser")||"guest";
-  const children=users.filter(u=>u.active!==false&&u.role!=="admin");
-  currentUser=children.find(u=>u.id===id)||children.find(u=>u.id==="guest")||children[0];
-  sessionStorage.setItem("poorviCurrentUser",currentUser.id);
-  applyRole();
+ const users=getUsers(),id=sessionStorage.getItem("poorviCurrentUser")||"guest";
+ currentUser=users.find(u=>u.id===id&&u.active!==false)||users.find(u=>u.role==="admin")||users[0];
+ sessionStorage.setItem("poorviCurrentUser",currentUser.id);
+ applyRole();
 }
 function applyRole(){
  $("currentUserLabel").textContent=currentUser.name;
@@ -1111,13 +1087,7 @@ function bindAuthoritativeUserSwitch(){
     const targetId=this.value;
     if(targetId===previousId)return;
 
-    let list=[];
-     try{list=(typeof getUsers==="function"?getUsers():[]).filter(u=>u.active!==false && u.role!=="admin");}catch(e){}
-     if(!list.length)list=[
-       {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
-       {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
-       {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
-     ];
+    const list=(typeof getUsers==="function"?getUsers():[]).filter(u=>u.active!==false && u.role!=="admin");
     const target=list.find(u=>u.id===targetId);
     if(!target){this.value=previousId;return;}
 
@@ -1152,19 +1122,9 @@ function bindAuthoritativeUserSwitch(){
 function setupUserNav(){
    const sel=el("userHeaderSelect");
    if(typeof getUsers==="function" && sel){
-     let list=[];
-     try{list=getUsers().filter(u=>u.active!==false && u.role!=="admin");}catch(e){}
-     if(!list.length){
-       list=[
-         {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
-         {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
-         {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
-       ];
-     }
+     const list=getUsers().filter(u=>u.active!==false && u.role!=="admin");
      sel.innerHTML=list.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
-     const selected=(currentUser&&list.some(u=>u.id===currentUser.id))?currentUser.id:"guest";
-     sel.value=selected;
-     if(!sel.value)sel.value="guest";
+     sel.value=(typeof currentUser!=="undefined"&&currentUser?.id)||"guest";
      if(typeof currentUser!=="undefined")el("userHeaderName").textContent=currentUser?.name||"Guest";
      // User switching is handled by bindAuthoritativeUserSwitch().
    }
@@ -1193,7 +1153,7 @@ function setupUserNav(){
    const tracker=el("progressTracker");
    if(tracker){tracker.classList.remove("hidden");tracker.scrollIntoView({behavior:"smooth"});}
  }
- window.addEventListener("load",()=>{loadCurrentUser();setupUserNav();bindAuthoritativeUserSwitch();});
+ window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();});
 })();
 </script>
 </body></html>
