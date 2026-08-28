@@ -1,3 +1,13 @@
+
+window.addEventListener("storage",function(e){
+  if(e.key==="poorviMathHistoryByUser" || e.key==="poorviVoidedSubmissions"){
+    refreshProgressAfterAdminSave();
+  }
+});
+window.addEventListener("focus",refreshProgressAfterAdminSave);
+document.addEventListener("visibilitychange",function(){
+  if(!document.hidden)refreshProgressAfterAdminSave();
+});
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Poorvi Math">
@@ -163,9 +173,9 @@ body.test-focus-mode #testFocusBadge{display:inline-flex}
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
 <div><label>Operation</label><select id="op"><option value="addition">Addition</option><option value="subtraction">Subtraction</option><option value="multiplication">Multiplication</option><option value="division">Division</option><option value="mixed">Mixed</option></select></div>
-<div><label>Questions</label><select id="count"><option value="100">100</option></select></div>
+<div><label>Questions</label><select id="count"><option value="100" selected>100</option><option value="50">50</option></select></div>
 <div><label>Answer Method</label><select id="answerMode"><option value="pencil">✏️ Apple Pencil</option><option value="keyboard">⌨️ Keyboard</option></select></div>
-<div><label>Timer</label><select id="mins"><option value="3" selected>3 minutes</option><option value="4">4 minutes</option><option value="5">5 minutes</option></select></div>
+<div><label>Timer</label><select id="mins"><option value="4" selected>4 minutes</option><option value="5">5 minutes</option></select></div>
 <div><label>Edition</label><select id="edition"><option value="random">Random</option><option value="regroup">More regrouping</option></select></div>
 <div id="addSubRangeWrap"><label>Add/Sub Range</label><select id="addSubRange"><option value="single">Single digit (0–9)</option><option value="two">Two digit (0–20)</option><option value="mixed">Mixed 0–20</option></select></div>
 <div id="mdRangeWrap" class="hidden"><label>Mul/Div Range</label><select id="mdRange"><option value="12">0–12</option></select></div>
@@ -264,7 +274,19 @@ function make(o,ed){
  }
  return{a,b,ans,o}
 }
-function newEdition(){if(started)return;clearInterval(tid);tid=null;done=false;clearActiveSession(currentUser?.id||"guest");if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";left=+$("mins").value*60;updateTimer();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));qs.sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
+
+function syncTimerOptions(preferred){
+  const count=+$("count").value||100;
+  const sel=$("mins");
+  const options=count===50?[2]:[4,5];
+  const current=Number(preferred);
+  sel.innerHTML=options.map(v=>'<option value="'+v+'">'+v+' minutes</option>').join("");
+  const value=options.includes(current)?current:options[0];
+  sel.value=String(value);
+  left=value*60;
+  updateTimer();
+}
+function newEdition(){if(started)return;clearInterval(tid);tid=null;done=false;clearActiveSession(currentUser?.id||"guest");syncTimerOptions($("mins").value);left=+$("mins").value*60;updateTimer();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));qs.sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
 
 function activeSessionKey(userId){
   return "poorviActiveTest:"+String(userId||"guest");
@@ -329,7 +351,7 @@ function restoreActiveSession(){
   if($("edition"))$("edition").value=s.edition||$("edition").value;
   if($("addSubRange"))$("addSubRange").value=s.range||$("addSubRange").value;
   if($("count"))$("count").value=String(s.count||s.qs.length);
-  if($("mins"))$("mins").value=String([3,4,5].includes(+s.minutes)?s.minutes:3);
+  if($("mins")){$("mins").value=String(s.minutes||"");syncTimerOptions(s.minutes)}
   if($("answerMode"))$("answerMode").value=s.answerMode||"pencil";
   qs=s.qs;
   started=true;done=false;begin=Number(s.startedAt||Date.now());enterTestFocusMode();
@@ -434,7 +456,7 @@ function exitTestFocusMode(){
   }catch(e){}
   __focusHistoryPushed=false;
 }
-function startTest(){if(started||done)return;enterTestFocusMode();if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
+function startTest(){if(started||done)return;enterTestFocusMode();syncTimerOptions($("mins").value);started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
@@ -653,10 +675,31 @@ function time(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function save(n,total,a,et){let h=hist();h.push({date:key(),n,total,a,et});localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)))}
 function historyKey(userId){return "poorviMathHistory_"+(userId||"guest")}
 function hist(userId=currentUser?.id||"guest"){
- return JSON.parse(localStorage.getItem(historyKey(userId))||"[]");
+  const uid=userId||"guest";
+  let shared=[],legacy=[];
+  try{
+    const all=JSON.parse(localStorage.getItem("poorviMathHistoryByUser")||"{}")||{};
+    shared=Array.isArray(all[uid])?all[uid]:[];
+  }catch(e){}
+  try{
+    legacy=JSON.parse(localStorage.getItem(historyKey(uid))||"[]")||[];
+  }catch(e){}
+  const seen=new Set(),merged=[];
+  [...shared,...legacy].forEach(x=>{
+    const key=x?.id!=null ? String(x.id) :
+      JSON.stringify([x?.date,x?.operation,x?.created,x?.total,x?.a,x?.n,x?.wrong,x?.notAnswered]);
+    if(!seen.has(key)){seen.add(key);merged.push(x)}
+  });
+  return merged.sort((a,b)=>new Date(a.date||a.created||0)-new Date(b.date||b.created||0));
 }
 function saveHist(list,userId=currentUser?.id||"guest"){
- localStorage.setItem(historyKey(userId),JSON.stringify(list.slice(-100)));
+  const uid=userId||"guest",clean=list.slice(-200);
+  localStorage.setItem(historyKey(uid),JSON.stringify(clean));
+  try{
+    const all=JSON.parse(localStorage.getItem("poorviMathHistoryByUser")||"{}")||{};
+    all[uid]=clean;
+    localStorage.setItem("poorviMathHistoryByUser",JSON.stringify(all));
+  }catch(e){}
 }
 function key(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function showScore(n,total,a,et,up,early){let h=hist(currentUser?.id||"guest");$("score").textContent=n+" / "+total;$("acc").textContent=a+"%";$("used").textContent=time(et);$("best").textContent=Math.max(a,...h.map(x=>x.a||0))+"%";$("msg").textContent=early?"🎉 Great job! You finished early!":up?"⏰ Time's up — submitted automatically.":a===100?"🎉 Perfect!":a>=90?"⭐ Excellent!":"👍 Keep practicing!";$("result").classList.remove("hidden");renderWeek()}
@@ -706,6 +749,14 @@ function voidSavedHistoryTest(index){
  saveHist(h,ownerId);
  renderHistoryManager();renderWeek();renderMonthly();renderYearly();
  alert("Past test voided. It no longer affects Poorvi's progress.");
+}
+function refreshProgressAfterAdminSave(){
+  const uid=currentUser?.id||"guest";
+  // Re-read shared Admin-reviewed history before rendering any tracker.
+  const h=hist(uid);
+  if(typeof renderWeek==="function")renderWeek();
+  if(typeof renderMonthly==="function")renderMonthly();
+  if(typeof renderYearly==="function")renderYearly();
 }
 function renderWeek(){
  const h=hist(currentUser?.id||"guest"),byDate={};
@@ -1393,7 +1444,12 @@ function setupUserNav(){
    const tracker=el("progressTracker");
    if(tracker){tracker.classList.remove("hidden");tracker.scrollIntoView({behavior:"smooth"});}
  }
- window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();setTimeout(()=>restoreActiveSession(),0);});
+ document.addEventListener("DOMContentLoaded",function(){
+  const c=$("count");
+  if(c)c.addEventListener("change",function(){if(!started)syncTimerOptions();});
+  syncTimerOptions($("mins").value);
+});
+window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();setTimeout(()=>restoreActiveSession(),0);});
 window.addEventListener("pagehide",()=>{if(started&&!done)persistActiveSession();});
 window.addEventListener("beforeunload",()=>{if(started&&!done)persistActiveSession();});
 })();
