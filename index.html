@@ -77,7 +77,11 @@ body.test-session-locked{overscroll-behavior:none}
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <span style="font-size:13px">👤 <b id="userHeaderName">Guest</b></span>
-    <select id="userHeaderSelect" style="max-width:170px"></select>
+    <select id="userHeaderSelect" style="max-width:170px">
+<option value="guest">Guest</option>
+<option value="poorvi">Poorvi Dondeti</option>
+<option value="mahiram">Mahiram Dondeti</option>
+</select>
   </div>
 </header>
 <nav id="userNav" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
@@ -90,7 +94,7 @@ body.test-session-locked{overscroll-behavior:none}
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.9 — User Selector Fix - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.10 — User Selector Guaranteed - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -1107,7 +1111,13 @@ function bindAuthoritativeUserSwitch(){
     const targetId=this.value;
     if(targetId===previousId)return;
 
-    const list=(typeof getUsers==="function"?getUsers():[]).filter(u=>u.active!==false && u.role!=="admin");
+    let list=[];
+     try{list=(typeof getUsers==="function"?getUsers():[]).filter(u=>u.active!==false && u.role!=="admin");}catch(e){}
+     if(!list.length)list=[
+       {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
+       {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
+       {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
+     ];
     const target=list.find(u=>u.id===targetId);
     if(!target){this.value=previousId;return;}
 
@@ -1142,9 +1152,19 @@ function bindAuthoritativeUserSwitch(){
 function setupUserNav(){
    const sel=el("userHeaderSelect");
    if(typeof getUsers==="function" && sel){
-     const list=getUsers().filter(u=>u.active!==false && u.role!=="admin");
+     let list=[];
+     try{list=getUsers().filter(u=>u.active!==false && u.role!=="admin");}catch(e){}
+     if(!list.length){
+       list=[
+         {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
+         {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
+         {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
+       ];
+     }
      sel.innerHTML=list.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
-     sel.value=(currentUser&&list.some(u=>u.id===currentUser.id))?currentUser.id:"guest";
+     const selected=(currentUser&&list.some(u=>u.id===currentUser.id))?currentUser.id:"guest";
+     sel.value=selected;
+     if(!sel.value)sel.value="guest";
      if(typeof currentUser!=="undefined")el("userHeaderName").textContent=currentUser?.name||"Guest";
      // User switching is handled by bindAuthoritativeUserSwitch().
    }
