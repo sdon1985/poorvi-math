@@ -39,6 +39,54 @@ button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
 .notice{padding:10px 12px;border-radius:10px;background:#fff8e6;margin-top:10px}
 @media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.app{padding:10px}}
 </style>
+<style>
+.reviewStatusBtn{min-width:105px;font-weight:600}
+.reviewStatusBtn.selectedStatus{background:#1769ff!important;color:#fff!important;border-color:#1769ff!important;box-shadow:0 3px 10px rgba(23,105,255,.22)}
+</style>
+<style>
+.adminReviewQuestion .reviewStatusBtn{min-width:112px;font-size:15px;font-weight:700;padding:10px 13px}
+.adminReviewQuestion .reviewStatusBtn.selectedStatus{background:#1769ff!important;color:#fff!important;border-color:#1769ff!important;box-shadow:0 3px 10px rgba(23,105,255,.22)}
+@media(max-width:600px){
+  .adminReviewQuestion>div:nth-child(3){grid-template-columns:1fr!important}
+  .adminReviewQuestion img,.adminReviewQuestion div[style*="width:min(260px"]{width:100%!important;max-width:220px!important;height:95px!important}
+  .adminReviewQuestion .reviewStatusBtn{flex:1;min-width:0}
+}
+</style>
+
+<style>
+.reviewOneRow .reviewStatusBtn{font-size:12px;font-weight:700;padding:7px 8px;min-width:0;white-space:nowrap}
+.reviewOneRow .reviewStatusBtn.selectedStatus{background:#1769ff!important;color:#fff!important;border-color:#1769ff!important}
+@media(max-width:800px){
+ .reviewOneRow{grid-template-columns:30px minmax(85px,1fr) 65px 72px minmax(0,1fr)!important}
+ .reviewOneRow>div:nth-child(5){display:none}
+ .reviewOneRow>div:last-child{grid-column:2/-1}
+}
+@media(max-width:480px){
+ .reviewOneRow{grid-template-columns:25px minmax(75px,1fr) 60px 65px!important;padding:6px!important}
+ .reviewOneRow>div:last-child{grid-column:1/-1}
+ .reviewOneRow .reviewStatusBtn{flex:1}
+}
+</style>
+
+<style>
+.ai-recognize-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;padding:10px 12px;margin:10px 0;
+  border:1px solid #d9d6fe;border-radius:12px;
+  background:linear-gradient(135deg,#f7f5ff,#f5f9ff);
+}
+.ai-recognize-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,#6d28d9,#4f46e5)!important;
+  color:#fff!important;font-weight:700;border:0;
+  box-shadow:0 5px 14px rgba(79,70,229,.20);
+}
+.ai-recognize-btn:disabled{opacity:.65;cursor:wait;transform:none}
+.ai-result{
+  margin-top:5px;padding:5px 8px;border-radius:7px;
+  background:#f8fafc;font-size:12px;color:#475467;
+}
+</style>
 </head>
 <body>
 <div id="productionPageNav" style="display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:6px 0 10px">
@@ -117,7 +165,14 @@ button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
           </div>
           <button class="secondary" id="backToPending">← Back</button>
         </div>
-        <div id="reviewQuestions" style="margin-top:10px"></div>
+        <div class="ai-recognize-bar">
+  <div>
+    <b>🤖 AI Handwriting Recognition</b>
+    <div class="muted">Suggest answers from the child's handwriting. You still make the final decision.</div>
+  </div>
+  <button type="button" id="aiRecognizeBtn" class="ai-recognize-btn">✨ Recognize Answers</button>
+</div>
+<div id="reviewQuestions" style="margin-top:10px"></div>
         <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
           <button class="primary" id="saveReview">💾 Save Review</button>
           <button class="danger" id="voidPending">🚫 Void Test</button>
@@ -254,37 +309,110 @@ function openReview(id){
   page("review");
 
   const uid=s.userId||"guest";
+  const answers=s.answers||[];
   $("reviewMeta").innerHTML=
     '👤 <b>'+userName(uid,s)+'</b> • '+opName(s.operation||"mixed")+
-    ' • '+formatDate(s.created||s.date)+' • '+(s.total||s.answers?.length||0)+' questions';
+    ' • '+formatDate(s.created||s.date)+' • '+(s.total||answers.length||0)+' questions';
 
-  const answers=s.answers||[];
   $("reviewQuestions").innerHTML=answers.length ? answers.map((a,i)=>{
     const status=a.status||"not_answered";
     const expected=(a.ans===undefined||a.ans===null)?"—":a.ans;
-    const childRead=a.ocr!==undefined && a.ocr!=="" ? a.ocr : "Not recognized";
-    const img=a.image
-      ? '<img src="'+a.image+'" style="width:110px;height:80px;object-fit:contain;border:1px solid #ddd;border-radius:8px;background:#fff">'
-      : '<div style="width:110px;height:80px;border:1px solid #e5e7eb;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#667085;font-size:12px">No handwriting image</div>';
+    const childRead=(a.ocr!==undefined && a.ocr!=="") ? a.ocr : "—";
+    const handwriting=a.image
+      ? '<img src="'+a.image+'" alt="Child handwriting" style="width:72px;height:54px;object-fit:contain;border:1px solid #d0d5dd;border-radius:7px;background:#fff">'
+      : '<div style="width:72px;height:54px;border:1px dashed #d0d5dd;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#667085;font-size:10px">No image</div>';
 
-    return '<div class="row" style="align-items:center">'+
-      '<div style="flex:1;min-width:240px">'+
-        '<b style="font-size:18px">#'+(i+1)+' '+(a.problem||"Problem "+(i+1))+'</b>'+
-        '<div class="muted">Expected answer: <b>'+expected+'</b></div>'+
-        '<div class="muted">App/OCR read: '+childRead+'</div>'+
+    return '<div class="adminReviewQuestion reviewOneRow" style="display:grid;grid-template-columns:42px minmax(105px,1fr) 78px 90px 125px minmax(215px,auto);gap:8px;align-items:center;border:1px solid #e1e5eb;border-radius:10px;padding:7px 9px;margin:6px 0;background:#fff">'+
+      '<div style="font-size:12px;font-weight:700;color:#667085">#'+(i+1)+'</div>'+
+      '<div style="font-size:19px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(a.problem||"Problem "+(i+1))+'</div>'+
+      '<div style="text-align:center"><div style="font-size:9px;color:#667085">EXPECTED</div><div style="font-size:22px;font-weight:800">'+expected+'</div></div>'+
+      '<div style="text-align:center"><div style="font-size:9px;color:#667085">CHILD</div>'+handwriting+'</div>'+
+      '<div style="font-size:11px;color:#667085;white-space:nowrap">OCR: <b>'+childRead+'</b></div>'+
+      '<div data-choice="'+i+'" style="display:flex;gap:4px;flex-wrap:nowrap">'+
+        '<button type="button" class="secondary reviewStatusBtn '+(status==="correct"?"selectedStatus":"")+'" data-status="correct">✓ Correct</button>'+
+        '<button type="button" class="secondary reviewStatusBtn '+(status==="wrong"?"selectedStatus":"")+'" data-status="wrong">✗ Wrong</button>'+
+        '<button type="button" class="secondary reviewStatusBtn '+(status==="not_answered"?"selectedStatus":"")+'" data-status="not_answered">— N/A</button>'+
       '</div>'+
-      img+
-      '<select data-status="'+i+'" style="min-width:155px">'+
-        '<option value="correct" '+(status==="correct"?"selected":"")+'>✓ Correct</option>'+
-        '<option value="wrong" '+(status==="wrong"?"selected":"")+'>✗ Wrong</option>'+
-        '<option value="not_answered" '+(status==="not_answered"?"selected":"")+'>— Not Answered</option>'+
-      '</select>'+
     '</div>';
   }).join("") : '<div class="empty">No answer records were saved with this worksheet.</div>';
+
+  document.querySelectorAll("[data-choice]").forEach(group=>{
+    const i=Number(group.dataset.choice);
+    group.querySelectorAll("[data-status]").forEach(btn=>{
+      btn.onclick=()=>{
+        const value=btn.dataset.status;
+        if(answers[i])answers[i].status=value;
+        group.querySelectorAll("[data-status]").forEach(b=>b.classList.remove("selectedStatus"));
+        btn.classList.add("selectedStatus");
+      };
+    });
+  });
 }
 function removePending(id){
   localStorage.setItem("poorviPendingSubmissions",JSON.stringify(allPending().filter(x=>x.id!==id)));
 }
+
+async function recognizeCurrentWorksheet(){
+  if(!currentReview)return;
+  const btn=$("aiRecognizeBtn");
+  if(!btn)return;
+
+  const answers=currentReview.answers||[];
+  if(!answers.length){
+    alert("There are no saved handwriting answers in this worksheet.");
+    return;
+  }
+
+  // The browser must never contain an OpenAI API key. This calls a secure
+  // same-origin endpoint that can be implemented as a serverless function.
+  btn.disabled=true;
+  btn.textContent="⏳ Recognizing…";
+
+  try{
+    const response=await fetch("/api/recognize",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        worksheetId:currentReview.id,
+        operation:currentReview.operation||"mixed",
+        answers:answers.map((a,i)=>({
+          index:i,
+          problem:a.problem||"",
+          expected:a.ans,
+          image:a.image||null
+        }))
+      })
+    });
+
+    if(!response.ok){
+      throw new Error("Recognition service is not configured yet.");
+    }
+
+    const result=await response.json();
+    const suggestions=Array.isArray(result.answers)?result.answers:[];
+
+    suggestions.forEach((r,i)=>{
+      const a=answers[i];
+      if(!a)return;
+      if(r.answer!==undefined && r.answer!==null && r.answer!==""){
+        a.ocr=String(r.answer);
+        const expected=String(a.ans);
+        a.status=String(r.answer).trim()===expected ? "correct" : "wrong";
+      }
+    });
+
+    // Re-render the review with AI suggestions, while preserving the parent's
+    // ability to change every status manually.
+    openReview(currentReview.id);
+    alert("AI suggestions added. Please review them before saving.");
+  }catch(err){
+    alert("AI recognition is not available yet. The secure /api/recognize service must be connected before this button can recognize handwriting.");
+  }finally{
+    const b=$("aiRecognizeBtn");
+    if(b){b.disabled=false;b.textContent="✨ Recognize Answers";}
+  }
+}
+
 function saveReview(){
   if(!currentReview)return;
 
@@ -368,6 +496,7 @@ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{
   if(b.dataset.page==="users")renderUsers();
 });
 $("saveReview").onclick=saveReview;
+$("aiRecognizeBtn").onclick=recognizeCurrentWorksheet;
 $("voidPending").onclick=voidPending;
 $("backToPending").onclick=()=>{page("pending");renderPending()};
 </script>
