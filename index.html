@@ -86,14 +86,14 @@ document.addEventListener("visibilitychange",()=>{
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4 User Clean - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.7 — 100 Questions / Auto-submit Timer - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
 <div><label>Operation</label><select id="op"><option value="addition">Addition</option><option value="subtraction">Subtraction</option><option value="multiplication">Multiplication</option><option value="division">Division</option><option value="mixed">Mixed</option></select></div>
-<div><label>Questions</label><select id="count"><option>100</option><option>50</option><option>25</option></select></div>
+<div><label>Questions</label><select id="count"><option value="100">100</option></select></div>
 <div><label>Answer Method</label><select id="answerMode"><option value="pencil">✏️ Apple Pencil</option><option value="keyboard">⌨️ Keyboard</option></select></div>
-<div><label>Timer</label><select id="mins"><option value="4">4 minutes</option><option value="5">5 minutes</option><option value="0">No timer</option></select></div>
+<div><label>Timer</label><select id="mins"><option value="3" selected>3 minutes</option><option value="4">4 minutes</option><option value="5">5 minutes</option></select></div>
 <div><label>Edition</label><select id="edition"><option value="random">Random</option><option value="regroup">More regrouping</option></select></div>
 <div id="addSubRangeWrap"><label>Add/Sub Range</label><select id="addSubRange"><option value="single">Single digit (0–9)</option><option value="two">Two digit (0–20)</option><option value="mixed">Mixed 0–20</option></select></div>
 <div id="mdRangeWrap" class="hidden"><label>Mul/Div Range</label><select id="mdRange"><option value="12">0–12</option></select></div>
@@ -102,7 +102,7 @@ document.addEventListener("visibilitychange",()=>{
 </section>
 
 <section class="card"><div class="lock">🔒 CHILD MODE — During the test, parent controls are locked.</div>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><b>Timer</b><span id="timer" class="timer">4:00</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><b>Timer</b><span id="timer" class="timer">3:00</span></div>
 <div class="actions">
 <button class="primary" id="startBtn">▶ Start Test</button>
 <button class="secondary hidden" id="submitBtn">✓ Submit Test</button>
@@ -192,12 +192,12 @@ function make(o,ed){
  }
  return{a,b,ans,o}
 }
-function newEdition(){if(started)return;clearInterval(tid);done=false;left=(+$("mins").value||0)*60;updateTimer();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));qs.sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
+function newEdition(){if(started)return;clearInterval(tid);tid=null;done=false;if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";left=+$("mins").value*60;updateTimer();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));qs.sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
 function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div><div class="fb" id="f'+i+'"></div></div>';g.appendChild(c)});$("sheet").appendChild(g);if($("answerMode").value==="pencil")setupPencil();requestAnimationFrame(fitGrid)}
 function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>drawing=false;c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";setTool("write")}},true)})}
 function setTool(m){pencilTool=m;$("writeBtn").className=m==="write"?"primary":"secondary";$("eraseBtn").className=m==="erase"?"erase":"secondary";$("modeText").textContent=m==="erase"?"Erase mode — tap one answer to clear it":"Write mode — write with Apple Pencil"}
 function fitGrid(){let g=document.querySelector(".grid");if(!g)return;let w=g.clientWidth,min=$("answerMode").value==="pencil"?150:120,cols=Math.max(2,Math.min(10,Math.floor(w/min)));g.style.setProperty("--cols",cols);[...g.children].forEach((c,i)=>c.style.borderRight=((i+1)%cols===0)?"0":"1px solid #bbb")}
-function startTest(){if(started||done)return;started=true;begin=Date.now();left=(+$("mins").value||0)*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}if(left)tid=setInterval(()=>{left--;updateTimer();if(left<=0)finish(true,false)},1000)}
+function startTest(){if(started||done)return;if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}if(left)tid=setInterval(()=>{left--;if(left<=0){left=0;updateTimer();clearInterval(tid);tid=null;finish(true,false);return}updateTimer()},1000)}
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
@@ -413,42 +413,16 @@ function preprocessHandwriting(source){
  return out;
 }
 function time(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
-function save(n,total,a,et){let h=hist(progressUserId());h.push({date:key(),n,total,a,et});localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)))}
+function save(n,total,a,et){let h=hist();h.push({date:key(),n,total,a,et});localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)))}
 function historyKey(userId){return "poorviMathHistory_"+(userId||"guest")}
-function progressUserId(){
-  const saved=sessionStorage.getItem("poorviCurrentUser");
-  if(saved)return saved;
-  return (currentUser&&currentUser.id)||"guest";
+function hist(userId=currentUser?.id||"guest"){
+ return JSON.parse(localStorage.getItem(historyKey(userId))||"[]");
 }
-function hist(userId=progressUserId()){
-  const uid=userId||"guest";
-  let shared=[],legacy=[];
-  try{
-    const all=JSON.parse(localStorage.getItem("poorviMathHistoryByUser")||"{}")||{};
-    shared=Array.isArray(all[uid])?all[uid]:[];
-  }catch(e){}
-  try{
-    legacy=JSON.parse(localStorage.getItem(historyKey(uid))||"[]")||[];
-  }catch(e){}
-  const seen=new Set(),merged=[];
-  [...shared,...legacy].forEach(x=>{
-    const k=x&&x.id!=null?String(x.id):
-      JSON.stringify([x?.date,x?.operation,x?.created,x?.total,x?.n,x?.wrong,x?.notAnswered]);
-    if(!seen.has(k)){seen.add(k);merged.push(x)}
-  });
-  return merged.sort((a,b)=>new Date(a.date||a.created||0)-new Date(b.date||b.created||0));
-}
-function saveHist(list,userId=progressUserId()){
-  const uid=userId||"guest",clean=list.slice(-200);
-  localStorage.setItem(historyKey(uid),JSON.stringify(clean));
-  try{
-    const all=JSON.parse(localStorage.getItem("poorviMathHistoryByUser")||"{}")||{};
-    all[uid]=clean;
-    localStorage.setItem("poorviMathHistoryByUser",JSON.stringify(all));
-  }catch(e){}
+function saveHist(list,userId=currentUser?.id||"guest"){
+ localStorage.setItem(historyKey(userId),JSON.stringify(list.slice(-100)));
 }
 function key(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function showScore(n,total,a,et,up,early){let h=hist(progressUserId());$("score").textContent=n+" / "+total;$("acc").textContent=a+"%";$("used").textContent=time(et);$("best").textContent=Math.max(a,...h.map(x=>x.a||0))+"%";$("msg").textContent=early?"🎉 Great job! You finished early!":up?"⏰ Time's up — submitted automatically.":a===100?"🎉 Perfect!":a>=90?"⭐ Excellent!":"👍 Keep practicing!";$("result").classList.remove("hidden");renderWeek()}
+function showScore(n,total,a,et,up,early){let h=hist(currentUser?.id||"guest");$("score").textContent=n+" / "+total;$("acc").textContent=a+"%";$("used").textContent=time(et);$("best").textContent=Math.max(a,...h.map(x=>x.a||0))+"%";$("msg").textContent=early?"🎉 Great job! You finished early!":up?"⏰ Time's up — submitted automatically.":a===100?"🎉 Perfect!":a>=90?"⭐ Excellent!":"👍 Keep practicing!";$("result").classList.remove("hidden");renderWeek()}
 function weekDates(){
  let d=new Date(),day=d.getDay(),m=new Date(d);
  m.setDate(d.getDate()-(day===0?6:day-1));
@@ -460,7 +434,7 @@ function voidedIds(){
  return new Set(JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]").map(x=>x.id));
 }
 function renderHistoryManager(){
- const h=hist(progressUserId()),v=voidedIds();
+ const h=hist(currentUser?.id||"guest"),v=voidedIds();
  let html='<div class="detailSheet"><b>🗂️ Past Submitted Tests</b><div class="muted" style="margin-top:4px">Void any old test you no longer want included in Poorvi’s progress.</div>';
  if(!h.length){html+='<div class="muted" style="margin-top:10px">No saved tests.</div>'}
  else{
@@ -496,13 +470,8 @@ function voidSavedHistoryTest(index){
  renderHistoryManager();renderWeek();renderMonthly();renderYearly();
  alert("Past test voided. It no longer affects Poorvi's progress.");
 }
-function refreshProgressFromStorage(){
-  if(typeof renderWeek==="function")renderWeek();
-  if(typeof renderMonthly==="function")renderMonthly();
-  if(typeof renderYearly==="function")renderYearly();
-}
 function renderWeek(){
- const h=hist(progressUserId()),byDate={};
+ const h=hist(currentUser?.id||"guest"),byDate={};
  h.forEach(x=>{(byDate[x.date]||(byDate[x.date]=[])).push(x)});
  const dates=weekDates();
  $("week").innerHTML=dates.map(d=>{
@@ -513,7 +482,7 @@ function renderWeek(){
  $("summary").textContent=dates.filter(d=>(byDate[key(d)]||[]).length).length+" of 7 days completed this week. Tap a day for details.";
 }
 function showDayDetails(dateStr){
- const items=hist(progressUserId()).filter(x=>x.date===dateStr);
+ const items=hist(currentUser?.id||"guest").filter(x=>x.date===dateStr);
  const d=new Date(dateStr+"T12:00:00");
  if(!items.length){$("dayDetails").innerHTML='<b>'+d.toLocaleDateString()+'</b><div class="muted">No worksheets completed.</div>';$("dayDetails").classList.remove("hidden");return}
  const groups={};items.forEach(x=>(groups[x.operation||"mixed"]||(groups[x.operation||"mixed"]=[])).push(x));
@@ -531,7 +500,7 @@ function showDayDetails(dateStr){
 }
 function renderMonthly(){
  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
- const items=hist(progressUserId()).filter(x=>{
+ const items=hist().filter(x=>{
    const d=new Date(x.date+"T12:00:00");
    return d.getFullYear()===y&&d.getMonth()===m;
  });
@@ -595,7 +564,7 @@ function renderMonthly(){
 }
 function renderYearly(){
  const now=new Date(),y=now.getFullYear();
- const items=hist(progressUserId()).filter(x=>new Date(x.date+"T12:00:00").getFullYear()===y);
+ const items=hist(currentUser?.id||"guest").filter(x=>new Date(x.date+"T12:00:00").getFullYear()===y);
  const byMonth={};
  items.forEach(x=>(byMonth[x.date.slice(0,7)]||(byMonth[x.date.slice(0,7)]=[])).push(x));
  const months=Object.keys(byMonth).length,worksheets=items.length;
@@ -1184,16 +1153,7 @@ function setupUserNav(){
    const tracker=el("progressTracker");
    if(tracker){tracker.classList.remove("hidden");tracker.scrollIntoView({behavior:"smooth"});}
  }
- window.addEventListener("storage",function(e){
-  if(e.key==="poorviMathHistoryByUser" || e.key==="poorviVoidedSubmissions"){
-    refreshProgressFromStorage();
-  }
-});
-window.addEventListener("focus",refreshProgressFromStorage);
-document.addEventListener("visibilitychange",function(){
-  if(!document.hidden)refreshProgressFromStorage();
-});
-window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();});
+ window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();});
 })();
 </script>
 </body></html>
