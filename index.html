@@ -45,7 +45,7 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
   <button class="secondary" id="switchUserBtn">Switch User</button>
 </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Poorvi Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25</div></div><button class="secondary" id="parentBtn">🔒 Parent</button></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Poorvi Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v26</div></div><button class="secondary" id="parentBtn">🔒 Parent</button></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -108,6 +108,7 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 <section class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
 <b>📊 Progress Tracker</b>
+<select id="trackerUserSelect" data-admin-only class="secondary" style="min-width:150px"></select>
 <div class="actions" style="margin:0">
 <button class="primary" id="weekTab">Weekly</button>
 <button class="secondary" id="monthTab">Monthly</button>
@@ -185,15 +186,21 @@ function makeSubmission(){
      answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:"",ocr:v,status:v!==""?(+v===qs[i].ans?"correct":"wrong"):"not_answered"});
    });
  }
- return {id:"sub_"+Date.now(),date:key(),created:Date.now(),operation:$("op").value,range:$("op").value==="addition"||$("op").value==="subtraction"?$("addSubRange").value:"0-12",total:qs.length,elapsed:elapsed(),answers};
+ return {id:"sub_"+Date.now(),date:key(),created:Date.now(),userId:currentUser?.id||"guest",userName:currentUser?.name||"Guest",operation:$("op").value,range:$("op").value==="addition"||$("op").value==="subtraction"?$("addSubRange").value:"0-12",total:qs.length,elapsed:elapsed(),answers};
 }
-function pendingSubs(){return JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]")}
+function pendingSubs(userId=currentUser?.id||"guest"){
+ const all=JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]");
+ return all.filter(x=>(x.userId||"guest")===userId);
+}
+function allPendingSubs(){
+ return JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]");
+}
 function savePendingSubmission(s){
  const all=pendingSubs();all.push(s);localStorage.setItem("poorviPendingSubmissions",JSON.stringify(all.slice(-10)));
 }
 function renderReview(s){
  pendingSubmission=s;
- $("reviewSummary").textContent="🔓 Review unlocked. You can now mark every answer without entering the PIN again.";
+ $("reviewSummary").textContent="🔓 "+(s.userName||"Guest")+" • "+opName(s.operation||"mixed")+" • Review unlocked. You can now mark every answer without entering the PIN again.";
  $("reviewList").innerHTML=s.answers.map(x=>{
    const correct=x.status==="correct",wrong=x.status==="wrong",na=x.status==="not_answered";
    const img=x.image?'<img class="reviewCanvas" src="'+x.image+'">':'<div class="reviewCanvas"></div>';
@@ -216,220 +223,70 @@ function openReviewWithPin(){
  ask("review");
 }
 function openLatestReview(){
- const all=pendingSubs();
- if(!all.length){
-   $("result").classList.remove("hidden");
-   $("result").scrollIntoView({behavior:"smooth"});
-   return;
- }
- renderReview(all[all.length-1]);
+ if(!currentUser||currentUser.role!=="admin"){alert("Only Admin can open Parent Review.");return}
+ const all=allPendingSubs();
+ if(!all.length){alert("No tests are waiting for parent review.");return}
+ renderPendingQueue();
+}
+function renderPendingQueue(){
+ const all=allPendingSubs().sort((a,b)=>(b.created||0)-(a.created||0));
+ let html='<div class="detailSheet"><b>📝 Pending Reviews</b><div class="muted" style="margin-top:4px">All submitted tests waiting for Admin review, grouped by user.</div>';
+ const groups={};
+ all.forEach(x=>(groups[x.userId||"guest"]||(groups[x.userId||"guest"]=[])).push(x));
+ Object.keys(groups).forEach(uid=>{
+   const arr=groups[uid],name=arr[0].userName||getUsers().find(u=>u.id===uid)?.name||"Guest";
+   html+='<div class="userCard"><b>👤 '+name+'</b>';
+   arr.forEach(x=>{
+     const dt=new Date(x.created||Date.now()).toLocaleString();
+     html+='<div class="reviewItem"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><div><b>'+opName(x.operation||"mixed")+'</b><div class="muted">'+dt+' • '+x.total+' questions'+(x.range?' • Range: '+x.range:"")+'</div></div><button class="primary" data-open-pending="'+x.id+'">Review</button></div></div>';
+   });
+   html+='</div>';
+ });
+ html+='</div>';
+ $("reviewList").innerHTML=html;
+ $("reviewSummary").textContent=all.length+" test"+(all.length===1?"":"s")+" waiting for Admin review.";
+ $("parentReview").classList.remove("hidden");
+ document.querySelectorAll("[data-open-pending]").forEach(btn=>btn.onclick=()=>{
+   const s=allPendingSubs().find(x=>x.id===btn.dataset.openPending);
+   if(s)renderReview(s);
+ });
  $("parentReview").scrollIntoView({behavior:"smooth"});
 }
-function voidCurrentReview(){
- if(!pendingSubmission)return;
- if(!confirm("Void this test? It will be excluded from weekly, monthly, yearly, and overall results."))return;
- const reason=prompt("Optional reason for voiding this test:","")||"Voided by parent";
- const voided=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
- voided.push({
-   id:pendingSubmission.id,
-   date:pendingSubmission.date,
-   operation:pendingSubmission.operation,
-   total:pendingSubmission.total,
-   reason,
-   voidedAt:Date.now()
- });
- localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(voided.slice(-100)));
-
- const remaining=pendingSubs().filter(x=>x.id!==pendingSubmission.id);
- localStorage.setItem("poorviPendingSubmissions",JSON.stringify(remaining));
- pendingSubmission=null;
- $("parentReview").classList.add("hidden");
- $("result").classList.add("hidden");
- renderWeek();renderMonthly();renderYearly();
- alert("Test voided. It will not affect Poorvi's results or progress totals.");
-}
-function saveCurrentReview(){
- if(!pendingSubmission)return;
- const correct=pendingSubmission.answers.filter(x=>x.status==="correct").length;
- const total=pendingSubmission.total;
- const acc=Math.round(correct/total*100);
- if(pendingSubmission.answers.some(x=>x.status==="pending")){
-   if(!confirm("Some answers are still awaiting review. Save anyway? They will not count as correct."))return;
- }
- const h=hist();
- const wrong=pendingSubmission.answers.filter(x=>x.status==="wrong").length;
- const notAnswered=pendingSubmission.answers.filter(x=>x.status==="not_answered").length;
- h.push({id:pendingSubmission.id,date:pendingSubmission.date,n:correct,wrong,notAnswered,total,a:acc,et:pendingSubmission.elapsed,reviewed:true,operation:pendingSubmission.operation,range:pendingSubmission.range});
- localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)));
- const remaining=pendingSubs().filter(x=>x.id!==pendingSubmission.id);
- localStorage.setItem("poorviPendingSubmissions",JSON.stringify(remaining));
- $("parentReview").classList.add("hidden");
- pendingSubmission=null;
- $("score").textContent=correct+" / "+total;
- $("acc").textContent=acc+"%";
- $("used").textContent=time(h[h.length-1].et);
- $("best").textContent=Math.max(acc,...h.map(x=>x.a||0))+"%";
- $("msg").textContent=acc===100?"🎉 Perfect!":acc>=90?"⭐ Excellent!":"👍 Keep practicing!";
- $("result").classList.remove("hidden");
- renderWeek();
-}
-async function finish(up=false,early=false){
- if(done)return;
- done=true;started=false;clearInterval(tid);$("app").classList.remove("active");
- $("pencilTools").classList.add("hidden");$("submitBtn").classList.add("hidden");
- const et=elapsed(),pencil=$("answerMode").value==="pencil";
- const submission=makeSubmission();
-
- if(pencil){
-   $("ocrStatus").classList.remove("hidden");$("result").classList.add("hidden");
-   let recognized=0;
-   try{
-     if(!window.Tesseract)throw new Error("Recognition library unavailable");
-     const worker=await Tesseract.createWorker("eng",1,{logger:m=>{
-       if(m&&typeof m.progress==="number")$("ocrProgress").textContent="Preparing recognition… "+Math.round(m.progress*100)+"%";
-     }});
-     await worker.setParameters({tessedit_char_whitelist:"0123456789",tessedit_pageseg_mode:"10"});
-     for(let i=0;i<submission.answers.length;i++){
-       const item=submission.answers[i],c=document.querySelector('.pad[data-i="'+i+'"]'),f=$("f"+i);
-       if(!c||canvasIsBlank(c)){item.status="not_answered";if(f)f.textContent="•";continue}
-       $("ocrProgress").textContent="Reading answer "+(i+1)+" of "+submission.total+"…";
-       let value="",confidence=0;
-       try{
-         const r=await worker.recognize(preprocessHandwriting(c));
-         value=(r.data.text||"").replace(/[^0-9]/g,"");
-         if(value.length>2)value=value.slice(-2);
-         confidence=Number(r.data.confidence||0);
-       }catch(e){}
-       if(value&&confidence>=25){
-         item.ocr=value;item.status=(+value===item.ans)?"correct":"wrong";recognized++;
-       }else item.status="pending";
-       if(f){
-         const ok=item.status==="correct";
-         f.innerHTML=item.ocr?'<span class="'+(ok?"ok":"bad")+'">'+(ok?"✓":"✗")+' '+item.ocr+'</span>':'<span class="bad">?</span>';
-         f.className="fb";
-       }
-     }
-     await worker.terminate();
-   }catch(e){
-     submission.answers.forEach(x=>{x.ocr="";x.status=(x.image?"pending":"not_answered")});
-     $("ocrProgress").textContent="OCR unavailable. Parent can score the answers manually.";
-   }
-   savePendingSubmission(submission);
-   $("ocrStatus").classList.add("hidden");
-   $("score").textContent="Pending Parent Review";
-   $("acc").textContent="—";$("used").textContent=time(et);$("best").textContent="—";
-   $("msg").textContent=early?"🎉 Great job! You finished early!":"✓ Test submitted — waiting for parent review.";
-   $("result").classList.remove("hidden");renderWeek();
- }else{
-   savePendingSubmission(submission);
-   $("score").textContent="Pending Parent Review";
-   $("acc").textContent="—";$("used").textContent=time(et);$("best").textContent="—";
-   $("msg").textContent=early?"🎉 Great job! You finished early!":"✓ Test submitted — waiting for parent review.";
-   $("result").classList.remove("hidden");renderWeek();
- }
-}
-function canvasIsBlank(c){
- const ctx=c.getContext("2d"),d=ctx.getImageData(0,0,c.width,c.height).data;
- let ink=0;
- for(let i=0;i<d.length;i+=4){
-   if(d[i+3]>20 && (d[i]<245||d[i+1]<245||d[i+2]<245))ink++;
- }
- return ink<30;
-}
-function preprocessHandwriting(source){
- // Create a large, clean black-on-white image from the Pencil strokes.
- const sw=source.width,sh=source.height;
- const srcCtx=source.getContext("2d"),data=srcCtx.getImageData(0,0,sw,sh).data;
- let minX=sw,minY=sh,maxX=0,maxY=0,found=false;
- for(let y=0;y<sh;y++){
-   for(let x=0;x<sw;x++){
-     const p=(y*sw+x)*4;
-     const alpha=data[p+3], dark=data[p]<245||data[p+1]<245||data[p+2]<245;
-     if(alpha>20&&dark){
-       found=true;minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
-     }
-   }
- }
- if(!found)return source;
-
- const pad=16;
- minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
- maxX=Math.min(sw-1,maxX+pad);maxY=Math.min(sh-1,maxY+pad);
- const cw=maxX-minX+1,ch=maxY-minY+1;
- const scale=Math.max(3,Math.min(6,180/Math.max(cw,ch)));
- const out=document.createElement("canvas");
- out.width=Math.max(180,Math.round(cw*scale));
- out.height=Math.max(180,Math.round(ch*scale));
- const ctx=out.getContext("2d");
- ctx.fillStyle="#fff";ctx.fillRect(0,0,out.width,out.height);
- const tmp=document.createElement("canvas");tmp.width=cw;tmp.height=ch;
- const tctx=tmp.getContext("2d");tctx.fillStyle="#fff";tctx.fillRect(0,0,cw,ch);
- tctx.drawImage(source,minX,minY,cw,ch,0,0,cw,ch);
-
- // Threshold + slightly thicken strokes for child handwriting.
- const td=tctx.getImageData(0,0,cw,ch),px=td.data;
- for(let i=0;i<px.length;i+=4){
-   const lum=.299*px[i]+.587*px[i+1]+.114*px[i+2];
-   const v=lum<210?0:255;
-   px[i]=px[i+1]=px[i+2]=v;px[i+3]=255;
- }
- tctx.putImageData(td,0,0);
- ctx.imageSmoothingEnabled=true;
- ctx.drawImage(tmp,0,0,cw,ch,0,0,out.width,out.height);
- return out;
-}
-function time(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
-function save(n,total,a,et){let h=hist();h.push({date:key(),n,total,a,et});localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)))}
-function hist(){return JSON.parse(localStorage.getItem("poorviMathHistory")||"[]")}function key(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function showScore(n,total,a,et,up,early){let h=hist();$("score").textContent=n+" / "+total;$("acc").textContent=a+"%";$("used").textContent=time(et);$("best").textContent=Math.max(a,...h.map(x=>x.a||0))+"%";$("msg").textContent=early?"🎉 Great job! You finished early!":up?"⏰ Time's up — submitted automatically.":a===100?"🎉 Perfect!":a>=90?"⭐ Excellent!":"👍 Keep practicing!";$("result").classList.remove("hidden");renderWeek()}
-function weekDates(){
- let d=new Date(),day=d.getDay(),m=new Date(d);
- m.setDate(d.getDate()-(day===0?6:day-1));
- return Array.from({length:7},(_,i)=>{let x=new Date(m);x.setDate(m.getDate()+i);return x})
-}
-function opName(op){return (op||"mixed")[0].toUpperCase()+(op||"mixed").slice(1)}
-
-function voidedIds(){
- return new Set(JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]").map(x=>x.id));
-}
 function renderHistoryManager(){
- const h=hist(),v=voidedIds();
- let html='<div class="detailSheet"><b>🗂️ Past Submitted Tests</b><div class="muted" style="margin-top:4px">Void any old test you no longer want included in Poorvi’s progress.</div>';
- if(!h.length){html+='<div class="muted" style="margin-top:10px">No saved tests.</div>'}
- else{
-   [...h].reverse().forEach((x,revIndex)=>{
-     const originalIndex=h.length-1-revIndex;
-     const label=new Date(x.date+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
-     html+='<div class="reviewItem" style="margin-top:8px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">'+
-       '<div><b>'+label+' — '+opName(x.operation||"mixed")+'</b>'+
-       '<div class="muted">'+(x.total||0)+' questions • '+(x.a||0)+'% • ✓ '+(x.n||0)+' • ✗ '+(x.wrong||0)+' • — '+(x.notAnswered||0)+'</div></div>'+
-       '<button class="danger" data-void-history="'+originalIndex+'">🚫 Void Test</button></div></div>';
-   });
- }
+ if(!currentUser||currentUser.role!=="admin"){alert("Only Admin can manage past tests.");return}
+ const allUsers=getUsers();
+ let rows=[];
+ allUsers.forEach(u=>hist(u.id).forEach((x,index)=>rows.push({...x,_ownerId:u.id,_ownerName:u.name,_index:index})));
+ rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ let html='<div class="detailSheet"><b>🗂️ All Past Submitted Tests</b><div class="muted" style="margin-top:4px">Admin can void any previously saved test for any user.</div>';
+ if(!rows.length)html+='<div class="muted" style="margin-top:10px">No saved tests.</div>';
+ rows.forEach(x=>{
+   const label=new Date(x.date+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+   html+='<div class="reviewItem"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><b>👤 '+x._ownerName+' — '+label+' — '+opName(x.operation||"mixed")+'</b><div class="muted">'+(x.total||0)+' questions • '+(x.a||0)+'% • ✓ '+(x.n||0)+' • ✗ '+(x.wrong||0)+' • — '+(x.notAnswered||0)+'</div></div><button class="danger" data-void-history-user="'+x._ownerId+'" data-void-history-index="'+x._index+'">🚫 Void Test</button></div></div>';
+ });
  html+='</div>';
  $("historyManager").innerHTML=html;$("historyManager").classList.remove("hidden");
- document.querySelectorAll("[data-void-history]").forEach(btn=>btn.onclick=()=>{
-   const idx=+btn.dataset.voidHistory;
-   voidSavedHistoryTest(idx);
- });
+ document.querySelectorAll("[data-void-history-user]").forEach(btn=>btn.onclick=()=>voidSavedHistoryTest(btn.dataset.voidHistoryUser,+btn.dataset.voidHistoryIndex));
 }
-function voidSavedHistoryTest(index){
- const h=hist();
- const item=h[index];
+function voidSavedHistoryTest(ownerId,index){
+ const h=hist(ownerId),item=h[index];
  if(!item)return;
- if(!confirm("Void this past test? It will be excluded from weekly, monthly, yearly, and overall results."))return;
+ if(!confirm("Void this past test? It will be excluded from this user's weekly, monthly, yearly, and overall results."))return;
  const reason=prompt("Optional reason for voiding this test:","")||"Voided by parent";
  const voided=JSON.parse(localStorage.getItem("poorviVoidedSubmissions")||"[]");
  const id=item.id||("history_"+item.date+"_"+index+"_"+Date.now());
- voided.push({id,date:item.date,operation:item.operation||"mixed",total:item.total||0,reason,voidedAt:Date.now()});
+ voided.push({id,userId:ownerId,userName:item.userName||getUsers().find(u=>u.id===ownerId)?.name||"Guest",date:item.date,operation:item.operation||"mixed",total:item.total||0,reason,voidedAt:Date.now()});
  localStorage.setItem("poorviVoidedSubmissions",JSON.stringify(voided.slice(-200)));
- h.splice(index,1);
- localStorage.setItem("poorviMathHistory",JSON.stringify(h));
+ h.splice(index,1);saveHist(h,ownerId);
  renderHistoryManager();renderWeek();renderMonthly();renderYearly();
- alert("Past test voided. It no longer affects Poorvi's progress.");
+ alert("Past test voided. It no longer affects that user's progress.");
+}
+function trackerUserId(){
+ if(currentUser?.role!=="admin")return currentUser?.id||"guest";
+ return $("trackerUserSelect")?.value||"guest";
 }
 function renderWeek(){
- const h=hist(),byDate={};
+ const h=hist(trackerUserId()),byDate={};
  h.forEach(x=>{(byDate[x.date]||(byDate[x.date]=[])).push(x)});
  const dates=weekDates();
  $("week").innerHTML=dates.map(d=>{
@@ -440,7 +297,7 @@ function renderWeek(){
  $("summary").textContent=dates.filter(d=>(byDate[key(d)]||[]).length).length+" of 7 days completed this week. Tap a day for details.";
 }
 function showDayDetails(dateStr){
- const items=hist().filter(x=>x.date===dateStr);
+ const items=hist(trackerUserId()).filter(x=>x.date===dateStr);
  const d=new Date(dateStr+"T12:00:00");
  if(!items.length){$("dayDetails").innerHTML='<b>'+d.toLocaleDateString()+'</b><div class="muted">No worksheets completed.</div>';$("dayDetails").classList.remove("hidden");return}
  const groups={};items.forEach(x=>(groups[x.operation||"mixed"]||(groups[x.operation||"mixed"]=[])).push(x));
@@ -522,7 +379,7 @@ function renderMonthly(){
 }
 function renderYearly(){
  const now=new Date(),y=now.getFullYear();
- const items=hist().filter(x=>new Date(x.date+"T12:00:00").getFullYear()===y);
+ const items=hist(trackerUserId()).filter(x=>new Date(x.date+"T12:00:00").getFullYear()===y);
  const byMonth={};
  items.forEach(x=>(byMonth[x.date.slice(0,7)]||(byMonth[x.date.slice(0,7)]=[])).push(x));
  const months=Object.keys(byMonth).length,worksheets=items.length;
@@ -578,7 +435,7 @@ function unlock(){
  if($("pin").value!=="2580"){alert("Incorrect PIN.");return}
  $("modal").classList.add("hidden");
  if(parentAction==="clear"){
-   if(confirm("Clear saved progress?")){localStorage.removeItem("poorviMathHistory");renderWeek()}
+   if(confirm("Clear saved progress for the selected user?")){saveHist([],trackerUserId());renderWeek()}
  }else{
    reviewUnlocked=true;
    openLatestReview();
@@ -647,12 +504,21 @@ function applyRole(){
  // Admin gets all parent controls. Regular users only get the child-facing test controls.
  document.querySelectorAll("[data-admin-only]").forEach(el=>el.classList.toggle("hidden",!isAdmin));
  $("userManagement").classList.add("hidden");
+ populateTrackerUsers();
  if(!isAdmin){
    // Prevent a regular user from seeing the parent review/history UI.
    $("parentReview").classList.add("hidden");
    $("result").classList.add("hidden");
    $("historyManager").classList.add("hidden");
  }
+}
+function populateTrackerUsers(){
+ const sel=$("trackerUserSelect");
+ if(!sel)return;
+ const users=getUsers();
+ sel.innerHTML=(currentUser?.role==="admin"?users.filter(u=>u.active!==false):users.filter(u=>u.id===currentUser?.id)).map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
+ sel.value=currentUser?.role==="admin"?(sel.value||"guest"):(currentUser?.id||"guest");
+ if(!users.some(u=>u.id===sel.value))sel.value=currentUser?.id||"guest";
 }
 function switchUser(){
  const users=getUsers().filter(u=>u.active!==false);
@@ -715,7 +581,7 @@ function updateRangeControls(){
 $("op").addEventListener("change",()=>{updateRangeControls();if(!started)newEdition()});
 $("addSubRange").addEventListener("change",()=>{if(!started)newEdition()});
 $("mdRange").addEventListener("change",()=>{if(!started)newEdition()});
-$("weekTab").onclick=()=>showTracker("week");
+$("trackerUserSelect").onchange=()=>{renderWeek();renderMonthly();renderYearly()};$("weekTab").onclick=()=>showTracker("week");
 $("monthTab").onclick=()=>showTracker("month");
 $("yearTab").onclick=()=>showTracker("year");
 $("newBtn").onclick=newEdition;$("startBtn").onclick=startTest;$("writeBtn").onclick=()=>setTool("write");$("eraseBtn").onclick=()=>setTool("erase");$("resultsBtn").onclick=()=>openReviewWithPin();$("clearBtn").onclick=()=>ask("clear");$("parentBtn").onclick=()=>ask("results");$("unlock").onclick=unlock;$("cancel").onclick=()=>$("modal").classList.add("hidden");$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");loadCurrentUser();$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
