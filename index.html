@@ -1,198 +1,43 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Poorvi Math">
-<meta name="theme-color" content="#ffffff">
-<title>Poorvi Math Practice</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-capable" content="yes"><title>Poorvi Math</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:#f3f4f6;color:#17191c;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-.app{max-width:1160px;margin:auto;padding:12px 14px 35px}
-h1{font-size:25px;margin:0}.muted{color:#68717a;font-size:13px}
-.card{background:#fff;border:1px solid #d8dce0;border-radius:15px;padding:14px;margin:10px 0;box-shadow:0 2px 8px #0000000a}
-.controls{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
-label{display:block;font-size:12px;font-weight:700;margin-bottom:4px}
-select,button{font:inherit}select{width:100%;padding:9px;border:1px solid #bfc5ca;border-radius:8px;background:#fff}
-button{border:0;border-radius:9px;padding:10px 14px;font-weight:700}.primary{background:#2563eb;color:white}.secondary{background:#e8ebef}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.timer{font-size:28px;font-weight:800}.warn{color:#c62828}
-.sheet{border:1px solid #aaa;background:#fff}.sheethead{padding:12px;border-bottom:1px solid #777}
-.title{text-align:center;font:700 21px Georgia,serif}.info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:10px;font:13px Georgia,serif}
-.line{display:inline-block;width:100px;border-bottom:1px solid #444}.grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));width:100%;max-width:100%;overflow:hidden}
-.cell{height:72px;min-width:0;overflow:hidden;border-right:1px solid #bbb;border-bottom:1px solid #bbb;display:flex;align-items:center;justify-content:center;padding:2px}
-.cell:nth-child(10n){border-right:0}.q{font-size:clamp(10px,1.65vw,18px);font-family:Georgia,serif;white-space:nowrap;display:flex;align-items:center;justify-content:center;max-width:100%;min-width:0}
-.ans{width:clamp(20px,4vw,47px);min-width:0;border:0;border-bottom:1px solid #444;background:transparent;outline:0;text-align:center;font-size:clamp(11px,1.65vw,18px);font-family:Georgia,serif}
-.fb{height:13px;text-align:center;font-size:10px}.ok{color:#16803c}.bad{color:#c62828}.hidden{display:none}
-.score{text-align:center;font-size:42px;font-weight:900}.stats{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
-.stat{background:#eef0f2;padding:8px 14px;border-radius:9px;text-align:center}.stat b{display:block;font-size:20px}
-.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
-.day{border:1px solid #d1d5d9;border-radius:9px;padding:8px;text-align:center;background:#fafafa;min-height:72px}
-.day.done{background:#eef9f1;border-color:#9ed3ae}.day b{display:block;font-size:12px}.day strong{display:block;font-size:18px;margin:3px 0}.small{font-size:10px;color:#68717a}
-.mistakes{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:12px}.mistake{padding:7px;background:#fff5f5;border:1px solid #ffd0d0;border-radius:8px;text-align:center}
-@media(max-width:850px){.controls{grid-template-columns:repeat(3,1fr)}}@media(max-width:650px){
-.controls{grid-template-columns:1fr 1fr}.grid{grid-template-columns:repeat(5,1fr)}
-.cell:nth-child(10n){border-right:1px solid #bbb}.cell:nth-child(5n){border-right:0}.cell{height:78px}
-.q{font-size:14px}.ans{width:38px;font-size:15px}.info{font-size:11px;gap:4px}.line{width:60px}
-.week{grid-template-columns:repeat(4,1fr)}.mistakes{grid-template-columns:repeat(3,1fr)}
-}
-@media(min-width:651px) and (max-width:1100px){
-  .app{padding-left:10px;padding-right:10px}
-  .cell{height:68px}
-}
-</style>
-</head>
-<body>
-<div class="app">
-<h1>📚 Poorvi Math Practice</h1>
-<div class="muted">Daily school-style practice • iPad friendly</div>
+*{box-sizing:border-box}body{margin:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,Arial;color:#17191c}.app{max-width:1150px;margin:auto;padding:12px}.card{background:#fff;border:1px solid #ddd;border-radius:14px;padding:14px;margin:10px 0}h1{font-size:24px;margin:0 0 3px}.muted{color:#68717a;font-size:13px}.controls{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}label{display:block;font-size:12px;font-weight:700;margin-bottom:4px}select,input,button{font:inherit}select{width:100%;padding:9px;border:1px solid #bbb;border-radius:8px;background:#fff}button{border:0;border-radius:9px;padding:10px 14px;font-weight:700}.primary{background:#2563eb;color:#fff}.secondary{background:#e8ebef}.danger{background:#fee2e2;color:#991b1b}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.timer{font-size:28px;font-weight:800}.warn{color:#c62828}.sheet{border:1px solid #aaa}.head{padding:12px;border-bottom:1px solid #777}.title{text-align:center;font:bold 21px Georgia}.info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font:13px Georgia;margin-top:10px}.line{display:inline-block;width:90px;border-bottom:1px solid #444}.grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));overflow:hidden}.cell{height:70px;min-width:0;border-right:1px solid #bbb;border-bottom:1px solid #bbb;display:flex;align-items:center;justify-content:center;text-align:center}.cell:nth-child(10n){border-right:0}.q{font:clamp(11px,1.6vw,17px) Georgia;white-space:nowrap}.ans{width:clamp(22px,4vw,45px);border:0;border-bottom:1px solid #444;outline:0;text-align:center;background:transparent}.fb{font-size:10px;height:12px}.ok{color:#16803c}.bad{color:#c62828}.hidden{display:none!important}.score{text-align:center;font-size:42px;font-weight:900}.stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.stat{background:#eef0f2;padding:7px 13px;border-radius:9px;text-align:center}.stat b{display:block;font-size:19px}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{padding:7px;border:1px solid #ccc;border-radius:8px;text-align:center}.done{background:#edf9ef;border-color:#9bd0a6}.day b,.day strong{display:block}.day strong{font-size:18px}.small{font-size:10px;color:#68717a}.lock{padding:10px;background:#edf7ed;border-radius:9px;text-align:center;font-weight:700}.active #parentPanel,.active header button,.active .parentResults{display:none!important}.active .childOnly{display:block!important}
+@media(max-width:800px){.controls{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.controls{grid-template-columns:1fr 1fr}.grid{grid-template-columns:repeat(5,minmax(0,1fr))}.cell:nth-child(10n){border-right:1px solid #bbb}.cell:nth-child(5n){border-right:0}.cell{height:76px}.info{font-size:11px}.week{grid-template-columns:repeat(4,1fr)}}
+</style></head><body><div class="app" id="app">
+<header style="display:flex;justify-content:space-between;align-items:center"><div><h1>📚 Poorvi Math Practice</h1><div class="muted">Parent-controlled daily test</div></div><button class="secondary" onclick="parentLogin()">🔒 Parent</button></header>
 
-<section class="card">
-<b>Today's Worksheet</b>
+<section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set everything before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
-<div><label>Operation</label><select id="op">
-<option value="addition">Addition</option><option value="subtraction">Subtraction</option>
-<option value="multiplication">Multiplication</option><option value="division">Division</option><option value="mixed">Mixed</option>
-</select></div>
+<div><label>Operation</label><select id="op"><option value="addition">Addition</option><option value="subtraction">Subtraction</option><option value="multiplication">Multiplication</option><option value="division">Division</option><option value="mixed">Mixed</option></select></div>
 <div><label>Questions</label><select id="count"><option>100</option><option>50</option><option>25</option></select></div>
 <div><label>Format</label><select id="format"><option value="horizontal">Side-by-side</option><option value="vertical">Vertical</option></select></div>
 <div><label>Timer</label><select id="mins"><option value="4">4 minutes</option><option value="5">5 minutes</option><option value="0">No timer</option></select></div>
-<div><label>Edition</label><select id="edition"><option value="random">Random</option><option value="regroup">More regrouping</option></select></div>
-</div>
-<div class="actions">
-<button class="primary" onclick="newEdition()">✨ New Edition</button>
-<button class="secondary" onclick="startTest()">▶ Start</button>
-<button class="secondary" onclick="finish()">✓ Score</button>
-</div>
-</section>
+<div><label>Edition</label><select id="edition"><option value="random">Random</option><option value="regroup">More regrouping</option></select></div></div>
+<div class="actions"><button class="primary" onclick="newEdition()">✨ Create Edition</button><button class="secondary" onclick="parentResults()">📊 Results</button><button class="danger" onclick="clearHistory()">Clear History</button></div></section>
 
-<section class="card"><b>Timer</b><span id="timer" class="timer" style="float:right">4:00</span></section>
-<section class="card"><div class="sheet" id="sheet"></div></section>
+<section class="card childOnly"><div class="lock">🔒 CHILD MODE — Once the test starts, all controls are locked.</div><div style="display:flex;justify-content:space-between;margin-top:10px"><b>Timer</b><span id="timer" class="timer">4:00</span></div><div class="actions"><button class="primary" id="start" onclick="startTest()">▶ Start Test</button></div></section>
+<section class="card"><div id="sheet" class="sheet"></div></section>
 
-<section class="card hidden" id="result">
-<div class="score" id="score"></div><div style="text-align:center" id="message"></div>
-<div class="stats" style="margin-top:12px">
-<div class="stat"><b id="accuracy"></b>Accuracy</div>
-<div class="stat"><b id="timeUsed"></b>Time</div>
-<div class="stat"><b id="best"></b>Best</div>
-</div>
-<div class="actions" style="justify-content:center">
-<button class="primary" onclick="newEdition()">New Edition</button>
-<button class="secondary" onclick="review()">Review Mistakes</button>
-</div>
-<div id="mistakes" class="hidden mistakes"></div>
-</section>
+<section class="card hidden" id="result"><div class="score" id="score"></div><div style="text-align:center" id="msg"></div><div class="stats"><div class="stat"><b id="acc"></b>Accuracy</div><div class="stat"><b id="used"></b>Time</div><div class="stat"><b id="best"></b>Best</div></div><div class="actions parentResults" style="justify-content:center"><button class="secondary" onclick="review()">Review Mistakes</button></div><div id="mistakes" class="hidden"></div></section>
 
-<section class="card">
-<b>This Week</b>
-<div class="week" id="week"></div>
-<div class="muted" style="margin-top:9px" id="summary"></div>
-</section>
+<section class="card"><b>This Week</b><div class="week" id="week"></div><div class="muted" id="summary" style="margin-top:8px"></div></section>
 </div>
 
 <script>
-let qs=[],started=false,done=false,left=240,timerId=null,startAt=0;
-const $=id=>document.getElementById(id),R=n=>Math.floor(Math.random()*n);
-
-function make(op,edition){
- if(op==="mixed") op=["addition","subtraction","multiplication","division"][R(4)];
- let a,b,ans;
- if(op==="addition"){
-   a=R(10); b=R(10);
-   if(edition==="regroup" && a+b<10) b=Math.min(9,10-a+R(a+1));
-   ans=a+b;
- }else if(op==="subtraction"){
-   a=R(10); b=R(a+1); ans=a-b;
- }else if(op==="multiplication"){
-   a=R(10); b=R(10); ans=a*b;
- }else{
-   b=1+R(9); ans=R(10); a=b*ans;
- }
- return {a,b,ans,op};
-}
-function sym(op){return {addition:"+",subtraction:"−",multiplication:"×",division:"÷"}[op]}
-
-function newEdition(){
- clearInterval(timerId); started=false; done=false;
- left=(+$("mins").value||0)*60; updateTimer();
- qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));
- qs.sort(()=>Math.random()-.5);
- render(); $("result").classList.add("hidden");
- window.scrollTo({top:0,behavior:"smooth"});
-}
-function render(){
- const title=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";
- $("sheet").innerHTML='<div class="sheethead"><div class="title">'+title+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';
- const grid=document.createElement("div");grid.className="grid";
- qs.forEach((q,i)=>{
-   const cell=document.createElement("div");cell.className="cell";
-   cell.innerHTML='<div><div class="q">'+q.a+' '+sym(q.op)+' '+q.b+' = <input class="ans" inputmode="numeric" data-i="'+i+'"></div><div class="fb" id="f'+i+'"></div></div>';
-   grid.appendChild(cell);
- });
- $("sheet").appendChild(grid);
-}
-function startTest(){
- if(started)return;
- started=true;done=false;startAt=Date.now();left=(+$("mins").value||0)*60;updateTimer();
- document.querySelector(".ans")?.focus();clearInterval(timerId);
- if(left)timerId=setInterval(()=>{left--;updateTimer();if(left<=0)finish(true)},1000);
-}
-function updateTimer(){
- const m=Math.floor(left/60),s=left%60;
- $("timer").textContent=m+":"+String(s).padStart(2,"0");
- $("timer").classList.toggle("warn",left>0&&left<=30);
-}
-function finish(timeup=false){
- if(done)return;done=true;started=false;clearInterval(timerId);
- let correct=0;
- document.querySelectorAll(".ans").forEach((e,i)=>{
-   const ok=e.value.trim()!=="" && +e.value===qs[i].ans, f=$("f"+i);
-   f.textContent=ok?"✓":(e.value.trim()===""?"•":"✗"); f.className="fb "+(ok?"ok":"bad");
-   if(ok)correct++;
- });
- const total=qs.length,acc=Math.round(correct/total*100);
- const elapsed=$("mins").value==="0"?Math.round((Date.now()-startAt)/1000):+$("mins").value*60-left;
- $("score").textContent=correct+" / "+total;$("accuracy").textContent=acc+"%";
- $("timeUsed").textContent=Math.floor(elapsed/60)+":"+String(elapsed%60).padStart(2,"0");
- $("message").textContent=timeup?"Time's up!":acc===100?"🎉 Perfect!":acc>=90?"⭐ Excellent!":"👍 Keep practicing!";
- saveDaily({dateKey:dateKey(),correct,total,acc,elapsed,operation:$("op").value});
- renderWeek();
- const h=JSON.parse(localStorage.getItem("poorviMathHistory")||"[]");
- $("best").textContent=Math.max(acc,...h.map(x=>x.acc||0))+"%";
- $("result").classList.remove("hidden");
-}
-function dateKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function saveDaily(x){
- let h=JSON.parse(localStorage.getItem("poorviMathHistory")||"[]");
- const i=h.findIndex(y=>y.dateKey===x.dateKey);
- if(i>=0) h[i]=x; else h.push(x);
- localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-60)));
-}
-function weekDates(){
- const d=new Date(),day=d.getDay(),m=new Date(d);
- m.setDate(d.getDate()-(day===0?6:day-1));
- return Array.from({length:7},(_,i)=>{const x=new Date(m);x.setDate(m.getDate()+i);return x});
-}
-function renderWeek(){
- const h=JSON.parse(localStorage.getItem("poorviMathHistory")||"[]");
- const map=Object.fromEntries(h.map(x=>[x.dateKey,x])),dates=weekDates();
- $("week").innerHTML=dates.map(d=>{
-   const x=map[dateKey(d)],name=d.toLocaleDateString(undefined,{weekday:"short"});
-   return '<div class="day '+(x?"done":"")+'"><b>'+name+'</b><strong>'+(x?x.acc+"%":"—")+'</strong><span class="small">'+(x?x.correct+"/"+x.total:"Not done")+'</span></div>';
- }).join("");
- $("summary").textContent=dates.filter(d=>map[dateKey(d)]).length+" of 7 days completed this week.";
-}
-function review(){
- const box=$("mistakes");
- box.innerHTML=qs.map((q,i)=>{
-   const e=document.querySelector('.ans[data-i="'+i+'"]');
-   if(e && e.value.trim()!=="" && +e.value===q.ans)return "";
-   return '<div class="mistake">'+q.a+' '+sym(q.op)+' '+q.b+' = <b>'+q.ans+'</b></div>';
- }).join("");
- box.classList.toggle("hidden");
-}
+let qs=[],started=false,done=false,left=240,tid=null,begin=0;
+const $=x=>document.getElementById(x),R=n=>Math.floor(Math.random()*n);
+function sym(o){return({addition:"+",subtraction:"−",multiplication:"×",division:"÷"})[o]}
+function make(o,ed){if(o==="mixed")o=["addition","subtraction","multiplication","division"][R(4)];let a,b,ans;if(o==="addition"){a=R(10);b=R(10);if(ed==="regroup"&&a+b<10)b=Math.min(9,10-a+R(a+1));ans=a+b}else if(o==="subtraction"){a=R(10);b=R(a+1);ans=a-b}else if(o==="multiplication"){a=R(10);b=R(10);ans=a*b}else{b=1+R(9);ans=R(10);a=b*ans}return{a,b,ans,o}}
+function newEdition(){if(started)return;clearInterval(tid);done=false;left=(+$("mins").value||0)*60;update();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value)).sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
+function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = <input class="ans" inputmode="numeric" data-i="'+i+'"></div><div class="fb" id="f'+i+'"></div></div>';g.appendChild(c)});$("sheet").appendChild(g)}
+function startTest(){if(started)return;started=true;begin=Date.now();left=(+$("mins").value||0)*60;update();$("app").classList.add("active");$("start").disabled=true;document.querySelector(".ans")?.focus();if(left)tid=setInterval(()=>{left--;update();if(left<=0)finish(true)},1000)}
+function update(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left&&left<=30)}
+function finish(up=false){if(done)return;done=true;started=false;clearInterval(tid);let n=0;document.querySelectorAll(".ans").forEach((e,i)=>{let ok=e.value.trim()!==""&&+e.value===qs[i].ans,f=$("f"+i);f.textContent=ok?"✓":(e.value.trim()===""?"•":"✗");f.className="fb "+(ok?"ok":"bad");e.disabled=true;if(ok)n++});let total=qs.length,a=Math.round(n/total*100),elapsed=$("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left;$("score").textContent=n+" / "+total;$("acc").textContent=a+"%";$("used").textContent=Math.floor(elapsed/60)+":"+String(elapsed%60).padStart(2,"0");let h=JSON.parse(localStorage.getItem("poorviMathHistory")||"[]");h.push({date:key(),n,total,a,elapsed});localStorage.setItem("poorviMathHistory",JSON.stringify(h.slice(-100)));$("best").textContent=Math.max(a,...h.map(x=>x.a||0))+"%";$("msg").textContent=up?"⏰ Time's up — submitted automatically!":a===100?"🎉 Perfect!":a>=90?"⭐ Excellent!":"👍 Keep practicing!";$("result").classList.remove("hidden");renderWeek()}
+function key(d=new Date()){return d.toISOString().slice(0,10)}
+function weekDates(){let d=new Date(),day=d.getDay(),m=new Date(d);m.setDate(d.getDate()-(day===0?6:day-1));return Array.from({length:7},(_,i)=>{let x=new Date(m);x.setDate(m.getDate()+i);return x})}
+function renderWeek(){let h=JSON.parse(localStorage.getItem("poorviMathHistory")||"[]"),map=Object.fromEntries(h.map(x=>[x.date,x]));$("week").innerHTML=weekDates().map(d=>{let x=map[key(d)],name=d.toLocaleDateString(undefined,{weekday:"short"});return'<div class="day '+(x?"done":"")+'"><b>'+name+'</b><strong>'+(x?x.a+"%":"—")+'</strong><span class="small">'+(x?x.n+"/"+x.total:"Not done")+'</span></div>'}).join("");$("summary").textContent=weekDates().filter(d=>map[key(d)]).length+" of 7 days completed this week."}
+function parentLogin(){let p=prompt("Parent PIN");if(p==="2580"){document.getElementById("parentPanel").scrollIntoView({behavior:"smooth"});alert("Parent mode unlocked.");}else alert("Incorrect PIN.")}
+function parentResults(){let p=prompt("Parent PIN");if(p!=="2580"){alert("Incorrect PIN.");return}$("result").classList.remove("hidden");$("result").scrollIntoView({behavior:"smooth"})}
+function clearHistory(){if(prompt("Enter Parent PIN to clear history")!=="2580")return;localStorage.removeItem("poorviMathHistory");renderWeek();alert("History cleared.")}
+function review(){let b=$("mistakes");b.innerHTML=qs.map((q,i)=>{let e=document.querySelector('[data-i="'+i+'"]');return e&&e.value.trim()!==""&&+e.value===q.ans?"":'<div>'+q.a+' '+sym(q.o)+' '+q.b+' = <b>'+q.ans+'</b></div>'}).join("");b.classList.toggle("hidden")}
 newEdition();renderWeek();
-</script>
-</body>
-</html>
+</script></body></html>
