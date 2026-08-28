@@ -417,9 +417,11 @@ function saveReview(){
   if(!currentReview)return;
 
   const answers=currentReview.answers||[];
-  document.querySelectorAll("[data-status]").forEach(sel=>{
-    const i=Number(sel.dataset.status);
-    if(answers[i])answers[i].status=sel.value;
+  document.querySelectorAll("[data-choice]").forEach(group=>{
+    const i=Number(group.dataset.choice);
+    if(!answers[i])return;
+    const selected=group.querySelector(".selectedStatus");
+    if(selected)answers[i].status=selected.dataset.status;
   });
 
   let correct=0,wrong=0,notAnswered=0;
