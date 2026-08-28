@@ -59,7 +59,79 @@ document.addEventListener("visibilitychange",()=>{
     }
   }
 });
-</script><style>#userNav button.active{background:#1769ff;color:#fff;border-color:#1769ff}</style></head>
+</script><style>#userNav button.active{background:#1769ff;color:#fff;border-color:#1769ff}</style>
+<style>
+/* Child Test Focus Mode */
+body.test-focus-mode{
+  overflow:hidden!important;
+  background:#f5f7fb!important;
+  overscroll-behavior:none!important;
+  touch-action:pan-y;
+}
+body.test-focus-mode>header,
+body.test-focus-mode>#userNav,
+body.test-focus-mode>#accountBar,
+body.test-focus-mode>nav,
+body.test-focus-mode .siteNav{
+  display:none!important;
+}
+body.test-focus-mode #app{
+  position:fixed!important;
+  inset:0!important;
+  z-index:99990!important;
+  margin:0!important;
+  max-width:none!important;
+  width:100%!important;
+  height:100dvh!important;
+  overflow:auto!important;
+  padding:10px max(10px,env(safe-area-inset-left)) max(18px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-right))!important;
+  background:#f5f7fb!important;
+}
+body.test-focus-mode #app>section:first-child,
+body.test-focus-mode #adminSubmissionQueue,
+body.test-focus-mode #progressTracker,
+body.test-focus-mode #result,
+body.test-focus-mode #historyManager{
+  display:none!important;
+}
+body.test-focus-mode #app>header{
+  display:flex!important;
+  position:sticky!important;
+  top:0!important;
+  z-index:5!important;
+  background:#f5f7fb!important;
+  padding:4px 0 8px!important;
+}
+body.test-focus-mode #app>section:nth-of-type(2){
+  position:sticky!important;
+  top:0!important;
+  z-index:6!important;
+  margin-bottom:8px!important;
+}
+body.test-focus-mode #sheet{
+  min-height:calc(100dvh - 120px);
+}
+body.test-focus-mode #sheet .cell{
+  -webkit-user-select:none;
+  user-select:none;
+}
+body.test-focus-mode #pencilTools button,
+body.test-focus-mode #submitBtn{
+  position:relative;
+  z-index:10;
+}
+#testFocusBadge{
+  display:none;
+  font-weight:700;
+  font-size:13px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #d0d5dd;
+}
+body.test-focus-mode #testFocusBadge{display:inline-flex}
+</style>
+</head>
 
 <body>
 <div id="productionPageNav" style="display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:6px 0 10px">
@@ -86,7 +158,7 @@ document.addEventListener("visibilitychange",()=>{
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.7 — 100 Questions / Auto-submit Timer - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.11 — Persistent Test Session - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -192,12 +264,177 @@ function make(o,ed){
  }
  return{a,b,ans,o}
 }
-function newEdition(){if(started)return;clearInterval(tid);tid=null;done=false;if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";left=+$("mins").value*60;updateTimer();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));qs.sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
-function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div><div class="fb" id="f'+i+'"></div></div>';g.appendChild(c)});$("sheet").appendChild(g);if($("answerMode").value==="pencil")setupPencil();requestAnimationFrame(fitGrid)}
-function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>drawing=false;c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";setTool("write")}},true)})}
+function newEdition(){if(started)return;clearInterval(tid);tid=null;done=false;clearActiveSession(currentUser?.id||"guest");if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";left=+$("mins").value*60;updateTimer();qs=Array.from({length:+$("count").value},()=>make($("op").value,$("edition").value));qs.sort(()=>Math.random()-.5);render();$("result").classList.add("hidden")}
+
+function activeSessionKey(userId){
+  return "poorviActiveTest:"+String(userId||"guest");
+}
+function clearActiveSession(userId=currentUser?.id||"guest"){
+  try{localStorage.removeItem(activeSessionKey(userId))}catch(e){}
+}
+function persistActiveSession(){
+  if(!started || done || !currentUser)return;
+  try{
+    const answers=[];
+    if($("answerMode").value==="pencil"){
+      document.querySelectorAll(".pad").forEach((c,i)=>{
+        let image="";
+        try{
+          if(!canvasIsBlank(c)) image=c.toDataURL("image/jpeg",0.45);
+        }catch(e){}
+        answers.push({i,image});
+      });
+    }else{
+      document.querySelectorAll(".ans").forEach((e,i)=>{
+        answers.push({i,value:e.value||""});
+      });
+    }
+    const payload={
+      version:1,
+      userId:currentUser.id,
+      userName:currentUser.name,
+      startedAt:begin,
+      expiresAt:begin+(+$("mins").value*60000),
+      operation:$("op").value,
+      edition:$("edition").value,
+      range:$("addSubRange").value,
+      count:+$("count").value,
+      minutes:+$("mins").value,
+      answerMode:$("answerMode").value,
+      qs:qs,
+      answers:answers,
+      savedAt:Date.now()
+    };
+    localStorage.setItem(activeSessionKey(currentUser.id),JSON.stringify(payload));
+  }catch(e){}
+}
+function restoreActiveSession(){
+  if(!currentUser)return;
+  let raw=null;
+  try{raw=localStorage.getItem(activeSessionKey(currentUser.id))}catch(e){}
+  if(!raw)return;
+  let s;
+  try{s=JSON.parse(raw)}catch(e){clearActiveSession();return}
+  if(!s || s.userId!==currentUser.id || !Array.isArray(s.qs) || !s.qs.length){
+    clearActiveSession();return;
+  }
+
+  const expiresAt=Number(s.expiresAt||0);
+  if(!expiresAt){
+    clearActiveSession();return;
+  }
+
+  // Restore the exact worksheet/settings before rendering.
+  $("op").value=s.operation||$("op").value;
+  if($("edition"))$("edition").value=s.edition||$("edition").value;
+  if($("addSubRange"))$("addSubRange").value=s.range||$("addSubRange").value;
+  if($("count"))$("count").value=String(s.count||s.qs.length);
+  if($("mins"))$("mins").value=String([3,4,5].includes(+s.minutes)?s.minutes:3);
+  if($("answerMode"))$("answerMode").value=s.answerMode||"pencil";
+  qs=s.qs;
+  started=true;done=false;begin=Number(s.startedAt||Date.now());enterTestFocusMode();
+  left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));
+  updateTimer();
+  $("app").classList.add("active");
+  $("startBtn").disabled=true;
+  $("submitBtn").classList.remove("hidden");
+  render();
+
+  // Restore written answers after canvases exist.
+  (s.answers||[]).forEach(a=>{
+    const i=Number(a.i);
+    if($("answerMode").value==="pencil" && a.image){
+      const c=document.querySelector('.pad[data-i="'+i+'"]');
+      if(c){
+        const img=new Image();
+        img.onload=()=>{
+          const x=c.getContext("2d"),scale=devicePixelRatio||1;
+          x.setTransform(scale,0,0,scale,0,0);
+          x.drawImage(img,0,0,c.width/scale,c.height/scale);
+        };
+        img.src=a.image;
+      }
+    }else{
+      const e=document.querySelector('.ans[data-i="'+i+'"]');
+      if(e)e.value=a.value||"";
+    }
+  });
+
+  if($("answerMode").value==="pencil"){
+    $("pencilTools").classList.remove("hidden");
+    setTool("write");
+  }
+
+  if(left<=0){
+    clearActiveSession(currentUser.id);
+    setTimeout(()=>finish(true,false),50);
+    return;
+  }
+
+  if(tid)clearInterval(tid);
+  tid=setInterval(()=>{
+    left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));
+    updateTimer();
+    persistActiveSession();
+    if(left<=0){
+      clearInterval(tid);tid=null;
+      clearActiveSession(currentUser.id);
+      finish(true,false);
+    }
+  },250);
+
+  window.scrollTo(0,0);
+}
+function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div><div class="fb" id="f'+i+'"></div></div>';g.appendChild(c)});$("sheet").appendChild(g);
+if($("answerMode").value==="pencil")setupPencil();
+document.querySelectorAll(".ans").forEach(e=>e.addEventListener("input",persistActiveSession));
+requestAnimationFrame(fitGrid)}
+function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>{drawing=false;persistActiveSession()};c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";setTool("write")}},true)})}
 function setTool(m){pencilTool=m;$("writeBtn").className=m==="write"?"primary":"secondary";$("eraseBtn").className=m==="erase"?"erase":"secondary";$("modeText").textContent=m==="erase"?"Erase mode — tap one answer to clear it":"Write mode — write with Apple Pencil"}
 function fitGrid(){let g=document.querySelector(".grid");if(!g)return;let w=g.clientWidth,min=$("answerMode").value==="pencil"?150:120,cols=Math.max(2,Math.min(10,Math.floor(w/min)));g.style.setProperty("--cols",cols);[...g.children].forEach((c,i)=>c.style.borderRight=((i+1)%cols===0)?"0":"1px solid #bbb")}
-function startTest(){if(started||done)return;if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}if(left)tid=setInterval(()=>{left--;if(left<=0){left=0;updateTimer();clearInterval(tid);tid=null;finish(true,false);return}updateTimer()},1000)}
+
+let __focusHistoryPushed=false;
+let __focusBeforeUnload=false;
+
+function enterTestFocusMode(){
+  document.body.classList.add("test-focus-mode");
+  const app=$("app");
+  try{
+    if(app && document.fullscreenElement!==app && app.requestFullscreen){
+      const p=app.requestFullscreen({navigationUI:"hide"});
+      if(p&&p.catch)p.catch(()=>{});
+    }
+  }catch(e){}
+  if(!__focusHistoryPushed){
+    try{
+      history.pushState({poorviTestFocus:true},"",location.href);
+      __focusHistoryPushed=true;
+    }catch(e){}
+  }
+  if(!__focusBeforeUnload){
+    __focusBeforeUnload=true;
+    window.addEventListener("beforeunload",function(e){
+      if(started&&!done){
+        persistActiveSession();
+        e.preventDefault();
+        e.returnValue="";
+      }
+    });
+    window.addEventListener("popstate",function(){
+      if(started&&!done){
+        try{history.pushState({poorviTestFocus:true},"",location.href)}catch(e){}
+      }
+    });
+  }
+}
+function exitTestFocusMode(){
+  document.body.classList.remove("test-focus-mode");
+  try{
+    if(document.fullscreenElement && document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+  }catch(e){}
+  __focusHistoryPushed=false;
+}
+function startTest(){if(started||done)return;enterTestFocusMode();if($("mins").value==="0"||!["3","4","5"].includes($("mins").value))$("mins").value="3";started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
@@ -309,7 +546,7 @@ function saveCurrentReview(){
 }
 async function finish(up=false,early=false){
  if(done)return;
- done=true;started=false;clearInterval(tid);$("app").classList.remove("active");
+ done=true;started=false;clearInterval(tid);tid=null;clearActiveSession(currentUser?.id||"guest");exitTestFocusMode();$("app").classList.remove("active");
  $("pencilTools").classList.add("hidden");$("submitBtn").classList.add("hidden");
  const et=elapsed(),pencil=$("answerMode").value==="pencil";
  const submission=makeSubmission();
@@ -1025,6 +1262,9 @@ function endActiveTestForUserSwitch(){
 }
 
 function hardEndCurrentUserTest(){
+  try{exitTestFocusMode()}catch(e){}
+  // User switching intentionally ends the current user's active session.
+  clearActiveSession(currentUser?.id||"guest");
   // Stop every timer pattern used by previous versions.
   ["timerInterval","countdownInterval","interval","testTimer","questionTimerInterval"].forEach(n=>{
     try{
@@ -1153,7 +1393,9 @@ function setupUserNav(){
    const tracker=el("progressTracker");
    if(tracker){tracker.classList.remove("hidden");tracker.scrollIntoView({behavior:"smooth"});}
  }
- window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();});
+ window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();setTimeout(()=>restoreActiveSession(),0);});
+window.addEventListener("pagehide",()=>{if(started&&!done)persistActiveSession();});
+window.addEventListener("beforeunload",()=>{if(started&&!done)persistActiveSession();});
 })();
 </script>
 </body></html>
