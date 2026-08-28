@@ -90,7 +90,7 @@ body.test-session-locked{overscroll-behavior:none}
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.8 — Test Navigation Lock - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.9 — User Selector Fix - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -658,50 +658,49 @@ const DEFAULT_USERS=[
 let currentUser=null;
 
 function getUsers(){
- const raw=localStorage.getItem("poorviMathUsers");
- if(!raw){
-   localStorage.setItem("poorviMathUsers",JSON.stringify(DEFAULT_USERS));
-   return [...DEFAULT_USERS];
- }
- try{
-   let users=JSON.parse(raw);
-   if(!Array.isArray(users)||!users.length)users=[...DEFAULT_USERS];
-
-   // Migrate the previous default names once.
-   let changed=false;
-   users=users.map(u=>{
-     if(u.id==="user1" || (u.name||"").toLowerCase()==="user1"){
-       changed=true; return {...u,id:"poorvi",name:"Poorvi Dondeti"};
-     }
-     if(u.id==="poorvi" && (u.name||"").toLowerCase()==="poorvi"){
-       changed=true; return {...u,name:"Poorvi Dondeti"};
-     }
-     if(u.id==="user2" || (u.name||"").toLowerCase()==="user2"){
-       changed=true; return {...u,id:"mahiram",name:"Mahiram Dondeti"};
-     }
-     if(u.id==="mahiram" && (u.name||"").toLowerCase()==="mahiram"){
-       changed=true; return {...u,name:"Mahiram Dondeti"};
-     }
-     if(u.id==="admin" && !u.pin){changed=true;return {...u,pin:"2580"};}
-     return u;
-   });
-   if(!users.some(u=>u.id==="guest")){
-     users.unshift({id:"guest",name:"Guest",role:"user",pin:"0000",active:true});
-     changed=true;
-   }
-   if(changed)localStorage.setItem("poorviMathUsers",JSON.stringify(users));
-   return users;
- }catch(e){
-   localStorage.setItem("poorviMathUsers",JSON.stringify(DEFAULT_USERS));
-   return [...DEFAULT_USERS];
- }
+  const required=[
+    {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
+    {id:"admin",name:"Admin",role:"admin",pin:"2580",active:true},
+    {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
+    {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
+  ];
+  const raw=localStorage.getItem("poorviMathUsers");
+  if(!raw){
+    localStorage.setItem("poorviMathUsers",JSON.stringify(required));
+    return [...required];
+  }
+  try{
+    let users=JSON.parse(raw);
+    if(!Array.isArray(users))users=[];
+    users=users.filter(Boolean).map(u=>{
+      if(u.id==="user1")return {...u,id:"poorvi",name:"Poorvi Dondeti",role:"user",active:true};
+      if(u.id==="user2")return {...u,id:"mahiram",name:"Mahiram Dondeti",role:"user",active:true};
+      return u;
+    });
+    let changed=false;
+    required.forEach(r=>{
+      const u=users.find(x=>x.id===r.id);
+      if(!u){users.push({...r});changed=true;}
+      else if(r.id!=="admin" && (u.role==="admin"||u.active===false)){
+        Object.assign(u,{name:r.name,role:"user",pin:r.pin,active:true});changed=true;
+      }
+    });
+    if(changed)localStorage.setItem("poorviMathUsers",JSON.stringify(users));
+    return users;
+  }catch(e){
+    localStorage.setItem("poorviMathUsers",JSON.stringify(required));
+    return [...required];
+  }
 }
+
 function saveUsers(users){localStorage.setItem("poorviMathUsers",JSON.stringify(users))}
 function loadCurrentUser(){
- const users=getUsers(),id=sessionStorage.getItem("poorviCurrentUser")||"guest";
- currentUser=users.find(u=>u.id===id&&u.active!==false)||users.find(u=>u.role==="admin")||users[0];
- sessionStorage.setItem("poorviCurrentUser",currentUser.id);
- applyRole();
+  const users=getUsers();
+  const id=sessionStorage.getItem("poorviCurrentUser")||"guest";
+  const children=users.filter(u=>u.active!==false&&u.role!=="admin");
+  currentUser=children.find(u=>u.id===id)||children.find(u=>u.id==="guest")||children[0];
+  sessionStorage.setItem("poorviCurrentUser",currentUser.id);
+  applyRole();
 }
 function applyRole(){
  $("currentUserLabel").textContent=currentUser.name;
@@ -1145,7 +1144,7 @@ function setupUserNav(){
    if(typeof getUsers==="function" && sel){
      const list=getUsers().filter(u=>u.active!==false && u.role!=="admin");
      sel.innerHTML=list.map(u=>'<option value="'+u.id+'">'+u.name+'</option>').join("");
-     sel.value=(typeof currentUser!=="undefined"&&currentUser?.id)||"guest";
+     sel.value=(currentUser&&list.some(u=>u.id===currentUser.id))?currentUser.id:"guest";
      if(typeof currentUser!=="undefined")el("userHeaderName").textContent=currentUser?.name||"Guest";
      // User switching is handled by bindAuthoritativeUserSwitch().
    }
@@ -1174,7 +1173,7 @@ function setupUserNav(){
    const tracker=el("progressTracker");
    if(tracker){tracker.classList.remove("hidden");tracker.scrollIntoView({behavior:"smooth"});}
  }
- window.addEventListener("load",()=>{setupUserNav();bindAuthoritativeUserSwitch();});
+ window.addEventListener("load",()=>{loadCurrentUser();setupUserNav();bindAuthoritativeUserSwitch();});
 })();
 </script>
 </body></html>
