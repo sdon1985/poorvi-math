@@ -158,7 +158,7 @@ body.test-focus-mode #testFocusBadge{display:inline-flex}
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.16 — Code Display Fix - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.17 — Admin Validation Rule - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -456,12 +456,13 @@ function makeSubmission(){
  const answers=[];
  if($("answerMode").value==="pencil"){
    document.querySelectorAll(".pad").forEach((c,i)=>{
-     answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:c.toDataURL("image/png"),ocr:"",status:"pending"});
+     const filled=!canvasIsBlank(c);
+     answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:c.toDataURL("image/png"),ocr:"",filled,status:filled?"correct":"not_answered"});
    });
  }else{
    document.querySelectorAll(".ans").forEach((e,i)=>{
      const v=e.value.trim();
-     answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:"",ocr:v,status:v!==""?(+v===qs[i].ans?"correct":"wrong"):"not_answered"});
+     answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:"",ocr:v,filled:v!=="",status:v!==""?"correct":"not_answered"});
    });
  }
  return {id:"sub_"+Date.now(),date:key(),created:Date.now(),userId:currentUser?.id||"guest",userName:currentUser?.name||"Guest",operation:$("op").value,range:$("op").value==="addition"||$("op").value==="subtraction"?$("addSubRange").value:"0-12",total:qs.length,elapsed:elapsed(),answers};
