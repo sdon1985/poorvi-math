@@ -34,7 +34,7 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 @media(max-width:800px){.controls{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.controls{grid-template-columns:1fr 1fr}.cell{height:88px}.q{font-size:clamp(10px,3vw,15px)}.week{grid-template-columns:repeat(4,1fr)}}
 </style><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script></head>
 <body><div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Poorvi Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly</div></div><button class="secondary" id="parentBtn">🔒 Parent</button></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Poorvi Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v18</div></div><button class="secondary" id="parentBtn">🔒 Parent</button></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -65,7 +65,7 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 </section>
 <section class="card hidden" id="parentReview">
 <b>📝 Parent Review</b>
-<div class="lock" style="margin-top:8px">🔒 Changing Correct / Wrong / Not Answered requires Parent PIN to open the review.</div>
+<div class="lock" style="margin-top:8px">🔒 Enter the Parent PIN once to open the review. After that, no PIN is needed for individual answers.</div>
 <div class="muted" id="reviewSummary" style="margin-top:4px"></div>
 <div id="reviewList" style="margin-top:10px"></div>
 <div class="actions" style="justify-content:center">
@@ -97,7 +97,7 @@ function startTest(){if(started||done)return;started=true;begin=Date.now();left=
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
-let pendingSubmission=null;
+let pendingSubmission=null, reviewUnlocked=false;
 
 function makeSubmission(){
  const answers=[];
@@ -119,7 +119,7 @@ function savePendingSubmission(s){
 }
 function renderReview(s){
  pendingSubmission=s;
- $("reviewSummary").textContent="OCR/typed answers are pre-scored. Enter the Parent PIN once to open this review. After that, you can mark answers freely.";
+ $("reviewSummary").textContent="🔓 Review unlocked. You can now mark every answer without entering the PIN again.";
  $("reviewList").innerHTML=s.answers.map(x=>{
    const correct=x.status==="correct",wrong=x.status==="wrong",na=x.status==="not_answered";
    const img=x.image?'<img class="reviewCanvas" src="'+x.image+'">':'<div class="reviewCanvas"></div>';
@@ -128,6 +128,7 @@ function renderReview(s){
  }).join("");
  document.querySelectorAll("[data-review]").forEach(row=>{
    row.querySelectorAll("[data-set]").forEach(btn=>btn.onclick=()=>{
+     if(!reviewUnlocked)return;
      const item=s.answers.find(a=>a.i===+row.dataset.review);
      item.status=btn.dataset.set;
      renderReview(s);
@@ -136,9 +137,8 @@ function renderReview(s){
  $("parentReview").classList.remove("hidden");
 }
 function openReviewWithPin(){
- const pin=prompt("Enter Parent PIN to review this submission:");
- if(pin!=="2580"){if(pin!==null)alert("Incorrect PIN.");return}
- openLatestReview();
+ reviewUnlocked=false;
+ ask("review");
 }
 function openLatestReview(){
  const all=pendingSubs();
@@ -322,10 +322,18 @@ function showDayDetails(dateStr){
  $("dayDetails").innerHTML=html;$("dayDetails").classList.remove("hidden");$("dayDetails").scrollIntoView({behavior:"smooth"});
 }
 function ask(a){parentAction=a;$("modal").classList.remove("hidden");$("pin").value="";$("pin").focus()}
-function unlock(){if($("pin").value!=="2580"){alert("Incorrect PIN.");return}$("modal").classList.add("hidden");if(parentAction==="clear"){if(confirm("Clear saved progress?")){localStorage.removeItem("poorviMathHistory");renderWeek()}}else{openLatestReview()}}
+function unlock(){
+ if($("pin").value!=="2580"){alert("Incorrect PIN.");return}
+ $("modal").classList.add("hidden");
+ if(parentAction==="clear"){
+   if(confirm("Clear saved progress?")){localStorage.removeItem("poorviMathHistory");renderWeek()}
+ }else{
+   reviewUnlocked=true;
+   openLatestReview();
+ }
+}
 $("submitBtn").onclick=()=>{if(started&&confirm("Submit the test now? You still have time remaining."))finish(false,true)};$("newBtn").onclick=newEdition;$("startBtn").onclick=startTest;$("writeBtn").onclick=()=>setTool("write");$("eraseBtn").onclick=()=>setTool("erase");$("resultsBtn").onclick=()=>openReviewWithPin();$("clearBtn").onclick=()=>ask("clear");$("parentBtn").onclick=()=>ask("results");$("unlock").onclick=unlock;$("cancel").onclick=()=>$("modal").classList.add("hidden");$("saveReviewBtn").onclick=saveCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
- const pin=prompt("Enter Parent PIN to review this submission:");
- if(pin!=="2580"){if(pin!==null)alert("Incorrect PIN.");return}
- if(pendingSubmission)renderReview(pendingSubmission);else openLatestReview();
+ if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
+ openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);newEdition();renderWeek();fitGrid();
 </script></body></html>
