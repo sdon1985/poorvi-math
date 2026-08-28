@@ -20,10 +20,10 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700}.primary{bac
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.timer{font-size:28px;font-weight:800}.warn{color:#c62828}
 .sheet{border:1px solid #aaa;background:#fff}.sheethead{padding:12px;border-bottom:1px solid #777}
 .title{text-align:center;font:700 21px Georgia,serif}.info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:10px;font:13px Georgia,serif}
-.line{display:inline-block;width:100px;border-bottom:1px solid #444}.grid{display:grid;grid-template-columns:repeat(10,1fr)}
-.cell{height:72px;border-right:1px solid #bbb;border-bottom:1px solid #bbb;display:flex;align-items:center;justify-content:center}
-.cell:nth-child(10n){border-right:0}.q{font:18px Georgia,serif;white-space:nowrap}
-.ans{width:47px;border:0;border-bottom:1px solid #444;background:transparent;outline:0;text-align:center;font:18px Georgia,serif}
+.line{display:inline-block;width:100px;border-bottom:1px solid #444}.grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));width:100%;max-width:100%;overflow:hidden}
+.cell{height:72px;min-width:0;overflow:hidden;border-right:1px solid #bbb;border-bottom:1px solid #bbb;display:flex;align-items:center;justify-content:center;padding:2px}
+.cell:nth-child(10n){border-right:0}.q{font-size:clamp(10px,1.65vw,18px);font-family:Georgia,serif;white-space:nowrap;display:flex;align-items:center;justify-content:center;max-width:100%;min-width:0}
+.ans{width:clamp(20px,4vw,47px);min-width:0;border:0;border-bottom:1px solid #444;background:transparent;outline:0;text-align:center;font-size:clamp(11px,1.65vw,18px);font-family:Georgia,serif}
 .fb{height:13px;text-align:center;font-size:10px}.ok{color:#16803c}.bad{color:#c62828}.hidden{display:none}
 .score{text-align:center;font-size:42px;font-weight:900}.stats{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
 .stat{background:#eef0f2;padding:8px 14px;border-radius:9px;text-align:center}.stat b{display:block;font-size:20px}
@@ -36,6 +36,10 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700}.primary{bac
 .cell:nth-child(10n){border-right:1px solid #bbb}.cell:nth-child(5n){border-right:0}.cell{height:78px}
 .q{font-size:14px}.ans{width:38px;font-size:15px}.info{font-size:11px;gap:4px}.line{width:60px}
 .week{grid-template-columns:repeat(4,1fr)}.mistakes{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:651px) and (max-width:1100px){
+  .app{padding-left:10px;padding-right:10px}
+  .cell{height:68px}
 }
 </style>
 </head>
