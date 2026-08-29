@@ -117,7 +117,7 @@ body.test-focus-mode #sheet:before{content:"🔒 TEST IN PROGRESS — Complete t
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.40</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.42</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -198,13 +198,17 @@ body.test-focus-mode #sheet:before{content:"🔒 TEST IN PROGRESS — Complete t
 </div>
 </div>
 <div id="weeklyTracker">
-
+  <div id="week" class="progressWeek"></div>
+  <div id="summary" class="muted" style="margin-top:8px"></div>
+  <div id="dayDetails" class="hidden" style="margin-top:10px"></div>
 </div>
 <div id="monthlyTracker" class="hidden" style="margin-top:10px">
-
+  <div id="monthSummary"></div>
+  <div id="monthDetails"></div>
 </div>
 <div id="yearlyTracker" class="hidden" style="margin-top:10px">
-
+  <div id="yearSummary"></div>
+  <div id="yearDetails"></div>
 </div>
 </section>
 </div>
@@ -956,7 +960,7 @@ return [...DEFAULT_USERS];
 function saveUsers(users){localStorage.setItem("poorviMathUsers",JSON.stringify(users))}
 function loadCurrentUser(){
 const users=getUsers();
-const id=sessionStorage.getItem("poorviCurrentUser");
+const id=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");
 if(!id){
 window.location.replace("login.html");
 return false;
@@ -1262,12 +1266,12 @@ renderAdminSubmissionQueue();
 $("adminSubmissionQueue").scrollIntoView({behavior:"smooth"});
 };
 $("adminRefreshBtn").onclick=renderAdminSubmissionQueue;
-$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");const authenticatedUser=loadCurrentUser(); if(authenticatedUser){const welcome=document.getElementById("welcomeTitle");if(welcome)welcome.textContent="Welcome to "+currentUser.name;if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();}$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
+$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");const authenticatedUser=loadCurrentUser(); if(authenticatedUser){const welcome=document.getElementById("welcomeTitle");if(welcome)welcome.textContent="Welcome to "+currentUser.name;if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();showTracker("week");renderWeek();renderMonthly();renderYearly();}$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
 if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.40: user identity is controlled only by login.html */
+/* v25.4.42: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
@@ -1478,4 +1482,16 @@ if(!document.hidden)refreshProgressAfterAdminSave();
   window.addEventListener("load",update);
 })();
 </script>
-</body></html>
+<script id="v2542WelcomeFix">
+(function(){
+function setName(){
+ const id=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");
+ if(!id)return;
+ const names={guest:"Guest",poorvi:"Poorvi Dondeti",mahiram:"Mahiram Dondeti"};
+ let name=names[id]||id;
+ try{const u=(JSON.parse(localStorage.getItem("poorviMathUsers")||"[]")||[]).find(x=>x&&x.id===id);if(u&&u.name)name=u.name}catch(e){}
+ const el=document.getElementById("welcomeTitle");if(el)el.textContent="Welcome to "+name;
+}
+document.addEventListener("DOMContentLoaded",setName);window.addEventListener("load",setName);
+})();
+</script></body></html>
