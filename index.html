@@ -136,7 +136,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.37</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.38</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -187,7 +187,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 <span class="muted" id="modeText">Write mode — write with Apple Pencil</span>
 </div></section>
 
-<section class="card"></section>
+<section class="card"><div id="sheet" class="sheet"></div></section>
 <section class="card hidden" id="ocrStatus" style="text-align:center">
 <b>✏️ Checking handwriting…</b><div id="ocrProgress" class="muted" style="margin-top:6px">Preparing score.</div>
 </section>
@@ -1276,12 +1276,12 @@ renderAdminSubmissionQueue();
 $("adminSubmissionQueue").scrollIntoView({behavior:"smooth"});
 };
 $("adminRefreshBtn").onclick=renderAdminSubmissionQueue;
-$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");const authenticatedUser=loadCurrentUser(); if(authenticatedUser){const welcome=document.getElementById("welcomeTitle");if(welcome)welcome.textContent="Welcome to "+currentUser.name;const n=document.getElementById("welcomeTitle");if(n)n.textContent=currentUser.name;if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();}$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
+$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");const authenticatedUser=loadCurrentUser(); if(authenticatedUser){const welcome=document.getElementById("welcomeTitle");if(welcome)welcome.textContent="Welcome to "+currentUser.name;if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();}$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
 if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.37: user identity is controlled only by login.html */
+/* v25.4.38: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
