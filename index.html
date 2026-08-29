@@ -131,7 +131,24 @@ body.test-focus-mode #submitBtn{
 }
 body.test-focus-mode #testFocusBadge{display:inline-flex}
 </style>
-</head>
+<style>
+.tableChecks{display:grid;grid-template-columns:repeat(7,minmax(38px,1fr));gap:6px;margin-top:7px}
+.tableChecks label{display:flex;align-items:center;justify-content:center;gap:4px;min-height:40px;border:1px solid #d1d5db;border-radius:9px;background:#fff;cursor:pointer;font-weight:700}
+.tableChecks input{width:18px;height:18px;accent-color:#2563eb}
+.tableChecks label:has(input:checked){background:#eaf2ff;border-color:#2563eb}
+@media(max-width:600px){.tableChecks{grid-template-columns:repeat(5,minmax(40px,1fr))}}
+</style><style>
+.mdRangeHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px;margin-bottom:8px}
+.mdRangeActions{display:flex;gap:6px;flex-wrap:wrap}
+.miniBtn{border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;padding:6px 10px;font-size:13px;font-weight:700;cursor:pointer}
+.miniBtn:hover{background:#eef2ff}
+.tableChecks{display:grid;grid-template-columns:repeat(7,minmax(42px,1fr));gap:7px}
+.tableChecks label{display:flex;align-items:center;justify-content:center;min-height:42px;border:1px solid #d1d5db;border-radius:10px;background:#fff;cursor:pointer;font-weight:700;transition:.12s}
+.tableChecks input{position:absolute;opacity:0;pointer-events:none}
+.tableChecks label:has(input:checked){background:#eaf2ff;border-color:#2563eb;box-shadow:inset 0 0 0 1px #2563eb}
+.tableChecks label:has(input:focus-visible){outline:2px solid #2563eb;outline-offset:2px}
+@media(max-width:600px){.mdRangeHeader{align-items:flex-start;flex-direction:column}.tableChecks{grid-template-columns:repeat(5,minmax(42px,1fr))}}
+</style></head>
 
 <body>
 <div id="productionPageNav" style="display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:6px 0 10px">
@@ -158,7 +175,7 @@ body.test-focus-mode #testFocusBadge{display:inline-flex}
   <div><b>👤 <span id="currentUserLabel">Admin</span></b><span id="currentRoleLabel" class="muted"> • Administrator</span></div>
   </div>
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.17 — Admin Validation Rule - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • v25.4.22 — Multi-Table Mul/Div - User Switch Fixed - User Switch Fixed User Clean - Session Fix Admin Review.4 Admin Review.2.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -168,7 +185,31 @@ body.test-focus-mode #testFocusBadge{display:inline-flex}
 <div><label>Timer</label><select id="mins"><option value="4" selected>4 minutes</option><option value="5">5 minutes</option></select></div>
 <div><label>Edition</label><select id="edition"><option value="random">Random</option><option value="regroup">More regrouping</option></select></div>
 <div id="addSubRangeWrap"><label>Add/Sub Range</label><select id="addSubRange"><option value="single">Single digit (0–9)</option><option value="two">Two digit (0–20)</option><option value="mixed">Mixed 0–20</option></select></div>
-<div id="mdRangeWrap" class="hidden"><label>Mul/Div Range</label><select id="mdRange"><option value="12">0–12</option></select></div>
+<div id="mdRangeWrap" class="hidden">
+<label>Tables to Practice</label>
+<div class="mdRangeHeader">
+  <span class="muted" id="mdRangeHint">Choose one or more tables</span>
+  <div class="mdRangeActions">
+    <button type="button" class="miniBtn" id="mdSelectAll">Select All</button>
+    <button type="button" class="miniBtn" id="mdClearAll">Clear</button>
+  </div>
+</div>
+<div id="mdRangeChecks" class="tableChecks" role="group" aria-label="Select multiplication or division tables">
+  <label><input type="checkbox" class="mdTable" value="0"><span>0</span></label>
+  <label><input type="checkbox" class="mdTable" value="1"><span>1</span></label>
+  <label><input type="checkbox" class="mdTable" value="2"><span>2</span></label>
+  <label><input type="checkbox" class="mdTable" value="3"><span>3</span></label>
+  <label><input type="checkbox" class="mdTable" value="4"><span>4</span></label>
+  <label><input type="checkbox" class="mdTable" value="5"><span>5</span></label>
+  <label><input type="checkbox" class="mdTable" value="6"><span>6</span></label>
+  <label><input type="checkbox" class="mdTable" value="7"><span>7</span></label>
+  <label><input type="checkbox" class="mdTable" value="8"><span>8</span></label>
+  <label><input type="checkbox" class="mdTable" value="9"><span>9</span></label>
+  <label><input type="checkbox" class="mdTable" value="10"><span>10</span></label>
+  <label><input type="checkbox" class="mdTable" value="11"><span>11</span></label>
+  <label><input type="checkbox" class="mdTable" value="12"><span>12</span></label>
+</div>
+</div>
 </div>
 <div class="actions"><button class="primary" id="newBtn">✨ Create Edition</button><button class="danger" id="clearBtn">Clear History</button></div>
 </section>
@@ -240,6 +281,10 @@ const $=id=>document.getElementById(id),R=n=>Math.floor(Math.random()*n);
 let qs=[],started=false,done=false,left=240,tid=null,begin=0,pencilTool="write",parentAction="";
 function sym(o){return({addition:"+",subtraction:"−",multiplication:"×",division:"÷"})[o]}
 function randIn(lo,hi){return lo+R(hi-lo+1)}
+function selectedMDTables(){
+ return Array.from(document.querySelectorAll(".mdTable:checked"))
+   .map(x=>Number(x.value)).filter(Number.isInteger);
+}
 function make(o,ed){
  if(o==="mixed")o=["addition","subtraction","multiplication","division"][R(4)];
  let a,b,ans,range=$("addSubRange")?.value||"single";
@@ -248,19 +293,28 @@ function make(o,ed){
    if(range==="mixed")hi=R(2)?9:20;
    a=randIn(0,hi); b=randIn(0,hi);
    if(ed==="regroup"&&o==="addition"){
-     // Favor sums that cross 10 when possible.
      let tries=0;
      while(a+b<10 && tries++<20){a=randIn(0,hi);b=randIn(0,hi)}
    }
    if(o==="subtraction"&&b>a){[a,b]=[b,a]}
    ans=o==="addition"?a+b:a-b;
  }else if(o==="multiplication"){
-   a=randIn(0,12);b=randIn(0,12);ans=a*b;
+   const tables=selectedMDTables();
+   const usable=tables.length?tables:[0,1,2,3,4,5,6,7,8,9,10,11,12];
+   const table=usable[R(usable.length)];
+   const other=randIn(0,12);
+   // The selected table is always one of the two factors.
+   if(R(2)){a=table;b=other}else{a=other;b=table}
+   ans=a*b;
  }else{
-   // Division is always exact and uses factors from 0–12.
-   b=randIn(1,12);ans=randIn(0,12);a=b*ans;
-   // Keep the dividend within the requested 0–12 table range when possible.
-   if(a>144){a=144;ans=Math.floor(a/b)}
+   const tables=selectedMDTables();
+   const usable=tables.filter(v=>v!==0);
+   const divisor=(usable.length?usable:[1])[R((usable.length?usable:[1]).length)];
+   // Avoid division by zero while retaining table 0 as a valid
+   // multiplication choice. For division, a zero divisor is skipped.
+   const d=divisor===0?1:divisor;
+   const quotient=randIn(0,12);
+   a=d*quotient;b=d;ans=quotient;
  }
  return{a,b,ans,o}
 }
@@ -310,6 +364,7 @@ function persistActiveSession(){
       operation:$("op").value,
       edition:$("edition").value,
       range:$("addSubRange").value,
+      mdTables:selectedMDTables(),
       count:+$("count").value,
       minutes:+$("mins").value,
       answerMode:$("answerMode").value,
@@ -340,6 +395,9 @@ function restoreActiveSession(){
   $("op").value=s.operation||$("op").value;
   if($("edition"))$("edition").value=s.edition||$("edition").value;
   if($("addSubRange"))$("addSubRange").value=s.range||$("addSubRange").value;
+  if(Array.isArray(s.mdTables)){
+    document.querySelectorAll(".mdTable").forEach(cb=>cb.checked=s.mdTables.includes(Number(cb.value)));
+  }
   if($("count"))$("count").value=String(s.count||s.qs.length);
   if($("mins")){$("mins").value=String(s.minutes||"");syncTimerOptions(s.minutes)}
   if($("answerMode"))$("answerMode").value=s.answerMode||"pencil";
@@ -1218,10 +1276,21 @@ function updateRangeControls(){
  const addSub=(o==="addition"||o==="subtraction");
  $("addSubRangeWrap").classList.toggle("hidden",!addSub);
  $("mdRangeWrap").classList.toggle("hidden",!(o==="multiplication"||o==="division"));
+ const h=$("mdRangeHint");
+ if(h){
+   const selected=selectedMDTables();
+   h.textContent=selected.length ? ("Selected: "+selected.join(", ")) : "Choose one or more tables";
+ }
 }
-$("op").addEventListener("change",()=>{updateRangeControls();if(!started)newEdition()});
+$("op").addEventListener("change",()=>{updateRangeControls();if(!started && ($("op").value==="addition"||$("op").value==="subtraction"||selectedMDTables().length))newEdition()});
+$("mdSelectAll").onclick=()=>{document.querySelectorAll(".mdTable").forEach(cb=>cb.checked=true);updateRangeControls();if(!started)newEdition()};
+$("mdClearAll").onclick=()=>{document.querySelectorAll(".mdTable").forEach(cb=>cb.checked=false);updateRangeControls();};
+
 $("addSubRange").addEventListener("change",()=>{if(!started)newEdition()});
-$("mdRange").addEventListener("change",()=>{if(!started)newEdition()});
+document.querySelectorAll(".mdTable").forEach(cb=>cb.addEventListener("change",function(){
+  updateRangeControls();
+  if(!started && selectedMDTables().length)newEdition();
+}));
 $("weekTab").onclick=()=>showTracker("week");
 $("monthTab").onclick=()=>showTracker("month");
 $("yearTab").onclick=()=>showTracker("year");
