@@ -150,6 +150,12 @@ body.test-focus-mode #testFocusBadge{display:inline-flex}
 @media(max-width:600px){.mdRangeHeader{align-items:flex-start;flex-direction:column}.tableChecks{grid-template-columns:repeat(5,minmax(42px,1fr))}}
 </style>
 
+
+<style id="singleUserSessionGuard">
+/* A logged-in child cannot switch users from index.html. */
+#userSwitcher,#userManagement,.userSwitcher,[data-user-switch],[data-user-selector],
+#switchUserBtn,#changeUserBtn{display:none!important}
+</style>
 </head>
 
 <body>
@@ -1328,6 +1334,17 @@ $("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUs
  if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
  openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
+
+/* v25.4.27: user identity is controlled only by login.html */
+(function(){
+  window.switchUser=function(){
+    try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
+    sessionStorage.removeItem("poorviCurrentUser");
+    sessionStorage.setItem("poorviReturnToLogin","1");
+    window.location.replace("login.html");
+  };
+  window.changeUser=window.switchUser;
+})();
 </script>
 <script>
 (function(){

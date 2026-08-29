@@ -79,8 +79,11 @@ h1{font-size:27px;margin:0 0 4px}
     if(String(pin.value||"")!==String(u.pin)){
       error.textContent="Incorrect PIN. Please try again.";pin.select();return
     }
+    // User identity is owned exclusively by login.html.
+    // Clear the previous identity before establishing the newly selected user.
+    sessionStorage.removeItem("poorviCurrentUser");
+    sessionStorage.removeItem("poorviActiveTest");
     sessionStorage.setItem("poorviCurrentUser",u.id);
-    // A fresh login must never inherit another user's active test session.
     sessionStorage.setItem("poorviLoginAt",String(Date.now()));
     window.location.replace("index.html");
   }
