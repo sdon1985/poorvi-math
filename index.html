@@ -80,45 +80,19 @@ try{endActiveTestForUserSwitch();}catch(e){}
 @media(max-width:600px){.mdRangeHeader{align-items:flex-start;flex-direction:column}.tableChecks{grid-template-columns:repeat(5,minmax(42px,1fr))}}
 </style>
 
-<style id="authoritativeUserIdentityUI">
-.userIdentityHeader{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:6px 0 14px}
-.brandBlock h1{margin:0;font-size:24px}
-.identityBlock{display:flex;align-items:center;gap:10px}
-.loggedUser{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid #dbe2ea;background:#fff;border-radius:13px;min-width:145px}
-.avatar{width:34px;height:34px;border-radius:10px;background:#eef2ff;display:grid;place-items:center;font-size:19px}
-.identityCaption{font-size:9px;letter-spacing:.08em;color:#667085;font-weight:800}
-.switchUserLink{display:inline-block;padding:8px 11px;border:1px solid #ccd3dd;border-radius:10px;background:#fff;text-decoration:none;color:inherit;font-size:12px;font-weight:700}
-.switchUserLink:hover{background:#f8fafc;border-color:#98a2b3}
-#userHeaderSelect,#accountBar,#switchUserBtn{display:none!important}
-</style><style id="cleanNavigationUI">
-.cleanUserHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:4px 0 16px;padding:12px 14px;background:#fff;border:1px solid #e4e7ec;border-radius:16px}
-.cleanUserHeader h1{margin:0;font-size:22px}
-.pageLinks{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.loggedName{font-weight:800;font-size:14px;padding:8px 10px;border-radius:10px;background:#f2f4f7}
-.navLink{display:inline-block;text-decoration:none;color:inherit;font-size:12px;font-weight:750;padding:8px 10px;border:1px solid #d0d5dd;border-radius:10px;background:#fff}
-.navLink:hover{background:#f8fafc}
-</style><style id="cleanIdentityBarCSS">
-.cleanIdentityBar{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin:4px 0 12px;font-size:13px}
-.cleanIdentityBar span{color:#667085}.cleanIdentityBar strong{font-size:15px}
-.cleanIdentityBar a{padding:6px 9px;border:1px solid #d0d5dd;border-radius:9px;text-decoration:none;color:inherit;font-weight:700;background:#fff}
-</style><style id="welcomeUserBanner">
-.welcomeHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:4px 0 16px;padding:16px 18px;border:1px solid #dfe4ea;border-radius:17px;background:linear-gradient(120deg,#ffffff,#f8faff);box-shadow:0 5px 18px rgba(16,24,40,.06)}
+<style id="finalWelcomeUI">
+.welcomeHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:6px 0 16px;padding:16px 18px;border:1px solid #dfe4ea;border-radius:17px;background:#fff;box-shadow:0 5px 18px rgba(16,24,40,.06)}
 .welcomeEyebrow{font-size:10px;letter-spacing:.12em;font-weight:850;color:#667085;margin-bottom:3px}
 .welcomeTitle{font-size:24px;font-weight:850;line-height:1.15}
 .welcomeActions{display:flex;gap:8px;flex-wrap:wrap}
-.welcomeActions .navLink{display:inline-block;padding:8px 11px;border:1px solid #d0d5dd;border-radius:10px;background:#fff;color:inherit;text-decoration:none;font-size:12px;font-weight:750}
-.welcomeActions .navLink:hover{background:#f8fafc}
+.welcomeActions .navLink{display:inline-block;padding:9px 11px;border:1px solid #d0d5dd;border-radius:10px;background:#fff;color:inherit;text-decoration:none;font-size:12px;font-weight:750}
 </style></head>
 
 <body>
-<div id="productionPageNav" style="display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:6px 0 10px">
-<a href="admin.html" style="display:inline-block;padding:8px 12px;border:1px solid #ccd3dd;border-radius:10px;background:#fff;text-decoration:none;color:inherit;font-size:13px">👑 Admin Page</a>
-</div>
-
 <header id="userHeader" class="welcomeHeader">
   <div>
     <div class="welcomeEyebrow">MATH PRACTICE</div>
-    <div class="welcomeTitle" id="welcomeTitle">Welcome!</div>
+    <div id="welcomeTitle" class="welcomeTitle">Welcome</div>
   </div>
   <div class="welcomeActions">
     <a href="login.html" class="navLink">⇄ Switch User</a>
@@ -132,7 +106,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.33</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.35</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -1283,7 +1257,7 @@ if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.33: user identity is controlled only by login.html */
+/* v25.4.35: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
@@ -1492,4 +1466,27 @@ document.addEventListener("visibilitychange",function(){
 if(!document.hidden)refreshProgressAfterAdminSave();
 });
 
+
+<script id="authoritativeWelcomeIdentity">
+(function(){
+  function getName(){
+    const id=sessionStorage.getItem("poorviCurrentUser");
+    const known={guest:"Guest",poorvi:"Poorvi",mahiram:"Mahiram"};
+    if(!id)return null;
+    try{
+      const users=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
+      const found=Array.isArray(users)?users.find(u=>u&&u.id===id):null;
+      return (found&&found.name)||known[id]||id;
+    }catch(e){return known[id]||id}
+  }
+  function render(){
+    const name=getName();
+    const el=document.getElementById("welcomeTitle");
+    if(el&&name)el.textContent="Welcome to "+name;
+  }
+  render();
+  document.addEventListener("DOMContentLoaded",render);
+  window.addEventListener("load",render);
+})();
+</script>
 </body></html>
