@@ -122,7 +122,7 @@ body.test-focus-mode #sheet *{
 body.test-focus-mode ::selection{background:transparent}
 body.test-focus-mode ::-moz-selection{background:transparent}
 </style><style id="kidsMathAnswerBoxSize">
-/* Production v1.0.5: slightly larger Apple Pencil answer boxes */
+/* Production v1.0.6: slightly larger Apple Pencil answer boxes */
 #sheet .answerBox,
 #sheet .answer-box,
 #sheet .answerCanvas,
@@ -139,6 +139,16 @@ body.test-focus-mode ::-moz-selection{background:transparent}
   width:54px !important;
   height:54px !important;
 }
+</style><style id="kidsMathWorksheetReadability">
+#sheet .head{padding:14px 12px !important}
+#sheet .title{font-size:clamp(24px,3vw,32px) !important}
+#sheet .info{font-size:clamp(15px,2.2vw,20px) !important;font-weight:600 !important}
+#sheet .info .line{width:auto !important;min-width:100px !important;padding:0 4px !important;text-decoration:none !important}
+#sheet .worksheet-user-name{font-weight:800 !important;display:inline-block !important;min-width:120px !important}
+#sheet .worksheet-date{font-weight:800 !important;display:inline-block !important;min-width:100px !important}
+#sheet .q{font-size:clamp(18px,2.7vw,28px) !important;font-weight:700 !important;line-height:1.15 !important}
+#sheet .cell{height:92px !important}
+#sheet .pad{width:clamp(52px,7vw,72px) !important;height:52px !important}
 </style></head>
 
 <body><header id="userHeader" class="baselineUserHeader">
@@ -437,7 +447,7 @@ finish(true,false);
 window.scrollTo(0,0);
 }
 function refreshWorksheetIdentity(){try{const sid=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");const u=getUsers().find(x=>x&&x.id===sid&&x.role!=="admin")||currentUser;const n=document.getElementById("worksheetName");if(n)n.textContent=u?.name||"Guest";}catch(e){}}
-function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";const sid=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");const owner=getUsers().find(u=>u&&u.id===sid&&u.role!=="admin")||currentUser;const ownerName=owner?.name||({poorvi:"Poorvi Dondeti",mahiram:"Mahiram Dondeti",guest:"Guest"}[sid]||"Guest");$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span id="worksheetName" class="line">'+ownerName+'</span></div><div>Date: <span id="worksheetDate" class="line">—</span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div></div>';g.appendChild(c)});$("sheet").appendChild(g);
+function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";const sid=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");const owner=getUsers().find(u=>u&&u.id===sid&&u.role!=="admin")||currentUser;const ownerName=owner?.name||({poorvi:"Poorvi Dondeti",mahiram:"Mahiram Dondeti",guest:"Guest"}[sid]||"Guest");$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span id="worksheetName" class="line worksheet-user-name">'+ownerName+'</span></div><div>Date: <span id="worksheetDate" class="line worksheet-date">—</span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div></div>';g.appendChild(c)});$("sheet").appendChild(g);
 if($("answerMode").value==="pencil")setupPencil();
 document.querySelectorAll(".ans").forEach(e=>e.addEventListener("input",persistActiveSession));
 requestAnimationFrame(()=>{fitGrid();refreshWorksheetIdentity()})}
@@ -486,7 +496,7 @@ if(document.fullscreenElement && document.exitFullscreen)document.exitFullscreen
 }catch(e){}
 __focusHistoryPushed=false;
 }
-function startTest(){if(started||done)return;enterTestFocusMode();syncTimerOptions($("mins").value);started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");pencilTool="write";setTool("write")}requestAnimationFrame(()=>{const sheet=document.getElementById("sheet");if(sheet)sheet.scrollIntoView({behavior:"smooth",block:"start"});});persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
+function startTest(){if(started||done)return;refreshWorksheetIdentity();enterTestFocusMode();syncTimerOptions($("mins").value);started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");pencilTool="write";setTool("write")}requestAnimationFrame(()=>{const sheet=document.getElementById("sheet");if(sheet)sheet.scrollIntoView({behavior:"smooth",block:"start"});});persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
