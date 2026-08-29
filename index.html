@@ -97,6 +97,10 @@ try{endActiveTestForUserSwitch();}catch(e){}
 .loggedName{font-weight:800;font-size:14px;padding:8px 10px;border-radius:10px;background:#f2f4f7}
 .navLink{display:inline-block;text-decoration:none;color:inherit;font-size:12px;font-weight:750;padding:8px 10px;border:1px solid #d0d5dd;border-radius:10px;background:#fff}
 .navLink:hover{background:#f8fafc}
+</style><style id="cleanIdentityBarCSS">
+.cleanIdentityBar{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin:4px 0 12px;font-size:13px}
+.cleanIdentityBar span{color:#667085}.cleanIdentityBar strong{font-size:15px}
+.cleanIdentityBar a{padding:6px 9px;border:1px solid #d0d5dd;border-radius:9px;text-decoration:none;color:inherit;font-weight:700;background:#fff}
 </style></head>
 
 <body>
@@ -121,7 +125,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.31</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.32</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -1264,12 +1268,12 @@ renderAdminSubmissionQueue();
 $("adminSubmissionQueue").scrollIntoView({behavior:"smooth"});
 };
 $("adminRefreshBtn").onclick=renderAdminSubmissionQueue;
-$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");const authenticatedUser=loadCurrentUser(); if(authenticatedUser){if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();}$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
+$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");const authenticatedUser=loadCurrentUser(); if(authenticatedUser){const n=document.getElementById("userHeaderName");if(n)n.textContent=currentUser.name;if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();}$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
 if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.31: user identity is controlled only by login.html */
+/* v25.4.32: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}

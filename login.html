@@ -27,16 +27,20 @@ h1{font-size:27px;margin:0 0 4px}
 .links a:hover{color:#4f46e5}
 @media(max-width:420px){.users{grid-template-columns:1fr}.card{padding:23px}}
 </style>
-</head>
+<style id="adminLoginChoiceStyle">
+.adminChoice{grid-column:1/-1}
+.adminChoice.selected{border-color:#7c3aed;background:#f5f3ff;box-shadow:inset 0 0 0 1px #7c3aed}
+</style></head>
 <body>
 <main class="card">
   <div class="icon">📚</div>
   <h1>Math Practice</h1>
-  <div class="sub">Choose who is practicing</div>
+  <div class="sub">Choose an account</div>
   <div class="users">
     <button class="user selected" data-id="guest"><span>👤</span>Guest</button>
     <button class="user" data-id="poorvi"><span>👧</span>Poorvi</button>
     <button class="user" data-id="mahiram"><span>👦</span>Mahiram</button>
+    <button class="user adminChoice" data-id="admin"><span>👑</span>Admin</button>
   </div>
   <div class="pinwrap">
     <input id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••" aria-label="PIN">
@@ -51,7 +55,8 @@ h1{font-size:27px;margin:0 0 4px}
   const defaults=[
     {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
     {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
-    {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
+    {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true},
+    {id:"admin",name:"Admin",role:"admin",pin:"2580",active:true}
   ];
   let selected="guest";
   const pin=document.getElementById("pin"), error=document.getElementById("error");
@@ -74,8 +79,8 @@ h1{font-size:27px;margin:0 0 4px}
     document.getElementById("toggle").textContent=pin.type==="password"?"👁️":"🙈";
   };
   function login(){
-    const u=getUsers().find(x=>x.id===selected&&x.role==="user"&&x.active!==false);
-    if(!u){error.textContent="User account is unavailable.";return}
+    const u=getUsers().find(x=>x.id===selected&&x.active!==false);
+    if(!u){error.textContent="Account is unavailable.";return}
     if(String(pin.value||"")!==String(u.pin)){
       error.textContent="Incorrect PIN. Please try again.";pin.select();return
     }
@@ -83,9 +88,14 @@ h1{font-size:27px;margin:0 0 4px}
     // Clear the previous identity before establishing the newly selected user.
     sessionStorage.removeItem("poorviCurrentUser");
     sessionStorage.removeItem("poorviActiveTest");
-    sessionStorage.setItem("poorviCurrentUser",u.id);
     sessionStorage.setItem("poorviLoginAt",String(Date.now()));
-    window.location.replace("index.html");
+    if(u.role==="admin"){
+      sessionStorage.setItem("poorviAdminAuthenticated","1");
+      window.location.replace("admin.html");
+    }else{
+      sessionStorage.setItem("poorviCurrentUser",u.id);
+      window.location.replace("index.html");
+    }
   }
   document.getElementById("continue").onclick=login;
   pin.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();login()}};
