@@ -117,7 +117,7 @@ body.test-focus-mode #sheet:before{content:"🔒 TEST IN PROGRESS — Complete t
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.42</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.43</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -1271,7 +1271,7 @@ if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.42: user identity is controlled only by login.html */
+/* v25.4.43: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
@@ -1494,4 +1494,31 @@ function setName(){
 }
 document.addEventListener("DOMContentLoaded",setName);window.addEventListener("load",setName);
 })();
-</script></body></html>
+</script><script id="progressSyncFix">
+(function(){
+  function syncProgress(){
+    try{
+      const id=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");
+      if(!id)return;
+      if(typeof getUsers==="function"){
+        const u=getUsers().find(x=>x&&x.id===id&&x.role!=="admin");
+        if(u){
+          currentUser=u;
+          const w=document.getElementById("welcomeTitle");
+          if(w)w.textContent="Welcome to "+u.name;
+        }
+      }
+      if(typeof renderWeek==="function")renderWeek();
+      if(typeof renderMonthly==="function")renderMonthly();
+      if(typeof renderYearly==="function")renderYearly();
+    }catch(e){}
+  }
+  window.addEventListener("storage",function(e){
+    if(!e.key||e.key==="poorviMathHistoryByUser"||e.key.indexOf("poorviMathHistory_")===0||e.key==="poorviPendingSubmissions")syncProgress();
+  });
+  window.addEventListener("pageshow",syncProgress);
+  document.addEventListener("visibilitychange",function(){if(!document.hidden)syncProgress()});
+  window.addEventListener("focus",syncProgress);
+})();
+</script>
+</body></html>

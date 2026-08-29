@@ -467,7 +467,10 @@ function saveReview(){
 
   const total=answers.length||currentReview.total||0;
   const score=total?Math.round(correct/total*100):0;
-  const uid=currentReview.userId||"guest";
+  const uid=(currentReview.userId&&currentReview.userId!=="guest")?currentReview.userId:(users().find(u=>u&&u.name===currentReview.userName&&u.role!=="admin")||{}).id||"guest";
+  currentReview.userId=uid;
+  const owner=users().find(u=>u&&u.id===uid);
+  if(owner)currentReview.userName=owner.name;
   const h=history(uid);
 
   h.push({
