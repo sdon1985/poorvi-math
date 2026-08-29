@@ -87,6 +87,20 @@ button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
   background:#f8fafc;font-size:12px;color:#475467;
 }
 </style>
+
+<style>
+/* v25.4.25 polished admin PIN login */
+#login{background:linear-gradient(135deg,#111827,#312e81,#4f46e5)!important}
+#login .modal-box{width:min(430px,100%);padding:30px;border-radius:24px;box-shadow:0 22px 65px rgba(0,0,0,.28);text-align:center}
+.admin-login-icon{width:70px;height:70px;margin:0 auto 12px;border-radius:21px;background:#eef2ff;display:grid;place-items:center;font-size:34px}
+.admin-login-title{margin:5px 0;font-size:26px}
+.admin-login-sub{font-size:14px;color:#667085;margin-bottom:18px}
+.admin-pin-wrap{position:relative}
+#pin.pin{font-size:28px;letter-spacing:9px;padding:14px 48px 14px 14px;border-radius:13px;box-sizing:border-box}
+.admin-pin-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:18px;cursor:pointer}
+#loginBtn{border-radius:13px!important;padding:13px!important;font-size:16px;font-weight:800}
+.admin-login-back{display:inline-block;margin-top:16px;color:#667085;font-size:12px;text-decoration:none}
+</style>
 </head>
 <body>
 <div id="productionPageNav" style="display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:6px 0 10px">
@@ -95,12 +109,16 @@ button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
 
 <div id="login" class="modal">
   <div class="modal-box">
-    <div style="font-size:34px">👑</div>
-    <h2>Math Practice — Admin</h2>
-    <div class="muted">Admin access only</div>
-    <input id="pin" class="pin" type="password" inputmode="numeric" placeholder="Admin PIN" autocomplete="off" style="margin-top:14px">
-    <button id="loginBtn" class="primary" style="width:100%;margin-top:10px">🔓 Enter Admin</button>
-    <div id="loginError" class="muted" style="text-align:center;margin-top:8px"></div>
+    <div class="admin-login-icon">👑</div>
+    <h2 class="admin-login-title">Admin Access</h2>
+    <div class="admin-login-sub">Enter your PIN to manage worksheets</div>
+    <div class="admin-pin-wrap">
+      <input id="pin" class="pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" aria-label="Admin PIN">
+      <button type="button" class="admin-pin-toggle" id="adminPinToggle" aria-label="Show PIN">👁️</button>
+    </div>
+    <button id="loginBtn" class="primary" style="width:100%;margin-top:12px">🔓 Enter Admin</button>
+    <div id="loginError" class="muted" style="text-align:center;margin-top:8px;min-height:20px"></div>
+    <a class="admin-login-back" href="index.html">← Back to User Login</a>
   </div>
 </div>
 
@@ -520,6 +538,26 @@ document.addEventListener("DOMContentLoaded",function(){
     if(e.key==="Enter"){e.preventDefault();enter();}
   });
 });
+
+/* v25.4.25 stable Admin PIN binding */
+(function(){
+  const btn=document.getElementById("loginBtn"), pin=document.getElementById("pin"), err=document.getElementById("loginError");
+  function stableAdminLogin(){
+    const value=String(pin&&pin.value||"").trim();
+    if(value!=="2580"){
+      if(err)err.textContent="Incorrect PIN. Please try again.";
+      if(pin)pin.select();
+      return;
+    }
+    // Use the page's original successful login function if available.
+    if(typeof enter==="function"){enter();return}
+    const modal=document.getElementById("login"), app=document.getElementById("app");
+    if(modal)modal.classList.add("hidden");
+    if(app)app.classList.remove("hidden");
+  }
+  if(btn)btn.addEventListener("click",stableAdminLogin);
+  if(pin)pin.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();stableAdminLogin()}});
+})();
 </script>
 </body>
 </html>
