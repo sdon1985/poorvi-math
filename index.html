@@ -106,7 +106,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.35</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.36</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -956,31 +956,25 @@ applyRole();
 return true;
 }
 function applyRole(){
- if(!currentUser||currentUser.role==="admin"){sessionStorage.removeItem("poorviCurrentUser");window.location.replace("login.html");return false;}
+ if(!currentUser||currentUser.role==="admin"){
+  sessionStorage.removeItem("poorviCurrentUser");
+  window.location.replace("login.html");
+  return false;
+ }
  const welcome=document.getElementById("welcomeTitle");
- if(welcome)welcome.textContent="Welcome to "+currentUser.name;
-if(!currentUser||currentUser.role==="admin"){
-sessionStorage.removeItem("poorviCurrentUser");
-window.location.replace("login.html");
-return false;
-}
-const headerName=document.getElementById("welcomeTitle"); const welcome=document.getElementById("welcomeTitle");if(welcome)welcome.textContent="Welcome to "+currentUser.name;
-const headerName=document.getElementById("welcomeTitle");
-const welcome=document.getElementById("welcomeTitle");if(welcome)welcome.textContent="Welcome to "+currentUser.name;
-const avatar=document.getElementById("userAvatar");
-if(avatar)avatar.textContent=currentUser.id==="poorvi"?"👧":(currentUser.id==="mahiram"?"👦":"👤");
-$("currentRoleLabel").textContent=" • "+(currentUser.role==="admin"?"Administrator":"User");
-const isAdmin=currentUser.role==="admin";
-// Admin gets all parent controls. Regular users only get the child-facing test controls.
-document.querySelectorAll("[data-admin-only]").forEach(el=>el.classList.toggle("hidden",!isAdmin));
-$("userManagement").classList.add("hidden");
-if(!isAdmin){
-// Prevent a regular user from seeing the parent review/history UI.
-$("parentReview").classList.add("hidden");
-$("result").classList.add("hidden");
-$("historyManager").classList.add("hidden");
-}
-renderWeek();renderMonthly();renderYearly();
+ if(welcome) welcome.textContent="Welcome to "+currentUser.name;
+ const roleLabel=document.getElementById("currentRoleLabel");
+ if(roleLabel) roleLabel.textContent=" • User";
+ document.querySelectorAll("[data-admin-only]").forEach(el=>el.classList.add("hidden"));
+ const userManagement=document.getElementById("userManagement");
+ if(userManagement) userManagement.classList.add("hidden");
+ const parentReview=document.getElementById("parentReview");
+ if(parentReview) parentReview.classList.add("hidden");
+ const result=document.getElementById("result");
+ if(result) result.classList.add("hidden");
+ const historyManager=document.getElementById("historyManager");
+ if(historyManager) historyManager.classList.add("hidden");
+ return true;
 }
 function switchUser(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
@@ -1257,7 +1251,7 @@ if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.35: user identity is controlled only by login.html */
+/* v25.4.36: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
@@ -1467,26 +1461,25 @@ if(!document.hidden)refreshProgressAfterAdminSave();
 });
 
 
-<script id="authoritativeWelcomeIdentity">
+<script id="userWelcomeIdentity">
 (function(){
-  function getName(){
-    const id=sessionStorage.getItem("poorviCurrentUser");
-    const known={guest:"Guest",poorvi:"Poorvi",mahiram:"Mahiram"};
-    if(!id)return null;
-    try{
-      const users=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
-      const found=Array.isArray(users)?users.find(u=>u&&u.id===id):null;
-      return (found&&found.name)||known[id]||id;
-    }catch(e){return known[id]||id}
-  }
-  function render(){
-    const name=getName();
-    const el=document.getElementById("welcomeTitle");
-    if(el&&name)el.textContent="Welcome to "+name;
-  }
-  render();
-  document.addEventListener("DOMContentLoaded",render);
-  window.addEventListener("load",render);
+ function update(){
+  const id=sessionStorage.getItem("poorviCurrentUser");
+  if(!id)return;
+  const names={guest:"Guest",poorvi:"Poorvi",mahiram:"Mahiram"};
+  let name=names[id]||id;
+  try{
+   const users=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
+   if(Array.isArray(users)){
+    const u=users.find(x=>x&&x.id===id);
+    if(u&&u.name)name=u.name;
+   }
+  }catch(e){}
+  const el=document.getElementById("welcomeTitle");
+  if(el)el.textContent="Welcome to "+name;
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",update);
+ else update();
+ window.addEventListener("load",update);
 })();
-</script>
-</body></html>
+</script></body></html>
