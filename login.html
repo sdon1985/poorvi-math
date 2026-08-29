@@ -94,6 +94,7 @@ h1{font-size:27px;margin:0 0 4px}
       window.location.replace("admin.html");
     }else{
       sessionStorage.setItem("poorviCurrentUser",u.id);
+      localStorage.setItem("poorviLoggedInUser",u.id);
       window.location.replace("index.html");
     }
   }

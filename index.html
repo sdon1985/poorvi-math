@@ -88,7 +88,37 @@ try{endActiveTestForUserSwitch();}catch(e){}
 .welcomeActions .navLink{display:inline-block;padding:9px 11px;border:1px solid #d0d5dd;border-radius:10px;background:#fff;color:inherit;text-decoration:none;font-size:12px;font-weight:750}
 </style></head>
 
-<body>
+<body><script id="reliableUserWelcome">
+(function(){
+  const known={guest:"Guest",poorvi:"Poorvi",mahiram:"Mahiram"};
+  function readId(){
+    return sessionStorage.getItem("poorviCurrentUser") ||
+           localStorage.getItem("poorviLoggedInUser");
+  }
+  function readName(id){
+    let name=known[id]||id||"User";
+    try{
+      const raw=localStorage.getItem("poorviMathUsers");
+      const users=raw?JSON.parse(raw):[];
+      if(Array.isArray(users)){
+        const u=users.find(x=>x&&x.id===id);
+        if(u&&u.name)name=u.name;
+      }
+    }catch(e){}
+    return name;
+  }
+  function render(){
+    const id=readId();
+    const el=document.getElementById("welcomeTitle");
+    if(!el||!id)return;
+    el.textContent="Welcome to "+readName(id);
+  }
+  document.addEventListener("DOMContentLoaded",render);
+  window.addEventListener("load",render);
+  render();
+})();
+</script>
+
 <header id="userHeader" class="welcomeHeader">
   <div>
     <div class="welcomeEyebrow">MATH PRACTICE</div>
@@ -106,7 +136,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.36</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.37</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -1251,7 +1281,7 @@ if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.36: user identity is controlled only by login.html */
+/* v25.4.37: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
@@ -1461,25 +1491,4 @@ if(!document.hidden)refreshProgressAfterAdminSave();
 });
 
 
-<script id="userWelcomeIdentity">
-(function(){
- function update(){
-  const id=sessionStorage.getItem("poorviCurrentUser");
-  if(!id)return;
-  const names={guest:"Guest",poorvi:"Poorvi",mahiram:"Mahiram"};
-  let name=names[id]||id;
-  try{
-   const users=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
-   if(Array.isArray(users)){
-    const u=users.find(x=>x&&x.id===id);
-    if(u&&u.name)name=u.name;
-   }
-  }catch(e){}
-  const el=document.getElementById("welcomeTitle");
-  if(el)el.textContent="Welcome to "+name;
- }
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",update);
- else update();
- window.addEventListener("load",update);
-})();
-</script></body></html>
+</body></html>
