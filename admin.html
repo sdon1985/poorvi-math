@@ -566,5 +566,23 @@ document.addEventListener("DOMContentLoaded",function(){
   if(pin)pin.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();stableAdminLogin()}});
 })();
 </script>
-</body>
+<script id="submissionIdentityRepair">
+(function(){
+  try{
+    const key="poorviPendingSubmissions";
+    const list=JSON.parse(localStorage.getItem(key)||"[]");
+    if(!Array.isArray(list))return;
+    const names={};
+    const users=JSON.parse(localStorage.getItem("poorviMathUsers")||"[]");
+    if(Array.isArray(users))users.forEach(u=>{if(u&&u.name)names[String(u.name).trim().toLowerCase()]=u.id});
+    let changed=false;
+    list.forEach(s=>{
+      if(!s||s.userId||!s.userName)return;
+      const id=names[String(s.userName).trim().toLowerCase()];
+      if(id){s.userId=id;changed=true}
+    });
+    if(changed)localStorage.setItem(key,JSON.stringify(list));
+  }catch(e){}
+})();
+</script></body>
 </html>

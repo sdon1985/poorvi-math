@@ -92,6 +92,12 @@ try{endActiveTestForUserSwitch();}catch(e){}
 .baselineWelcome{font-size:24px;font-weight:850;line-height:1.15}
 .baselineActions{display:flex;gap:8px;flex-wrap:wrap}
 .baselineNav{display:inline-block;padding:9px 11px;border:1px solid #d0d5dd;border-radius:10px;background:#fff;color:inherit;text-decoration:none;font-size:12px;font-weight:750}
+</style><style id="testLockUI">
+body.test-focus-mode{overflow:hidden}
+body.test-focus-mode #app{position:fixed;inset:0;z-index:9999;overflow:auto;background:inherit}
+body.test-focus-mode #app>*{scroll-margin-top:12px}
+body.test-focus-mode #sheet{scroll-margin-top:16px}
+body.test-focus-mode #sheet:before{content:"🔒 TEST IN PROGRESS — Complete the worksheet before leaving";display:block;position:sticky;top:0;z-index:20;padding:9px 12px;margin-bottom:8px;border-radius:10px;background:#fff8e1;border:1px solid #f2d48a;font-weight:800;text-align:center;font-size:12px}
 </style></head>
 
 <body><header id="userHeader" class="baselineUserHeader">
@@ -111,7 +117,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.39</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.40</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -434,7 +440,7 @@ if(document.fullscreenElement && document.exitFullscreen)document.exitFullscreen
 }catch(e){}
 __focusHistoryPushed=false;
 }
-function startTest(){if(started||done)return;enterTestFocusMode();syncTimerOptions($("mins").value);started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
+function startTest(){if(started||done)return;enterTestFocusMode();syncTimerOptions($("mins").value);started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}requestAnimationFrame(()=>{const sheet=document.getElementById("sheet");if(sheet)sheet.scrollIntoView({behavior:"smooth",block:"start"});});persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
@@ -453,7 +459,12 @@ const v=e.value.trim();
 answers.push({i,problem:qs[i].a+" "+sym(qs[i].o)+" "+qs[i].b,ans:qs[i].ans,image:"",ocr:v,filled:v!=="",status:v!==""?"correct":"not_answered"});
 });
 }
-return {id:"sub_"+Date.now(),date:key(),created:Date.now(),userId:currentUser?.id||"guest",userName:currentUser?.name||"Guest",operation:$("op").value,range:$("op").value==="addition"||$("op").value==="subtraction"?$("addSubRange").value:"0-12",total:qs.length,elapsed:elapsed(),answers};
+const sessionId=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");
+const sessionUsers=getUsers();
+const sessionUser=sessionUsers.find(u=>u&&u.id===sessionId&&u.role!=="admin");
+const ownerId=sessionUser?.id||currentUser?.id||"guest";
+const ownerName=sessionUser?.name||currentUser?.name||({guest:"Guest",poorvi:"Poorvi Dondeti",mahiram:"Mahiram Dondeti"}[ownerId]||"Guest");
+return {id:"sub_"+Date.now(),date:key(),created:Date.now(),userId:ownerId,userName:ownerName,operation:$("op").value,range:$("op").value==="addition"||$("op").value==="subtraction"?$("addSubRange").value:"0-12",total:qs.length,elapsed:elapsed(),answers};
 }
 function pendingSubs(){return JSON.parse(localStorage.getItem("poorviPendingSubmissions")||"[]")}
 function savePendingSubmission(s){
@@ -1256,7 +1267,7 @@ if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.39: user identity is controlled only by login.html */
+/* v25.4.40: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
@@ -1379,26 +1390,7 @@ if(x){x.disabled=false;x.classList.remove("hidden");}
 });
 }
 
-function bindAuthoritativeUserSwitch(){
-const sel=document.getElementById("userHeaderSelect");
-if(!sel || sel.dataset.authoritativeSwitch==="1") return;
-sel.dataset.authoritativeSwitch="1";
-
-sel.addEventListener("change", function(){
-const previousId=(typeof currentUser!=="undefined" && currentUser)?currentUser.id:"guest";
-const targetId=this.value;
-if(targetId===previousId)return;
-
-const list=(typeof getUsers==="function"?getUsers():[]).filter(u=>u.active!==false && u.role!=="admin");
-const target=list.find(u=>u.id===targetId);
-if(!target){this.value=previousId;return;}
-
-const pin=prompt("Enter PIN for "+target.name+":");
-if(String(pin)!==String(target.pin)){
-alert("Incorrect PIN.");
-this.value=previousId;
-return;
-}
+function bindAuthoritativeUserSwitch(){}
 
 // This happens BEFORE currentUser changes.
 hardEndCurrentUserTest();
