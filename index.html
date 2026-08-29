@@ -11,9 +11,9 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;min-height:4
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.timer{font-size:28px;font-weight:800}.warn{color:#c62828}
 .lock{padding:10px;background:#edf7ed;border-radius:9px;text-align:center;font-weight:700}
 .sheet{border:1px solid #aaa;background:#fff}.head{padding:12px;border-bottom:1px solid #777}.title{text-align:center;font:bold 21px Georgia}
-.info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font:13px Georgia;margin-top:10px}.line{display:inline-block;width:90px;border-bottom:1px solid #444}
+.info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font:15px Georgia;margin-top:10px}.line{display:inline-block;width:90px;border-bottom:1px solid #444}
 .grid{display:grid;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr));width:100%;overflow:hidden}.cell{height:86px;min-width:0;border-right:1px solid #bbb;border-bottom:1px solid #bbb;display:flex;align-items:center;justify-content:center;text-align:center;padding:2px}
-.q{font:clamp(10px,1.6vw,18px) Georgia;white-space:nowrap}.ans{width:clamp(20px,4vw,45px);border:0;border-bottom:1px solid #444;outline:0;text-align:center;background:transparent}
+.q{font:clamp(13px,2vw,23px) Georgia;white-space:nowrap;font-weight:600}.ans{width:clamp(20px,4vw,45px);border:0;border-bottom:1px solid #444;outline:0;text-align:center;background:transparent}
 .pad{width:clamp(42px,6vw,64px);height:44px;border:1px solid #aeb5bb;border-radius:6px;background:#fff;display:block;touch-action:none}
 .fb{height:16px;font-size:10px;min-width:34px}.ok{color:#16803c}.bad{color:#c62828}
 .accountBar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 2px;margin-bottom:8px;flex-wrap:wrap}
@@ -122,7 +122,7 @@ body.test-focus-mode #sheet *{
 body.test-focus-mode ::selection{background:transparent}
 body.test-focus-mode ::-moz-selection{background:transparent}
 </style><style id="kidsMathAnswerBoxSize">
-/* Production v1.0.3: slightly larger Apple Pencil answer boxes */
+/* Production v1.0.5: slightly larger Apple Pencil answer boxes */
 #sheet .answerBox,
 #sheet .answer-box,
 #sheet .answerCanvas,
@@ -436,10 +436,11 @@ finish(true,false);
 
 window.scrollTo(0,0);
 }
-function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div></div>';g.appendChild(c)});$("sheet").appendChild(g);
+function refreshWorksheetIdentity(){try{const sid=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");const u=getUsers().find(x=>x&&x.id===sid&&x.role!=="admin")||currentUser;const n=document.getElementById("worksheetName");if(n)n.textContent=u?.name||"Guest";}catch(e){}}
+function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";const sid=sessionStorage.getItem("poorviCurrentUser")||localStorage.getItem("poorviLoggedInUser");const owner=getUsers().find(u=>u&&u.id===sid&&u.role!=="admin")||currentUser;const ownerName=owner?.name||({poorvi:"Poorvi Dondeti",mahiram:"Mahiram Dondeti",guest:"Guest"}[sid]||"Guest");$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span id="worksheetName" class="line">'+ownerName+'</span></div><div>Date: <span id="worksheetDate" class="line">—</span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div></div>';g.appendChild(c)});$("sheet").appendChild(g);
 if($("answerMode").value==="pencil")setupPencil();
 document.querySelectorAll(".ans").forEach(e=>e.addEventListener("input",persistActiveSession));
-requestAnimationFrame(fitGrid)}
+requestAnimationFrame(()=>{fitGrid();refreshWorksheetIdentity()})}
 function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>{drawing=false;persistActiveSession()};c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";pencilTool="write";setTool("write");$("writeBtn").focus();}},true)})}
 function setTool(m){pencilTool=m;$("writeBtn").className=m==="write"?"primary":"secondary";$("eraseBtn").className=m==="erase"?"erase":"secondary";$("modeText").textContent=m==="erase"?"Erase mode — tap one answer to clear it":"Write mode — write with Apple Pencil"}
 function fitGrid(){let g=document.querySelector(".grid");if(!g)return;let w=g.clientWidth,min=$("answerMode").value==="pencil"?150:120,cols=Math.max(2,Math.min(10,Math.floor(w/min)));g.style.setProperty("--cols",cols);[...g.children].forEach((c,i)=>c.style.borderRight=((i+1)%cols===0)?"0":"1px solid #bbb")}
@@ -607,6 +608,11 @@ done=true;started=false;clearInterval(tid);tid=null;clearActiveSession(currentUs
 $("pencilTools").classList.add("hidden");$("submitBtn").classList.add("hidden");
 const et=elapsed(),pencil=$("answerMode").value==="pencil";
 const submission=makeSubmission();
+const submitDate=submission.date;
+const dateEl=document.getElementById("worksheetDate");
+const nameEl=document.getElementById("worksheetName");
+if(dateEl)dateEl.textContent=submitDate;
+if(nameEl)nameEl.textContent=submission.userName;
 
 if(pencil){
 $("ocrStatus").classList.remove("hidden");$("result").classList.add("hidden");
