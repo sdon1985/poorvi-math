@@ -316,7 +316,7 @@ function openReview(id){
 
   $("reviewQuestions").innerHTML=answers.length ? answers.map((a,i)=>{
     const filled = a.filled===true || (a.filled===undefined && a.ocr!==undefined && String(a.ocr).trim()!=="");
-    const status=filled?"correct":"not_answered";
+    const status=(a.status==="wrong")?"wrong":(filled?"correct":"not_answered");
     const expected=(a.ans===undefined||a.ans===null)?"—":a.ans;
     const childRead=(a.ocr!==undefined && a.ocr!=="") ? a.ocr : "—";
     const handwriting=a.image
@@ -332,7 +332,7 @@ function openReview(id){
       '<div data-choice="'+i+'" style="display:flex;gap:4px;flex-wrap:nowrap">'+
         '<button type="button" class="secondary reviewStatusBtn '+(status==="correct"?"selectedStatus":"")+'" data-status="correct">✓ Correct</button>'+
         '<button type="button" class="secondary reviewStatusBtn '+(status==="wrong"?"selectedStatus":"")+'" data-status="wrong">✗ Wrong</button>'+
-        '<button type="button" class="secondary reviewStatusBtn '+(status==="not_answered"?"selectedStatus":"")+'" data-status="not_answered">— Incomplete</button>'+
+        '<button type="button" class="secondary reviewStatusBtn '+(status==="not_answered"?"selectedStatus":"")+'" data-status="not_answered">— N/A</button>'+
       '</div>'+
     '</div>';
   }).join("") : '<div class="empty">No answer records were saved with this worksheet.</div>';
@@ -397,8 +397,8 @@ async function recognizeCurrentWorksheet(){
       if(!a)return;
       if(r.answer!==undefined && r.answer!==null && r.answer!==""){
         a.ocr=String(r.answer);
-        a.filled=String(r.answer).trim()!=="";
-        a.status=a.filled?"correct":"not_answered";
+        const expected=String(a.ans);
+        a.filled=String(r.answer).trim()!==""; a.status=a.filled?"correct":"not_answered";
       }
     });
 
@@ -418,21 +418,17 @@ function saveReview(){
   if(!currentReview)return;
 
   const answers=currentReview.answers||[];
-  document.querySelectorAll("[data-status]").forEach(btn=>{
-    const i=Number(btn.closest("[data-choice]")?.dataset.choice);
-    if(answers[i])answers[i].status=btn.dataset.status;
+  document.querySelectorAll("[data-choice]").forEach(group=>{
+    const i=Number(group.dataset.choice);
+    const selected=group.querySelector("[data-status].selectedStatus");
+    if(selected && answers[i])answers[i].status=selected.dataset.status;
   });
 
-  // Admin validation defaults:
-  // filled answer box -> Correct
-  // empty answer box -> Incomplete
-  // Admin may manually change any item to Wrong (or another available state),
-  // and that manual decision must be preserved when Save Review is pressed.
   answers.forEach(a=>{
     if(a.filled===undefined){
       a.filled=(a.ocr!==undefined && String(a.ocr).trim()!=="");
     }
-    if(a.status!=="wrong" && a.status!=="correct" && a.status!=="not_answered"){
+    if(!["correct","wrong","not_answered"].includes(a.status)){
       a.status=a.filled?"correct":"not_answered";
     }
   });
@@ -514,6 +510,16 @@ $("saveReview").onclick=saveReview;
 $("aiRecognizeBtn").onclick=recognizeCurrentWorksheet;
 $("voidPending").onclick=voidPending;
 $("backToPending").onclick=()=>{page("pending");renderPending()};
+
+// Authentication fallback: bind after DOM is ready as well as the direct
+// handler above. This protects against browser timing/event quirks.
+document.addEventListener("DOMContentLoaded",function(){
+  const btn=$("loginBtn"), pin=$("pin");
+  if(btn)btn.addEventListener("click",enter);
+  if(pin)pin.addEventListener("keydown",function(e){
+    if(e.key==="Enter"){e.preventDefault();enter();}
+  });
+});
 </script>
 </body>
 </html>
