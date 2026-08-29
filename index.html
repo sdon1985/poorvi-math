@@ -121,6 +121,24 @@ body.test-focus-mode #sheet *{
 }
 body.test-focus-mode ::selection{background:transparent}
 body.test-focus-mode ::-moz-selection{background:transparent}
+</style><style id="kidsMathAnswerBoxSize">
+/* Production v1.0.3: slightly larger Apple Pencil answer boxes */
+#sheet .answerBox,
+#sheet .answer-box,
+#sheet .answerCanvas,
+#sheet canvas.answer,
+#sheet canvas{
+  min-width:54px !important;
+  width:54px !important;
+  min-height:54px !important;
+  height:54px !important;
+}
+#sheet .answerBox canvas,
+#sheet .answer-box canvas,
+#sheet .answerCanvas{
+  width:54px !important;
+  height:54px !important;
+}
 </style></head>
 
 <body><header id="userHeader" class="baselineUserHeader">
@@ -140,7 +158,7 @@ body.test-focus-mode ::-moz-selection{background:transparent}
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v1.0.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v1.0.2</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -422,7 +440,7 @@ function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").va
 if($("answerMode").value==="pencil")setupPencil();
 document.querySelectorAll(".ans").forEach(e=>e.addEventListener("input",persistActiveSession));
 requestAnimationFrame(fitGrid)}
-function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>{drawing=false;persistActiveSession()};c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";setTool("write")}},true)})}
+function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>{drawing=false;persistActiveSession()};c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";pencilTool="write";setTool("write");$("writeBtn").focus();}},true)})}
 function setTool(m){pencilTool=m;$("writeBtn").className=m==="write"?"primary":"secondary";$("eraseBtn").className=m==="erase"?"erase":"secondary";$("modeText").textContent=m==="erase"?"Erase mode — tap one answer to clear it":"Write mode — write with Apple Pencil"}
 function fitGrid(){let g=document.querySelector(".grid");if(!g)return;let w=g.clientWidth,min=$("answerMode").value==="pencil"?150:120,cols=Math.max(2,Math.min(10,Math.floor(w/min)));g.style.setProperty("--cols",cols);[...g.children].forEach((c,i)=>c.style.borderRight=((i+1)%cols===0)?"0":"1px solid #bbb")}
 
@@ -467,7 +485,7 @@ if(document.fullscreenElement && document.exitFullscreen)document.exitFullscreen
 }catch(e){}
 __focusHistoryPushed=false;
 }
-function startTest(){if(started||done)return;enterTestFocusMode();syncTimerOptions($("mins").value);started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");setTool("write")}requestAnimationFrame(()=>{const sheet=document.getElementById("sheet");if(sheet)sheet.scrollIntoView({behavior:"smooth",block:"start"});});persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
+function startTest(){if(started||done)return;enterTestFocusMode();syncTimerOptions($("mins").value);started=true;begin=Date.now();left=+$("mins").value*60;updateTimer();$("app").classList.add("active");$("startBtn").disabled=true;$("submitBtn").classList.remove("hidden");if($("answerMode").value==="pencil"){$("pencilTools").classList.remove("hidden");pencilTool="write";setTool("write")}requestAnimationFrame(()=>{const sheet=document.getElementById("sheet");if(sheet)sheet.scrollIntoView({behavior:"smooth",block:"start"});});persistActiveSession();if(left){if(tid)clearInterval(tid);const expiresAt=begin+(+$("mins").value*60000);tid=setInterval(()=>{left=Math.max(0,Math.ceil((expiresAt-Date.now())/1000));updateTimer();persistActiveSession();if(left<=0){clearInterval(tid);tid=null;clearActiveSession(currentUser?.id);finish(true,false)}},250)}}
 function updateTimer(){let m=Math.floor(left/60),s=left%60;$("timer").textContent=m+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",left>0&&left<=30)}
 function elapsed(){return $("mins").value==="0"?Math.round((Date.now()-begin)/1000):+$("mins").value*60-left}
 
