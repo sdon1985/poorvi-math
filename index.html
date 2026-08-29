@@ -122,7 +122,7 @@ body.test-focus-mode #sheet *{
 body.test-focus-mode ::selection{background:transparent}
 body.test-focus-mode ::-moz-selection{background:transparent}
 </style><style id="kidsMathAnswerBoxSize">
-/* Production v1.0.7: slightly larger Apple Pencil answer boxes */
+/* Production v1.0.9: slightly larger Apple Pencil answer boxes */
 #sheet .answerBox,
 #sheet .answer-box,
 #sheet .answerCanvas,
@@ -150,17 +150,21 @@ body.test-focus-mode ::-moz-selection{background:transparent}
 #sheet .cell{height:92px !important}
 #sheet .pad{width:clamp(52px,7vw,72px) !important;height:52px !important}
 </style><style id="kidsMathFullscreenButton">
-#fullscreenBtn{
-  position:fixed;right:14px;top:14px;z-index:1000;
-  border:1px solid #cbd5e1;border-radius:12px;
-  background:#fff;padding:10px 14px;font-weight:800;font-size:14px;
-  box-shadow:0 3px 12px rgba(0,0,0,.18);display:none;
-}
-body.test-focus-mode #fullscreenBtn{display:block}
-@media(max-width:600px){#fullscreenBtn{right:10px;top:10px;padding:9px 11px;font-size:13px}}
+#worksheetCard{position:relative}
+.worksheetToolbar{display:flex;justify-content:flex-end;align-items:center;margin-bottom:8px}
+#fullscreenBtn{font-weight:800;font-size:14px;padding:9px 13px;display:inline-flex}
+body.test-focus-mode #fullscreenBtn{display:inline-flex}
+@media(max-width:600px){#fullscreenBtn{font-size:13px;padding:8px 11px}}
+:fullscreen #worksheetCard{overflow:auto;max-height:100vh}
+:fullscreen #sheet{padding-bottom:20px}
+</style><style id="kidsMathFullscreenFallback">
+html.kids-pseudo-fullscreen,html.kids-pseudo-fullscreen body{width:100%;height:100%;overflow:hidden}
+html.kids-pseudo-fullscreen #app{position:fixed;inset:0;z-index:9999;overflow:auto;width:100%;height:100%;margin:0;border-radius:0;background:inherit}
+html.kids-pseudo-fullscreen #worksheetCard{min-height:100%;box-sizing:border-box}
+html.kids-pseudo-fullscreen #fullscreenBtn{position:sticky;top:8px;z-index:10001}
 </style></head>
 
-<body><button id="fullscreenBtn" type="button" aria-label="Enter full screen">⛶ Full Screen</button><header id="userHeader" class="baselineUserHeader">
+<body><header id="userHeader" class="baselineUserHeader">
   <div>
     <div class="baselineEyebrow">MATH PRACTICE</div>
     <div id="welcomeTitle" class="baselineWelcome">Welcome</div>
@@ -228,7 +232,12 @@ body.test-focus-mode #fullscreenBtn{display:block}
 <span class="muted" id="modeText">Write mode — write with Apple Pencil</span>
 </div></section>
 
-<section class="card"><div id="sheet" class="sheet"></div></section>
+<section class="card" id="worksheetCard">
+<div class="worksheetToolbar">
+  <button id="fullscreenBtn" class="secondary" type="button" aria-label="Enter full screen">⛶ Full Screen</button>
+</div>
+<div id="sheet" class="sheet"></div>
+</section>
 <section class="card hidden" id="ocrStatus" style="text-align:center">
 <b>✏️ Checking handwriting…</b><div id="ocrProgress" class="muted" style="margin-top:6px">Preparing score.</div>
 </section>
@@ -460,7 +469,7 @@ function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").va
 if($("answerMode").value==="pencil")setupPencil();
 document.querySelectorAll(".ans").forEach(e=>e.addEventListener("input",persistActiveSession));
 requestAnimationFrame(()=>{fitGrid();refreshWorksheetIdentity()})}
-function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>{drawing=false;persistActiveSession()};c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";pencilTool="write";setTool("write");$("writeBtn").focus();}},true)})}
+function setupPencil(){document.querySelectorAll(".pad").forEach(c=>{let x=c.getContext("2d"),s=devicePixelRatio||1;x.setTransform(s,0,0,s,0,0);x.lineWidth=2.5;x.lineCap="round";let drawing=false;const p=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width/s,y:(e.clientY-r.top)*c.height/r.height/s}};c.onpointerdown=e=>{if(!started||pencilTool==="erase")return;e.preventDefault();c.setPointerCapture(e.pointerId);drawing=true;let z=p(e);x.beginPath();x.moveTo(z.x,z.y)};c.onpointermove=e=>{if(!drawing)return;e.preventDefault();let z=p(e);x.lineTo(z.x,z.y);x.stroke()};c.onpointerup=()=>{drawing=false;persistActiveSession()};c.onpointercancel=()=>drawing=false;c.addEventListener("pointerdown",e=>{if(started&&pencilTool==="erase"){e.preventDefault();e.stopPropagation();x.clearRect(0,0,c.width,c.height);$("f"+c.dataset.i).textContent="";pencilTool="write";setTool("write");}},true);c.addEventListener("pointerup",e=>{if(started&&pencilTool==="erase"){pencilTool="write";setTool("write");}},true)})}
 function setTool(m){pencilTool=m;$("writeBtn").className=m==="write"?"primary":"secondary";$("eraseBtn").className=m==="erase"?"erase":"secondary";$("modeText").textContent=m==="erase"?"Erase mode — tap one answer to clear it":"Write mode — write with Apple Pencil"}
 function fitGrid(){let g=document.querySelector(".grid");if(!g)return;let w=g.clientWidth,min=$("answerMode").value==="pencil"?150:120,cols=Math.max(2,Math.min(10,Math.floor(w/min)));g.style.setProperty("--cols",cols);[...g.children].forEach((c,i)=>c.style.borderRight=((i+1)%cols===0)?"0":"1px solid #bbb")}
 
@@ -1607,29 +1616,46 @@ document.addEventListener("DOMContentLoaded",setName);window.addEventListener("l
 })();
 </script><script id="kidsMathFullscreenControl">
 (function(){
-  function app(){return document.getElementById("app")}
+  function target(){return document.getElementById("worksheetCard")||document.getElementById("app")||document.documentElement}
   async function enterFS(){
-    const a=app();
-    if(!a)return;
+    const a=target();
     try{
-      if(!document.fullscreenElement && a.requestFullscreen){
-        await a.requestFullscreen({navigationUI:"hide"});
+      if(document.fullscreenElement){ return; }
+      if(a && a.requestFullscreen){
+        const p=a.requestFullscreen({navigationUI:"hide"});
+        if(p&&p.catch) await p;
+        return;
       }
     }catch(e){}
+    // Fallback for browsers/devices that do not expose Fullscreen API.
+    document.documentElement.classList.add("kids-pseudo-fullscreen");
+    update();
+  }
+  async function exitFS(){
+    try{
+      if(document.fullscreenElement && document.exitFullscreen){
+        await document.exitFullscreen();
+      }
+    }catch(e){}
+    document.documentElement.classList.remove("kids-pseudo-fullscreen");
+    update();
   }
   function update(){
     const b=document.getElementById("fullscreenBtn");
     if(!b)return;
-    const active=document.body.classList.contains("test-focus-mode");
-    b.style.display=active?"block":"none";
-    b.textContent=document.fullscreenElement?"⛶ Full Screen":"⛶ Re-enter Full Screen";
+    const native=!!document.fullscreenElement;
+    const pseudo=document.documentElement.classList.contains("kids-pseudo-fullscreen");
+    b.textContent=(native||pseudo)?"⛶ Exit Full Screen":"⛶ Full Screen";
+    b.setAttribute("aria-label",(native||pseudo)?"Exit full screen":"Enter full screen");
   }
   document.addEventListener("DOMContentLoaded",function(){
     const b=document.getElementById("fullscreenBtn");
-    if(b)b.addEventListener("click",enterFS);
+    if(b)b.addEventListener("click",function(){
+      if(document.fullscreenElement || document.documentElement.classList.contains("kids-pseudo-fullscreen")) exitFS();
+      else enterFS();
+    });
     document.addEventListener("fullscreenchange",update);
     update();
   });
-  window.addEventListener("fullscreenchange",update);
 })();
 </script></body></html>
