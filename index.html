@@ -98,6 +98,29 @@ body.test-focus-mode #app{position:fixed;inset:0;z-index:9999;overflow:auto;back
 body.test-focus-mode #app>*{scroll-margin-top:12px}
 body.test-focus-mode #sheet{scroll-margin-top:16px}
 body.test-focus-mode #sheet:before{content:"🔒 TEST IN PROGRESS — Complete the worksheet before leaving";display:block;position:sticky;top:0;z-index:20;padding:9px 12px;margin-bottom:8px;border-radius:10px;background:#fff8e1;border:1px solid #f2d48a;font-weight:800;text-align:center;font-size:12px}
+</style><style id="kidsMathTestTouchLock">
+body.test-focus-mode,
+body.test-focus-mode *{
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+body.test-focus-mode input,
+body.test-focus-mode textarea,
+body.test-focus-mode button,
+body.test-focus-mode canvas{
+  -webkit-user-select:none;
+  user-select:none;
+}
+body.test-focus-mode #sheet,
+body.test-focus-mode #sheet *{
+  -webkit-touch-callout:none !important;
+  -webkit-user-select:none !important;
+  user-select:none !important;
+}
+body.test-focus-mode ::selection{background:transparent}
+body.test-focus-mode ::-moz-selection{background:transparent}
 </style></head>
 
 <body><header id="userHeader" class="baselineUserHeader">
@@ -117,7 +140,7 @@ body.test-focus-mode #sheet:before{content:"🔒 TEST IN PROGRESS — Complete t
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v1.0</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v1.0.1</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -1521,4 +1544,22 @@ document.addEventListener("DOMContentLoaded",setName);window.addEventListener("l
   window.addEventListener("focus",syncProgress);
 })();
 </script>
-</body></html>
+<script id="kidsMathTouchGuard">
+(function(){
+  function active(){return document.body && document.body.classList.contains("test-focus-mode");}
+  ["contextmenu","selectstart","dragstart"].forEach(function(evt){
+    document.addEventListener(evt,function(e){
+      if(active()) e.preventDefault();
+    },{capture:true});
+  });
+  document.addEventListener("touchstart",function(e){
+    if(active() && e.touches && e.touches.length>1) e.preventDefault();
+  },{capture:true,passive:false});
+  document.addEventListener("gesturestart",function(e){
+    if(active()) e.preventDefault();
+  },{capture:true,passive:false});
+  document.addEventListener("copy",function(e){
+    if(active()) e.preventDefault();
+  },{capture:true});
+})();
+</script></body></html>
