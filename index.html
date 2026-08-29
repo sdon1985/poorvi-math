@@ -149,51 +149,10 @@ body.test-focus-mode #testFocusBadge{display:inline-flex}
 .tableChecks label:has(input:focus-visible){outline:2px solid #2563eb;outline-offset:2px}
 @media(max-width:600px){.mdRangeHeader{align-items:flex-start;flex-direction:column}.tableChecks{grid-template-columns:repeat(5,minmax(42px,1fr))}}
 </style>
-<style>
-/* v25.4.24 polished user PIN login */
-#userLoginOverlay{position:fixed;inset:0;z-index:100000;background:linear-gradient(135deg,#eef2ff,#f8fafc 55%,#ecfeff);display:flex;align-items:center;justify-content:center;padding:20px}
-.user-login-card{width:min(420px,100%);background:#fff;border:1px solid #e4e7ec;border-radius:24px;padding:28px;box-shadow:0 18px 50px rgba(16,24,40,.14);text-align:center}
-.user-login-icon{width:68px;height:68px;margin:0 auto 12px;border-radius:20px;display:grid;place-items:center;background:#eef2ff;font-size:34px}
-.user-login-card h2{margin:4px 0 4px;font-size:25px}
-.user-login-sub{color:#667085;font-size:14px;margin-bottom:20px}
-.user-user-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
-.user-choice{border:1px solid #d0d5dd;background:#fff;border-radius:12px;padding:10px 5px;cursor:pointer;font-weight:700;font-size:13px}
-.user-choice.selected{border-color:#4f46e5;background:#eef2ff;box-shadow:inset 0 0 0 1px #4f46e5}
-.user-choice span{display:block;font-size:22px;margin-bottom:3px}
-.user-pin-wrap{position:relative;margin-top:8px}
-.user-pin{width:100%;box-sizing:border-box;font-size:26px;letter-spacing:8px;text-align:center;padding:13px 48px 13px 16px;border:1px solid #d0d5dd;border-radius:13px;outline:none}
-.user-pin:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
-.user-pin-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:18px;cursor:pointer}
-.user-login-error{min-height:20px;color:#b42318;font-size:13px;margin:8px 0}
-.user-login-enter{width:100%;padding:13px;border:0;border-radius:13px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-size:16px;font-weight:800;cursor:pointer}
-.user-login-enter:disabled{opacity:.55;cursor:not-allowed}
-.user-admin-link{display:inline-block;margin-top:16px;color:#667085;font-size:12px;text-decoration:none}
-.user-admin-link:hover{color:#4f46e5}
-@media(max-width:420px){.user-user-grid{grid-template-columns:1fr}.user-login-card{padding:22px}}
-</style>
+
 </head>
 
 <body>
-<div id="userLoginOverlay">
-  <div class="user-login-card">
-    <div class="user-login-icon">📚</div>
-    <h2>Math Practice</h2>
-    <div class="user-login-sub">Who is practicing today?</div>
-    <div class="user-user-grid" id="userLoginChoices">
-      <button type="button" class="user-choice selected" data-user="guest"><span>👤</span>Guest</button>
-      <button type="button" class="user-choice" data-user="poorvi"><span>👧</span>Poorvi</button>
-      <button type="button" class="user-choice" data-user="mahiram"><span>👦</span>Mahiram</button>
-    </div>
-    <div class="user-pin-wrap">
-      <input id="userLoginPin" class="user-pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••" aria-label="User PIN">
-      <button type="button" class="user-pin-toggle" id="userPinToggle" aria-label="Show PIN">👁️</button>
-    </div>
-    <div id="userLoginError" class="user-login-error"></div>
-    <button type="button" class="user-login-enter" id="userLoginEnter">Continue →</button>
-    <a class="user-admin-link" href="admin.html">👑 Admin Login</a>
-  </div>
-</div>
-
 <div id="productionPageNav" style="display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:6px 0 10px">
   <a href="admin.html" style="display:inline-block;padding:8px 12px;border:1px solid #ccd3dd;border-radius:10px;background:#fff;text-decoration:none;color:inherit;font-size:13px">👑 Admin Page</a>
 </div>
@@ -1057,10 +1016,21 @@ function getUsers(){
 }
 function saveUsers(users){localStorage.setItem("poorviMathUsers",JSON.stringify(users))}
 function loadCurrentUser(){
- const users=getUsers(),id=sessionStorage.getItem("poorviCurrentUser")||"guest";
- currentUser=users.find(u=>u.id===id&&u.active!==false)||users.find(u=>u.role==="admin")||users[0];
- sessionStorage.setItem("poorviCurrentUser",currentUser.id);
+ const users=getUsers();
+ const id=sessionStorage.getItem("poorviCurrentUser");
+ if(!id){
+   window.location.replace("login.html");
+   return false;
+ }
+ const found=users.find(u=>u.id===id&&u.active!==false&&u.role!=="admin");
+ if(!found){
+   sessionStorage.removeItem("poorviCurrentUser");
+   window.location.replace("login.html");
+   return false;
+ }
+ currentUser=found;
  applyRole();
+ return true;
 }
 function applyRole(){
  $("currentUserLabel").textContent=currentUser.name;
@@ -1354,7 +1324,7 @@ $("adminSubmittedBtn").onclick=()=>{
  $("adminSubmissionQueue").scrollIntoView({behavior:"smooth"});
 };
 $("adminRefreshBtn").onclick=renderAdminSubmissionQueue;
-$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");loadCurrentUser(); if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
+$("saveReviewBtn").onclick=saveCurrentReview;$("switchUserBtn").onclick=switchUser;$("usersBtn").onclick=renderUsers;$("addUserBtn").onclick=addUser;$("closeUsersBtn").onclick=()=>$("userManagement").classList.add("hidden");const authenticatedUser=loadCurrentUser(); if(authenticatedUser){if(currentUser&&currentUser.role==="admin") renderAdminUserOverview();renderWeek();renderMonthly();renderYearly();}$("manageHistoryBtn").onclick=renderHistoryManager;$("voidReviewBtn").onclick=voidCurrentReview;$("closeReviewBtn").onclick=()=>{$("parentReview").classList.add("hidden")};$("reviewBtn").onclick=()=>{
  if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
  openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
@@ -1566,76 +1536,5 @@ document.addEventListener("visibilitychange",function(){
   if(!document.hidden)refreshProgressAfterAdminSave();
 });
 
-/* v25.4.25 stable User PIN authentication */
-(function(){
-  const overlay=document.getElementById("userLoginOverlay");
-  const pin=document.getElementById("userLoginPin");
-  const enter=document.getElementById("userLoginEnter");
-  const err=document.getElementById("userLoginError");
-  const toggle=document.getElementById("userPinToggle");
-  let selected="guest";
-  const defaults={
-    guest:{id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
-    poorvi:{id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
-    mahiram:{id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
-  };
-  function users(){
-    try{
-      const list=(typeof getUsers==="function"?getUsers():[]);
-      return list.filter(u=>u&&u.role==="user"&&u.active!==false);
-    }catch(e){return []}
-  }
-  function findUser(id){
-    return users().find(u=>u.id===id)||defaults[id];
-  }
-  function choose(id){
-    selected=id;
-    document.querySelectorAll(".user-choice").forEach(x=>x.classList.toggle("selected",x.dataset.user===id));
-    err.textContent="";
-    pin.value="";
-    setTimeout(()=>pin.focus(),0);
-  }
-  document.querySelectorAll(".user-choice").forEach(x=>x.addEventListener("click",()=>choose(x.dataset.user)));
-  toggle.addEventListener("click",()=>{
-    pin.type=pin.type==="password"?"text":"password";
-    toggle.textContent=pin.type==="password"?"👁️":"🙈";
-  });
-  function authenticate(){
-    const u=findUser(selected);
-    if(!u){err.textContent="User account not found.";return false}
-    const entered=String(pin.value||"").trim();
-    if(!entered){err.textContent="Please enter your 4-digit PIN.";pin.focus();return false}
-    if(entered!==String(u.pin)){
-      err.textContent="Incorrect PIN. Please try again.";
-      pin.select();return false;
-    }
-    try{hardEndCurrentUserTest();}catch(e){}
-    currentUser=u;
-    sessionStorage.setItem("poorviCurrentUser",u.id);
-    const label=document.getElementById("userHeaderName");
-    if(label)label.textContent=u.name;
-    if(typeof applyRole==="function")applyRole();
-    if(typeof setupUserNav==="function")setupUserNav();
-    if(overlay)overlay.style.display="none";
-    try{renderWeek();renderMonthly();renderYearly()}catch(e){}
-    return true;
-  }
-  enter.addEventListener("click",authenticate);
-  pin.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();authenticate()}});
-  window.addEventListener("load",()=>{
-    const saved=sessionStorage.getItem("poorviCurrentUser");
-    const u=saved?findUser(saved):null;
-    // Only bypass the login screen for a valid authenticated session.
-    if(saved&&u){
-      currentUser=u;
-      document.querySelectorAll(".user-choice").forEach(x=>x.classList.toggle("selected",x.dataset.user===u.id));
-      if(overlay)overlay.style.display="none";
-    }else{
-      sessionStorage.removeItem("poorviCurrentUser");
-      if(overlay)overlay.style.display="flex";
-      setTimeout(()=>pin.focus(),150);
-    }
-  });
-})();
-</script>
+
 </body></html>

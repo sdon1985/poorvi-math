@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<title>Poorvi Math — Login</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(135deg,#eef2ff,#f8fafc 55%,#ecfeff);color:#172033;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{width:min(430px,100%);background:#fff;border:1px solid #e4e7ec;border-radius:26px;padding:28px;box-shadow:0 22px 65px rgba(16,24,40,.15);text-align:center}
+.icon{width:72px;height:72px;margin:0 auto 13px;border-radius:22px;background:#eef2ff;display:grid;place-items:center;font-size:36px}
+h1{font-size:27px;margin:0 0 4px}
+.sub{color:#667085;font-size:14px;margin-bottom:20px}
+.users{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.user{border:1px solid #d0d5dd;background:#fff;border-radius:13px;padding:10px 5px;cursor:pointer;font-weight:750;font-size:13px}
+.user span{display:block;font-size:23px;margin-bottom:3px}
+.user.selected{border-color:#4f46e5;background:#eef2ff;box-shadow:inset 0 0 0 1px #4f46e5}
+.pinwrap{position:relative;margin-top:7px}
+#pin{width:100%;border:1px solid #d0d5dd;border-radius:13px;padding:14px 50px 14px 16px;text-align:center;font-size:28px;letter-spacing:9px;outline:0}
+#pin:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+#toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:19px;cursor:pointer}
+#error{min-height:21px;color:#b42318;font-size:13px;margin:8px 0}
+#continue{width:100%;border:0;border-radius:13px;padding:14px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+.links{margin-top:17px;font-size:12px}
+.links a{color:#667085;text-decoration:none}
+.links a:hover{color:#4f46e5}
+@media(max-width:420px){.users{grid-template-columns:1fr}.card{padding:23px}}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="icon">📚</div>
+  <h1>Math Practice</h1>
+  <div class="sub">Choose who is practicing</div>
+  <div class="users">
+    <button class="user selected" data-id="guest"><span>👤</span>Guest</button>
+    <button class="user" data-id="poorvi"><span>👧</span>Poorvi</button>
+    <button class="user" data-id="mahiram"><span>👦</span>Mahiram</button>
+  </div>
+  <div class="pinwrap">
+    <input id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••" aria-label="PIN">
+    <button id="toggle" type="button" aria-label="Show PIN">👁️</button>
+  </div>
+  <div id="error"></div>
+  <button id="continue" type="button">Continue →</button>
+  <div class="links"><a href="admin.html">👑 Admin Login</a></div>
+</main>
+<script>
+(function(){
+  const defaults=[
+    {id:"guest",name:"Guest",role:"user",pin:"0000",active:true},
+    {id:"poorvi",name:"Poorvi Dondeti",role:"user",pin:"1111",active:true},
+    {id:"mahiram",name:"Mahiram Dondeti",role:"user",pin:"2222",active:true}
+  ];
+  let selected="guest";
+  const pin=document.getElementById("pin"), error=document.getElementById("error");
+  function getUsers(){
+    try{
+      const raw=localStorage.getItem("poorviMathUsers");
+      if(!raw){localStorage.setItem("poorviMathUsers",JSON.stringify(defaults));return defaults}
+      const arr=JSON.parse(raw);
+      return Array.isArray(arr)&&arr.length?arr:defaults;
+    }catch(e){return defaults}
+  }
+  function select(id){
+    selected=id; error.textContent=""; pin.value="";
+    document.querySelectorAll(".user").forEach(b=>b.classList.toggle("selected",b.dataset.id===id));
+    pin.focus();
+  }
+  document.querySelectorAll(".user").forEach(b=>b.onclick=()=>select(b.dataset.id));
+  document.getElementById("toggle").onclick=()=>{
+    pin.type=pin.type==="password"?"text":"password";
+    document.getElementById("toggle").textContent=pin.type==="password"?"👁️":"🙈";
+  };
+  function login(){
+    const u=getUsers().find(x=>x.id===selected&&x.role==="user"&&x.active!==false);
+    if(!u){error.textContent="User account is unavailable.";return}
+    if(String(pin.value||"")!==String(u.pin)){
+      error.textContent="Incorrect PIN. Please try again.";pin.select();return
+    }
+    sessionStorage.setItem("poorviCurrentUser",u.id);
+    // A fresh login must never inherit another user's active test session.
+    sessionStorage.setItem("poorviLoginAt",String(Date.now()));
+    window.location.replace("index.html");
+  }
+  document.getElementById("continue").onclick=login;
+  pin.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();login()}};
+  window.addEventListener("load",()=>pin.focus());
+})();
+</script>
+</body>
+</html>
