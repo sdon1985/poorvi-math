@@ -90,6 +90,13 @@ try{endActiveTestForUserSwitch();}catch(e){}
 .switchUserLink{display:inline-block;padding:8px 11px;border:1px solid #ccd3dd;border-radius:10px;background:#fff;text-decoration:none;color:inherit;font-size:12px;font-weight:700}
 .switchUserLink:hover{background:#f8fafc;border-color:#98a2b3}
 #userHeaderSelect,#accountBar,#switchUserBtn{display:none!important}
+</style><style id="cleanNavigationUI">
+.cleanUserHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:4px 0 16px;padding:12px 14px;background:#fff;border:1px solid #e4e7ec;border-radius:16px}
+.cleanUserHeader h1{margin:0;font-size:22px}
+.pageLinks{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.loggedName{font-weight:800;font-size:14px;padding:8px 10px;border-radius:10px;background:#f2f4f7}
+.navLink{display:inline-block;text-decoration:none;color:inherit;font-size:12px;font-weight:750;padding:8px 10px;border:1px solid #d0d5dd;border-radius:10px;background:#fff}
+.navLink:hover{background:#f8fafc}
 </style></head>
 
 <body>
@@ -97,21 +104,15 @@ try{endActiveTestForUserSwitch();}catch(e){}
 <a href="admin.html" style="display:inline-block;padding:8px 12px;border:1px solid #ccd3dd;border-radius:10px;background:#fff;text-decoration:none;color:inherit;font-size:13px">👑 Admin Page</a>
 </div>
 
-<header id="userHeader" class="userIdentityHeader">
-<div class="brandBlock">
-<h1>📚 Math Practice</h1>
-<div class="muted">Daily practice for your worksheets</div>
-</div>
-<div class="identityBlock">
-<div class="loggedUser">
-<span class="avatar" id="userAvatar">👤</span>
-<div>
-<div class="identityCaption">SIGNED IN AS</div>
-<b id="userHeaderName">User</b>
-</div>
-</div>
-<a class="switchUserLink" href="login.html" id="switchUserLink">⇄ Switch User</a>
-</div>
+<header id="userHeader" class="cleanUserHeader">
+  <div class="brandBlock">
+    <h1>📚 Math Practice</h1>
+  </div>
+  <div class="pageLinks">
+    <span id="userHeaderName" class="loggedName">User</span>
+    <a href="login.html" class="navLink" id="switchUserLink">Switch User</a>
+    <a href="admin.html" class="navLink">Admin</a>
+  </div>
 </header>
 <nav id="userNav" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
 <button class="secondary" id="navPractice">📝 Practice</button>
@@ -120,7 +121,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.29</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.31</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -171,17 +172,15 @@ try{endActiveTestForUserSwitch();}catch(e){}
 <span class="muted" id="modeText">Write mode — write with Apple Pencil</span>
 </div></section>
 
-<section class="card"><div id="sheet" class="sheet"></div></section>
+<section class="card"></section>
 <section class="card hidden" id="ocrStatus" style="text-align:center">
 <b>✏️ Checking handwriting…</b><div id="ocrProgress" class="muted" style="margin-top:6px">Preparing score.</div>
 </section>
 
-<section class="card hidden" id="result"><div class="score" id="score"></div><div id="msg" style="text-align:center"></div>
+<section class="card hidden" id="result">
 <div class="stats" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px"><div class="stat"><b id="acc"></b>Accuracy</div><div class="stat"><b id="used"></b>Time</div><div class="stat"><b id="best"></b>Best</div></div>
-<div class="actions" style="justify-content:center">
-</div>
-<div id="mistakes" class="hidden"></div>
-<div id="historyManager" class="hidden" style="margin-top:12px"></div></section>
+
+</section>
 
 <section class="card hidden" id="adminSubmissionQueue">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
@@ -191,7 +190,7 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </div>
 <button class="secondary" id="adminRefreshBtn">🔄 Refresh</button>
 </div>
-<div id="adminQueue"></div>
+
 </section>
 <section class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
@@ -203,24 +202,19 @@ try{endActiveTestForUserSwitch();}catch(e){}
 </div>
 </div>
 <div id="weeklyTracker">
-<div class="week" id="week" style="margin-top:10px"></div>
-<div class="muted" id="summary" style="margin-top:8px"></div>
-<div id="dayDetails" class="hidden" style="margin-top:12px"></div>
+
 </div>
 <div id="monthlyTracker" class="hidden" style="margin-top:10px">
-<div id="monthSummary"></div>
-<div id="monthDetails" class="hidden" style="margin-top:12px"></div>
+
 </div>
 <div id="yearlyTracker" class="hidden" style="margin-top:10px">
-<div id="yearSummary"></div>
-<div id="yearDetails" class="hidden" style="margin-top:12px"></div>
+
 </div>
 </section>
 </div>
 
 <div id="modal" class="overlay hidden"><div class="modal"><h2>🔒 Parent Access</h2><div class="muted">Enter parent PIN.</div><input id="pin" type="password" inputmode="numeric" style="width:100%;margin-top:10px"><div class="actions"><button class="primary" id="unlock">Unlock</button><button class="secondary" id="cancel">Cancel</button></div></div></div>
 
-<!-- APPLICATION SCRIPT -->
 <script>
 "use strict";
 const $=id=>document.getElementById(id),R=n=>Math.floor(Math.random()*n);
@@ -401,7 +395,7 @@ finish(true,false);
 
 window.scrollTo(0,0);
 }
-function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div><div class="fb" id="f'+i+'"></div></div>';g.appendChild(c)});$("sheet").appendChild(g);
+function render(){let t=$("op").value==="mixed"?"Mixed Math Practice":$("op").value[0].toUpperCase()+$("op").value.slice(1)+" Practice";$("sheet").innerHTML='<div class="head"><div class="title">'+t+'</div><div class="info"><div>Name: <span class="line"></span></div><div>Date: <span class="line"></span></div><div>Score: <span class="line"></span> / '+qs.length+'</div></div></div>';let g=document.createElement("div");g.className="grid";qs.forEach((q,i)=>{let c=document.createElement("div");c.className="cell";let entry=$("answerMode").value==="pencil"?'<canvas class="pad" width="160" height="100" data-i="'+i+'"></canvas>':'<input class="ans" inputmode="numeric" data-i="'+i+'">';c.innerHTML='<div><div class="q">'+q.a+' '+sym(q.o)+' '+q.b+' = '+entry+'</div></div>';g.appendChild(c)});$("sheet").appendChild(g);
 if($("answerMode").value==="pencil")setupPencil();
 document.querySelectorAll(".ans").forEach(e=>e.addEventListener("input",persistActiveSession));
 requestAnimationFrame(fitGrid)}
@@ -483,7 +477,7 @@ pendingSubmission=s;
 $("reviewSummary").textContent="🔓 Review unlocked. You can now mark every answer without entering the PIN again.";
 $("reviewList").innerHTML=s.answers.map(x=>{
 const correct=x.status==="correct",wrong=x.status==="wrong",na=x.status==="not_answered";
-const img=x.image?'<img class="reviewCanvas" src="'+x.image+'">':'<div class="reviewCanvas"></div>';
+const img=x.image?'<img class="reviewCanvas" src="'+x.image+'">':'';
 const ocr=x.ocr?x.ocr:"not recognized";
 return '<div class="reviewItem" data-review="'+x.i+'"><div class="reviewRow"><b>#'+(x.i+1)+'</b><div><b>'+x.problem+' = '+x.ans+'</b><div class="muted">App read: '+ocr+'</div></div>'+img+'<div class="reviewButtons"><button class="'+(correct?"reviewCorrect":"secondary")+'" data-set="correct">✓ Correct</button><button class="'+(wrong?"reviewWrong":"secondary")+'" data-set="wrong">✗ Wrong</button><button class="'+(na?"reviewNA":"secondary")+'" data-set="not_answered">— Not Answered</button></div></div></div>';
 }).join("");
@@ -982,7 +976,7 @@ sessionStorage.removeItem("poorviCurrentUser");
 window.location.replace("login.html");
 return false;
 }
-$("currentUserLabel").textContent=currentUser.name;
+const headerName=document.getElementById("userHeaderName"); if(headerName)headerName.textContent=currentUser.name;
 const headerName=document.getElementById("userHeaderName");
 if(headerName)headerName.textContent=currentUser.name;
 const avatar=document.getElementById("userAvatar");
@@ -1275,7 +1269,7 @@ if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.29: user identity is controlled only by login.html */
+/* v25.4.31: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
