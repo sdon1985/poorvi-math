@@ -122,7 +122,7 @@ body.test-focus-mode #sheet *{
 body.test-focus-mode ::selection{background:transparent}
 body.test-focus-mode ::-moz-selection{background:transparent}
 </style><style id="kidsMathAnswerBoxSize">
-/* Production v1.0.6: slightly larger Apple Pencil answer boxes */
+/* Production v1.0.7: slightly larger Apple Pencil answer boxes */
 #sheet .answerBox,
 #sheet .answer-box,
 #sheet .answerCanvas,
@@ -149,9 +149,18 @@ body.test-focus-mode ::-moz-selection{background:transparent}
 #sheet .q{font-size:clamp(18px,2.7vw,28px) !important;font-weight:700 !important;line-height:1.15 !important}
 #sheet .cell{height:92px !important}
 #sheet .pad{width:clamp(52px,7vw,72px) !important;height:52px !important}
+</style><style id="kidsMathFullscreenButton">
+#fullscreenBtn{
+  position:fixed;right:14px;top:14px;z-index:1000;
+  border:1px solid #cbd5e1;border-radius:12px;
+  background:#fff;padding:10px 14px;font-weight:800;font-size:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.18);display:none;
+}
+body.test-focus-mode #fullscreenBtn{display:block}
+@media(max-width:600px){#fullscreenBtn{right:10px;top:10px;padding:9px 11px;font-size:13px}}
 </style></head>
 
-<body><header id="userHeader" class="baselineUserHeader">
+<body><button id="fullscreenBtn" type="button" aria-label="Enter full screen">⛶ Full Screen</button><header id="userHeader" class="baselineUserHeader">
   <div>
     <div class="baselineEyebrow">MATH PRACTICE</div>
     <div id="welcomeTitle" class="baselineWelcome">Welcome</div>
@@ -1595,5 +1604,32 @@ document.addEventListener("DOMContentLoaded",setName);window.addEventListener("l
   document.addEventListener("copy",function(e){
     if(active()) e.preventDefault();
   },{capture:true});
+})();
+</script><script id="kidsMathFullscreenControl">
+(function(){
+  function app(){return document.getElementById("app")}
+  async function enterFS(){
+    const a=app();
+    if(!a)return;
+    try{
+      if(!document.fullscreenElement && a.requestFullscreen){
+        await a.requestFullscreen({navigationUI:"hide"});
+      }
+    }catch(e){}
+  }
+  function update(){
+    const b=document.getElementById("fullscreenBtn");
+    if(!b)return;
+    const active=document.body.classList.contains("test-focus-mode");
+    b.style.display=active?"block":"none";
+    b.textContent=document.fullscreenElement?"⛶ Full Screen":"⛶ Re-enter Full Screen";
+  }
+  document.addEventListener("DOMContentLoaded",function(){
+    const b=document.getElementById("fullscreenBtn");
+    if(b)b.addEventListener("click",enterFS);
+    document.addEventListener("fullscreenchange",update);
+    update();
+  });
+  window.addEventListener("fullscreenchange",update);
 })();
 </script></body></html>
