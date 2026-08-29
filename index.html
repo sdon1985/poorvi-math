@@ -117,7 +117,7 @@ body.test-focus-mode #sheet:before{content:"🔒 TEST IN PROGRESS — Complete t
 </nav>
 
 <div class="app" id="app">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v25.4.43</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><h1>📚 Math Practice</h1><div class="muted">Parent-controlled • Apple Pencil friendly • Production v1.0</div><div id="testFocusBadge">🔒 Test in progress • Stay on this screen</div></div></header>
 
 <section class="card" id="parentPanel"><b>Parent Controls</b><div class="muted">Set the test before giving the iPad to your child.</div>
 <div class="controls" style="margin-top:10px">
@@ -1271,7 +1271,7 @@ if(pendingSubmission && reviewUnlocked){renderReview(pendingSubmission);return}
 openReviewWithPin();
 };$("answerMode").onchange=()=>{if(!started)newEdition()};window.onresize=fitGrid;window.onorientationchange=()=>setTimeout(fitGrid,150);updateRangeControls();newEdition();renderWeek();fitGrid();
 
-/* v25.4.43: user identity is controlled only by login.html */
+/* v1.0: user identity is controlled only by login.html */
 (function(){
 window.switchUser=function(){
 try{if(typeof started!=="undefined"&&started&&!done&&typeof hardEndCurrentUserTest==="function")hardEndCurrentUserTest()}catch(e){}
