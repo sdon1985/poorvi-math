@@ -30,6 +30,15 @@ h1{font-size:27px;margin:0 0 4px}
 <style id="adminLoginChoiceStyle">
 .adminChoice{grid-column:1/-1}
 .adminChoice.selected{border-color:#7c3aed;background:#f5f3ff;box-shadow:inset 0 0 0 1px #7c3aed}
+</style><style id="kidsMathVersionBadge">
+#kidsMathVersionBadge{
+position:fixed;left:50%;bottom:8px;transform:translateX(-50%);
+z-index:2147483647;padding:4px 10px;border-radius:999px;
+font:700 11px/1.2 Arial,sans-serif;letter-spacing:.2px;
+background:rgba(255,255,255,.94);color:#475569;
+border:1px solid #cbd5e1;box-shadow:0 2px 8px rgba(0,0,0,.12);
+pointer-events:none;white-space:nowrap;
+}
 </style></head>
 <body>
 <main class="card">
@@ -103,5 +112,5 @@ h1{font-size:27px;margin:0 0 4px}
   window.addEventListener("load",()=>pin.focus());
 })();
 </script>
-</body>
+<div id="kidsMathVersionBadge" aria-label="Production version">Production v1.1.1</div></body>
 </html>

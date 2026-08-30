@@ -122,7 +122,7 @@ body.test-focus-mode #sheet *{
 body.test-focus-mode ::selection{background:transparent}
 body.test-focus-mode ::-moz-selection{background:transparent}
 </style><style id="kidsMathAnswerBoxSize">
-/* Production v1.0.9: slightly larger Apple Pencil answer boxes */
+/* Production v1.1.1: slightly larger Apple Pencil answer boxes */
 #sheet .answerBox,
 #sheet .answer-box,
 #sheet .answerCanvas,
@@ -162,6 +162,15 @@ html.kids-pseudo-fullscreen,html.kids-pseudo-fullscreen body{width:100%;height:1
 html.kids-pseudo-fullscreen #app{position:fixed;inset:0;z-index:9999;overflow:auto;width:100%;height:100%;margin:0;border-radius:0;background:inherit}
 html.kids-pseudo-fullscreen #worksheetCard{min-height:100%;box-sizing:border-box}
 html.kids-pseudo-fullscreen #fullscreenBtn{position:sticky;top:8px;z-index:10001}
+</style><style id="kidsMathVersionBadge">
+#kidsMathVersionBadge{
+position:fixed;left:50%;bottom:8px;transform:translateX(-50%);
+z-index:2147483647;padding:4px 10px;border-radius:999px;
+font:700 11px/1.2 Arial,sans-serif;letter-spacing:.2px;
+background:rgba(255,255,255,.94);color:#475569;
+border:1px solid #cbd5e1;box-shadow:0 2px 8px rgba(0,0,0,.12);
+pointer-events:none;white-space:nowrap;
+}
 </style></head>
 
 <body><header id="userHeader" class="baselineUserHeader">
@@ -857,7 +866,7 @@ $("dayDetails").innerHTML=html;$("dayDetails").classList.remove("hidden");$("day
 }
 function renderMonthly(){
 const now=new Date(),y=now.getFullYear(),m=now.getMonth();
-const items=hist().filter(x=>{
+const items=hist(currentUser?.id||"guest").filter(x=>{
 const d=new Date(x.date+"T12:00:00");
 return d.getFullYear()===y&&d.getMonth()===m;
 });
@@ -1506,13 +1515,42 @@ hideByIds(ids);
 }
 function showResults(){
 setActive("navResults");
-// Results card in the existing v25.4 User Clean - User Switch Fixed page.
 const result=el("result");
-if(result){result.classList.remove("hidden");result.scrollIntoView({behavior:"smooth"});}
-else alert("Results will appear after a test is submitted.");
+if(!result)return;
+const uid=currentUser?.id||"guest";
+const h=hist(uid);
+const pending=getAllPendingForAdmin().filter(x=>(x.userId||"guest")===uid);
+let html='<div class="resultsHeader"><b>📊 Your Results</b><div class="muted">Only worksheets submitted by this logged-in user are shown.</div></div>';
+if(!h.length && !pending.length){
+  html+='<div class="detailSheet" style="margin-top:10px"><div class="muted">No completed worksheets yet.</div></div>';
+}else{
+  if(pending.length){
+    html+='<div class="detailSheet" style="margin-top:10px"><b>⏳ Waiting for Parent Review</b>';
+    pending.slice().reverse().forEach(x=>{
+      html+='<div class="detailRow"><div><b>'+new Date(x.date+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"})+'</b><div class="muted">'+opName(x.operation||"mixed")+' • '+(x.total||0)+' questions</div></div><div class="statusPill reviewNA">Pending</div></div>';
+    });
+    html+='</div>';
+  }
+  if(h.length){
+    html+='<div class="detailSheet" style="margin-top:10px"><b>✅ Completed Worksheets</b>';
+    h.slice().reverse().forEach(x=>{
+      const na=x.notAnswered!=null?x.notAnswered:Math.max(0,(x.total||0)-(x.n||0)-(x.wrong||0));
+      html+='<div class="detailRow" style="grid-template-columns:1.5fr 70px 70px 90px 70px;margin-top:8px">'+
+      '<div><b>'+new Date(x.date+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"})+'</b><div class="muted">'+opName(x.operation||"mixed")+' • '+(x.total||0)+' questions</div></div>'+
+      '<div class="statusPill reviewCorrect">✓ '+(x.n||0)+'</div>'+
+      '<div class="statusPill reviewWrong">✗ '+(x.wrong||0)+'</div>'+
+      '<div class="statusPill reviewNA">— '+na+'</div>'+
+      '<b>'+(x.a||0)+'%</b></div>';
+    });
+    html+='</div>';
+  }
 }
-function showProgress(){
+result.innerHTML=html;
+result.classList.remove("hidden");
+result.scrollIntoView({behavior:"smooth"});
+}function showProgress(){
 setActive("navProgress");
+refreshProgressAfterAdminSave();
 // Existing tracker section.
 const tracker=el("progressTracker");
 if(tracker){tracker.classList.remove("hidden");tracker.scrollIntoView({behavior:"smooth"});}
@@ -1658,4 +1696,4 @@ document.addEventListener("DOMContentLoaded",setName);window.addEventListener("l
     update();
   });
 })();
-</script></body></html>
+</script><div id="kidsMathVersionBadge" aria-label="Production version">Production v1.1.1</div></body></html>
